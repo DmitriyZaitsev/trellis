@@ -18,10 +18,10 @@ public abstract class ModuleContainerDsl {
 
     public fun kmp(
         name: String,
-        targets: KmpTargetsScope.() -> Set<KmpTarget>,
-        hasExplicitApi: Boolean = true,
+        hasExplicitApi: Boolean = false,
         autoConfigureTargets: Boolean = true,
         usesCompose: Boolean = false,
+        targets: KmpTargetsScope.() -> Set<KmpTarget>,
     ) {
         custom(
             KmpLibrary(
@@ -75,7 +75,7 @@ public abstract class ModuleContainerDsl {
         namespace: String,
         usesCompose: Boolean = false,
         flavors: List<Flavor> = emptyList(),
-        hasExplicitApi: Boolean = true,
+        hasExplicitApi: Boolean = false,
     ) {
         androidLibrary(name, Native(namespace, usesCompose, flavors), hasExplicitApi)
     }
@@ -83,7 +83,7 @@ public abstract class ModuleContainerDsl {
     public fun androidLibrary(
         name: String,
         attrs: Native,
-        hasExplicitApi: Boolean = true,
+        hasExplicitApi: Boolean = false,
     ) {
         custom(
             AndroidLibrary(
@@ -99,7 +99,7 @@ public abstract class ModuleContainerDsl {
         group: String? = null,
         version: String? = null,
         mainClass: String? = null,
-        hasExplicitApi: Boolean = mainClass == null,
+        hasExplicitApi: Boolean = false,
         usesCompose: Boolean = false,
     ) {
         custom(

@@ -33,20 +33,20 @@ public interface Module : ModuleModel {
     public data class AndroidLibrary(
         override val name: String,
         override val androidAttrs: AndroidAttrs.Native,
-        override val hasExplicitApi: Boolean = true,
+        override val hasExplicitApi: Boolean = false,
     ) : Module, HasAndroidAttrs
 
     /**
      * A plain Java module (application or library). Optionally provide a main class to make it an
-     * application; explicit API mode defaults to on for libraries only. [group]/[version] are
-    * left to Gradle's defaults when `null`. [usesCompose] applies the Compose compiler and Multiplatform plugins.
+     * application; explicit API mode defaults to off and Compose is opt-in. [group]/[version] are
+     * left to Gradle's defaults when `null`.
      */
     public data class Java(
         override val name: String,
         public val group: String? = null,
         public val version: String? = null,
         public val mainClass: String? = null,
-        override val hasExplicitApi: Boolean = mainClass == null,
+        override val hasExplicitApi: Boolean = false,
         public val usesCompose: Boolean = false,
     ) : Module
 
@@ -58,12 +58,12 @@ public interface Module : ModuleModel {
      * its targets itself (a native framework export, custom binary settings, etc.) instead of
      * relying on the declarative defaults.
      *
-    * Set [usesCompose] to apply the Compose compiler and Multiplatform plugins.
+     * Set [usesCompose] to apply the Compose compiler and Multiplatform plugins.
      */
     public data class KmpLibrary(
         override val name: String,
         public val targets: Set<KmpTarget>,
-        override val hasExplicitApi: Boolean = true,
+        override val hasExplicitApi: Boolean = false,
         public val autoConfigureTargets: Boolean = true,
         public val usesCompose: Boolean = false,
     ) : Module

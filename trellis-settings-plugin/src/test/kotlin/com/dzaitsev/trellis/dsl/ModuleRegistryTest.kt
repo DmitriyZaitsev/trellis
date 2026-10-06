@@ -59,9 +59,9 @@ class ModuleRegistryTest {
         val registry = moduleRegistry {
             group("feature") {
                 group("auth") {
-                    kmp("api", targets = { setOf(jvm) })
+                    kmp("api") { setOf(jvm) }
                 }
-                kmp("profile", targets = { setOf(jvm) })
+                kmp("profile") { setOf(jvm) }
             }
         }
 
@@ -74,7 +74,7 @@ class ModuleRegistryTest {
 
     @Test
     fun `undeclared paths resolve to null`() {
-        val registry = moduleRegistry { group("feature") { kmp("auth", targets = { setOf(jvm) }) } }
+        val registry = moduleRegistry { group("feature") { kmp("auth") { setOf(jvm) } } }
 
         assertNull(registry.findByPath(ProjectPath(":feature")))
         assertNull(registry.findByPath(ProjectPath.ROOT))
@@ -92,7 +92,7 @@ class ModuleRegistryTest {
         assertFailsWith<IllegalArgumentException> {
             moduleRegistry {
                 java("a")
-                kmp("a", targets = { setOf(jvm) })
+                kmp("a") { setOf(jvm) }
             }
         }
     }
@@ -100,7 +100,7 @@ class ModuleRegistryTest {
     @Test
     fun `kmp module without targets is rejected`() {
         val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry { kmp("a", targets = { emptySet() }) }
+            moduleRegistry { kmp("a") { emptySet() } }
         }
         assertTrue("declares no targets" in error.message.orEmpty())
     }
@@ -108,7 +108,7 @@ class ModuleRegistryTest {
     @Test
     fun `repeated target kinds are rejected`() {
         val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry { kmp("a", targets = { js { setOf(browser) } + js { setOf(nodeJs) } }) }
+            moduleRegistry { kmp("a") { js { setOf(browser) } + js { setOf(nodeJs) } } }
         }
         assertTrue("Js" in error.message.orEmpty())
     }
@@ -117,18 +117,22 @@ class ModuleRegistryTest {
     fun `framework exports must be declared`() {
         val error = assertFailsWith<IllegalArgumentException> {
             moduleRegistry {
-                kmp("umbrella", targets = {
-                    setOf(ios(framework = framework("Shared", export = listOf(":missing"))) { setOf(iosArm64) })
-                })
+                kmp("umbrella") {
+                    setOf(ios(framework = framework("Shared", export = listOf(":missing"))) {
+                        setOf(iosArm64)
+                    })
+                }
             }
         }
         assertTrue(":missing" in error.message.orEmpty())
 
         moduleRegistry {
-            kmp("domain", targets = { setOf(ios()) })
-            kmp("umbrella", targets = {
-                setOf(ios(framework = framework("Shared", export = listOf(":domain"))) { setOf(iosArm64) })
-            })
+            kmp("domain") { setOf(ios()) }
+            kmp("umbrella") {
+                setOf(ios(framework = framework("Shared", export = listOf(":domain"))) {
+                    setOf(iosArm64)
+                })
+            }
         }
     }
 
@@ -181,6 +185,6 @@ class ModuleRegistryTest {
 
         assertEquals(false, registry["app"].hasExplicitApi)
         assertEquals(false, registry["server"].hasExplicitApi)
-        assertEquals(true, registry["lib"].hasExplicitApi)
+        assertEquals(false, registry["lib"].hasExplicitApi)
     }
 }

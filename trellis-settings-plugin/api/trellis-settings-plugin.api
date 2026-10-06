@@ -385,8 +385,8 @@ public abstract class com/dzaitsev/trellis/dsl/ModuleContainerDsl {
 	public abstract fun custom (Lcom/dzaitsev/trellis/Module;)V
 	public final fun java (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ)V
 	public static synthetic fun java$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZILjava/lang/Object;)V
-	public final fun kmp (Ljava/lang/String;Lkotlin/jvm/functions/Function1;ZZZ)V
-	public static synthetic fun kmp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ZZZILjava/lang/Object;)V
+	public final fun kmp (Ljava/lang/String;ZZZLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun kmp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;ZZZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun root (Ljava/lang/String;Z)V
 	public static synthetic fun root$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;ZILjava/lang/Object;)V
 }
