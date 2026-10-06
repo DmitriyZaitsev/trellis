@@ -8,5 +8,5 @@ pluginManagement {
     }
 }
 
-include(":trellis-settings")
-include(":trellis-gradle-plugin")
+include(":trellis-settings-plugin")
+include(":trellis-project-plugin")
