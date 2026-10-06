@@ -1,0 +1,104 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.dzaitsev.trellis",
+    "module": "trellis-settings",
+    "version": "0.1.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.3.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "trellis-settings-0.1.0.jar",
+          "url": "trellis-settings-0.1.0.jar",
+          "size": 102594,
+          "sha512": "12e3f8e94f8f40907a32f56646e11f910ca145cc055ddaafb44c09721e54ef821b21bab2b64d658a785a5b46932e44c69f4e283ebb68f51c8049274c44199413",
+          "sha256": "67b15bda5e70adc583838bf0c3e9eca2ea0d36421370e98540a5130de95d2d84",
+          "sha1": "3116cdb00d6e64da4167b7c569c2911a186201a1",
+          "md5": "426f91abcac9675900e67b8539ed4570"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "trellis-settings-0.1.0.jar",
+          "url": "trellis-settings-0.1.0.jar",
+          "size": 102594,
+          "sha512": "12e3f8e94f8f40907a32f56646e11f910ca145cc055ddaafb44c09721e54ef821b21bab2b64d658a785a5b46932e44c69f4e283ebb68f51c8049274c44199413",
+          "sha256": "67b15bda5e70adc583838bf0c3e9eca2ea0d36421370e98540a5130de95d2d84",
+          "sha1": "3116cdb00d6e64da4167b7c569c2911a186201a1",
+          "md5": "426f91abcac9675900e67b8539ed4570"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "trellis-settings-0.1.0-javadoc.jar",
+          "url": "trellis-settings-0.1.0-javadoc.jar",
+          "size": 4786,
+          "sha512": "37c80d21204e6f0b5f885175fec8f8ea56b30122cea976da901957af0cec31fd323dfe11192e161d584cac62d664c18d23756d598c268ca15fe0e00887e28718",
+          "sha256": "8cb9247e6ee6cd14ec681aedc2ccbbb75dff570580f785d840363955304380fb",
+          "sha1": "b2ab54f6156827eb9a147eaaeaab2f9dc9ba3603",
+          "md5": "b18b224511dfed086f2bec02e26bfd6e"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "trellis-settings-0.1.0-sources.jar",
+          "url": "trellis-settings-0.1.0-sources.jar",
+          "size": 22159,
+          "sha512": "ffbf074409d18b9b7116a1d516fbd79bffe17fa6fb181d0fface648c9905cbb9bbc748322d3d1aab581bb785119a262ffaa513dfcad1c54e2fef002cd2f78a6d",
+          "sha256": "469879d40f83befe78dc6db09e73bc10717174a846c022d75f46d81ccea09680",
+          "sha1": "be937ea9e81a231e9a6714c9b40121433aed5abf",
+          "md5": "fe0f69251d57d4b8a2f289c763c586d4"
+        }
+      ]
+    }
+  ]
+}

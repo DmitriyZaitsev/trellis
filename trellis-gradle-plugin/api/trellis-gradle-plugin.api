@@ -1,0 +1,95 @@
+public final class com/dzaitsev/trellis/configurator/ApplyPluginConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> ()V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/DefaultConfiguratorsKt {
+	public static final fun defaultProjectModuleConfigurators (Lcom/dzaitsev/trellis/Module;)Ljava/util/List;
+}
+
+public final class com/dzaitsev/trellis/configurator/ExplicitApiConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> ()V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/JavaConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> ()V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/JvmTargetConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> ()V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/KmpAndroidTargetConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> (Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;)V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/KotlinMultiplatformTargetsConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> ()V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/android/AndroidAppConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> (Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;)V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/android/AndroidCommonConfigKt {
+	public static final fun configureCommonAndroid (Lcom/android/build/api/dsl/CommonExtension;Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public final class com/dzaitsev/trellis/configurator/android/AndroidLibraryConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> (Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;)V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public abstract interface class com/dzaitsev/trellis/plugin/Configurator {
+	public abstract fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)V
+}
+
+public abstract interface class com/dzaitsev/trellis/plugin/ProjectExtension {
+	public abstract fun getAndroidMinSdk ()Lorg/gradle/api/provider/Property;
+	public abstract fun getAndroidTargetSdk ()Lorg/gradle/api/provider/Property;
+	public abstract fun getJavaVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getKotlinVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getUseJavaToolchain ()Lorg/gradle/api/provider/Property;
+}
+
+public final class com/dzaitsev/trellis/plugin/ProjectExtensionKt {
+	public static final fun getJvmTarget (Lcom/dzaitsev/trellis/plugin/ProjectExtension;)Lorg/jetbrains/kotlin/gradle/dsl/JvmTarget;
+	public static final fun getKotlinVersion (Lcom/dzaitsev/trellis/plugin/ProjectExtension;)Lorg/jetbrains/kotlin/gradle/dsl/KotlinVersion;
+}
+
+public abstract class com/dzaitsev/trellis/plugin/ProjectPlugin : org/gradle/api/Plugin {
+	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;)V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public final fun apply (Lorg/gradle/api/Project;)V
+	protected abstract fun immediateConfigurators (Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)Ljava/util/List;
+	protected fun lateConfigurators (Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)Ljava/util/List;
+	protected abstract fun moduleOf (Lorg/gradle/api/Project;)Lcom/dzaitsev/trellis/ModuleModel;
+	protected fun rootConfigurators (Lcom/dzaitsev/trellis/plugin/ProjectExtension;)Ljava/util/List;
+}
+
+public final class com/dzaitsev/trellis/plugin/TrellisConventionsPlugin : com/dzaitsev/trellis/plugin/ProjectPlugin {
+	public fun <init> ()V
+	public synthetic fun immediateConfigurators (Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/ProjectExtension;)Ljava/util/List;
+	public synthetic fun moduleOf (Lorg/gradle/api/Project;)Lcom/dzaitsev/trellis/ModuleModel;
+}
+
+public final class com/dzaitsev/trellis/plugin/TrellisLocalPlugin : org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+
