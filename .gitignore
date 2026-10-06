@@ -284,3 +284,9 @@ render.experimental.xml
 *.keystore
 google-services.json
 *.hprof
+
+# Gradle
+**/build/
+.gradle/
+**/.gradle/
+local.properties
