@@ -335,8 +335,6 @@ public final class com/dzaitsev/trellis/dsl/KmpTargetsScope {
 	public final fun desktop ([Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;Z)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
 	public static synthetic fun desktop$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
 	public static synthetic fun desktop$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;[Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
-	public final fun framework (Ljava/lang/String;Ljava/util/List;ZLjava/util/List;Ljava/util/List;)Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;
-	public static synthetic fun framework$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;Ljava/lang/String;Ljava/util/List;ZLjava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;
 	public final fun getJvm ()Lcom/dzaitsev/trellis/KmpTarget$Jvm;
 	public final fun ios (Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
 	public final fun ios (Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;Lkotlin/jvm/functions/Function1;)Lcom/dzaitsev/trellis/KmpTarget$Ios;

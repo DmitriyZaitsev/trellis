@@ -4,6 +4,7 @@ import com.dzaitsev.trellis.KmpTarget
 import com.dzaitsev.trellis.KmpTarget.Desktop
 import com.dzaitsev.trellis.KmpTarget.Desktop.DesktopHost
 import com.dzaitsev.trellis.KmpTarget.Ios
+import com.dzaitsev.trellis.KmpTarget.Ios.Framework
 import com.dzaitsev.trellis.KmpTarget.Ios.IosHost
 import com.dzaitsev.trellis.KmpTarget.Js
 import com.dzaitsev.trellis.KmpTarget.JsEnv
@@ -118,7 +119,7 @@ class ModuleRegistryTest {
         val error = assertFailsWith<IllegalArgumentException> {
             moduleRegistry {
                 kmp("umbrella") {
-                    setOf(ios(framework = framework("Shared", export = listOf(":missing"))) {
+                    setOf(ios(framework = Framework("Shared", export = listOf(":missing"))) {
                         setOf(iosArm64)
                     })
                 }
@@ -129,7 +130,7 @@ class ModuleRegistryTest {
         moduleRegistry {
             kmp("domain") { setOf(ios()) }
             kmp("umbrella") {
-                setOf(ios(framework = framework("Shared", export = listOf(":domain"))) {
+                setOf(ios(framework = Framework("Shared", export = listOf(":domain"))) {
                     setOf(iosArm64)
                 })
             }
@@ -162,7 +163,7 @@ class ModuleRegistryTest {
         moduleRegistry {
             targets = listOf(
                 scope.ios(),
-                scope.ios(framework = scope.framework("Shared")) { setOf(iosArm64, iosSimulatorArm64) },
+                scope.ios(framework = Framework("Shared")) { setOf(iosArm64, iosSimulatorArm64) },
                 scope.ios { setOf(iosSimulatorArm64, iosX64) },
             )
         }

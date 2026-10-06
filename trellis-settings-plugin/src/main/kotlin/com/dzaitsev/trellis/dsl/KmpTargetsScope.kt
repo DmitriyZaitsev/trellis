@@ -23,14 +23,6 @@ public object KmpTargetsScope {
         hostTests: Boolean = true,
     ): Android = Android(Kmp(namespace, enableResources, hostTests))
 
-    public fun framework(
-        baseName: String,
-        export: List<String> = emptyList(),
-        isStatic: Boolean = true,
-        freeCompilerArgs: List<String> = Framework.DEFAULT_FREE_COMPILER_ARGS,
-        releaseFreeCompilerArgs: List<String> = Framework.DEFAULT_RELEASE_FREE_COMPILER_ARGS,
-    ): Framework = Framework(baseName, export, isStatic, freeCompilerArgs, releaseFreeCompilerArgs)
-
     public fun ios(framework: Framework? = null): Ios = Ios(framework)
 
     public fun ios(
