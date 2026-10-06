@@ -3,7 +3,7 @@ package com.dzaitsev.trellis.configurator
 import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.plugin.Configurator
-import com.dzaitsev.trellis.plugin.ProjectExtension
+import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.tasks.testing.Test
@@ -17,8 +17,8 @@ import org.gradle.kotlin.dsl.withType
  * Sets up group, version and test logging; the JVM target comes from [JvmTargetConfigurator].
  * If [Module.Java.mainClass] is provided, applies the `application` plugin and sets it.
  */
-public class JavaConfigurator : Configurator<Module, ProjectExtension> {
-    override fun configure(project: Project, module: Module, extension: ProjectExtension) {
+public class JavaConfigurator : Configurator<Module, TrellisProjectExtension> {
+    override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         val javaModule = module as? Module.Java ?: return
 
         javaModule.group?.let { project.group = it }

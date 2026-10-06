@@ -96,7 +96,7 @@ publishing {
 tasks.test {
     useJUnitPlatform()
     dependsOn(
-        ":trellis-settings:publishAllPublicationsToTestRepoRepository",
+        ":trellis-settings-plugin:publishAllPublicationsToTestRepoRepository",
         "publishAllPublicationsToTestRepoRepository",
     )
     systemProperty("trellis.testRepo", rootDir.resolve("build/test-repo").absolutePath)

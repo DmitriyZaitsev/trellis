@@ -9,7 +9,7 @@ import com.dzaitsev.trellis.Module.KmpLibrary
 import com.dzaitsev.trellis.Module.Root
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.plugin.Configurator
-import com.dzaitsev.trellis.plugin.ProjectExtension
+import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.Project
 
 /**
@@ -38,11 +38,11 @@ import org.gradle.api.Project
  * `pluginManager.withPlugin(...)` guard fires immediately rather than waiting on the module's own
  * script to (redundantly) re-declare the plugin.
  */
-public class ApplyPluginConfigurator : Configurator<Module, ProjectExtension> {
+public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtension> {
     override fun configure(
         project: Project,
         module: Module,
-        extension: ProjectExtension,
+        extension: TrellisProjectExtension,
     ) {
          val pluginManager = project.pluginManager
          when (module) {

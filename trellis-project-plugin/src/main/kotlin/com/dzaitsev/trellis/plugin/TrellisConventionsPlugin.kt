@@ -7,17 +7,17 @@ import org.gradle.api.Project
 /**
  * Project plugin `com.dzaitsev.trellis.conventions`, for builds that need only the built-in
  * configurators: apply it to the root project and set the `trellis { }` extension. Subclass
- * [ProjectPlugin] directly to add project-specific [Configurator]s.
+ * [TrellisProjectPlugin] directly to add project-specific [Configurator]s.
  */
-public class TrellisConventionsPlugin : ProjectPlugin<Module, ProjectExtension>(
+public class TrellisConventionsPlugin : TrellisProjectPlugin<Module, TrellisProjectExtension>(
     extensionName = "trellis",
-    extensionType = ProjectExtension::class,
+    extensionType = TrellisProjectExtension::class,
 ) {
     override fun moduleOf(project: Project): Module? = project.findModule()
 
     override fun immediateConfigurators(
         module: Module,
-        extension: ProjectExtension,
-    ): List<Configurator<Module, ProjectExtension>> =
+        extension: TrellisProjectExtension,
+    ): List<Configurator<Module, TrellisProjectExtension>> =
         defaultProjectModuleConfigurators(module)
 }

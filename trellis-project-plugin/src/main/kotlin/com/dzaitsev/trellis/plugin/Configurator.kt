@@ -14,6 +14,6 @@ import org.gradle.api.Project
  * but a consumer with a wholly different module model can implement [ModuleModel] directly and
  * write `Configurator` against that type instead.
  */
-public fun interface Configurator<in M : ModuleModel, in E : ProjectExtension> {
+public fun interface Configurator<in M : ModuleModel, in E : TrellisProjectExtension> {
     public fun configure(project: Project, module: M, extension: E)
 }

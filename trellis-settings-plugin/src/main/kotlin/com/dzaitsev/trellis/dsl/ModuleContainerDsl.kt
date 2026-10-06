@@ -1,67 +1,38 @@
 package com.dzaitsev.trellis.dsl
 
 import com.dzaitsev.trellis.KmpTarget
-import com.dzaitsev.trellis.KmpTarget.DesktopHost
-import com.dzaitsev.trellis.KmpTarget.IosHost
-import com.dzaitsev.trellis.KmpTarget.JsEnv
 import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.Module.AndroidApp
 import com.dzaitsev.trellis.Module.AndroidLibrary
 import com.dzaitsev.trellis.Module.Java
 import com.dzaitsev.trellis.Module.KmpLibrary
 import com.dzaitsev.trellis.Module.Root
-import com.dzaitsev.trellis.android.AndroidAttrs.Kmp
 import com.dzaitsev.trellis.android.AndroidAttrs.Native
 import com.dzaitsev.trellis.android.Flavor
 
-@ModuleDslMarker
+@TrellisDslMarker
 public abstract class ModuleContainerDsl {
     public abstract fun custom(module: Module)
 
-    // Members rather than top-level declarations so settings scripts need no imports.
+    // Module-level DSL API.
 
-    public val jvm: KmpTarget.Jvm get() = KmpTarget.Jvm
-    public val browser: JsEnv get() = JsEnv.BROWSER
-    public val nodeJs: JsEnv get() = JsEnv.NODE_JS
-    public val macosArm64: DesktopHost get() = DesktopHost.MACOS_ARM64
-    public val linuxX64: DesktopHost get() = DesktopHost.LINUX_X64
-    public val mingwX64: DesktopHost get() = DesktopHost.MINGW_X64
-    public val iosArm64: IosHost get() = IosHost.IOS_ARM64
-    public val iosSimulatorArm64: IosHost get() = IosHost.IOS_SIMULATOR_ARM64
-    public val iosX64: IosHost get() = IosHost.IOS_X64
-
-    public fun android(
-        namespace: String,
-        enableResources: Boolean = false,
-        hostTests: Boolean = true,
-    ): KmpTarget.Android = KmpTarget.Android(Kmp(namespace, enableResources, hostTests))
-
-    public fun ios(framework: KmpTarget.Ios.Framework? = null): KmpTarget.Ios = KmpTarget.Ios(framework)
-
-    /** iOS targets; no [hosts] means [IosHost.DEFAULT]. */
-    public fun ios(vararg hosts: IosHost, framework: KmpTarget.Ios.Framework? = null): KmpTarget.Ios =
-        KmpTarget.Ios(framework, hosts.toSet().ifEmpty { IosHost.DEFAULT })
-
-    public fun framework(
-        baseName: String,
-        export: List<String> = emptyList(),
-        isStatic: Boolean = true,
-        freeCompilerArgs: List<String> = KmpTarget.Ios.Framework.DEFAULT_FREE_COMPILER_ARGS,
-        releaseFreeCompilerArgs: List<String> = KmpTarget.Ios.Framework.DEFAULT_RELEASE_FREE_COMPILER_ARGS,
-    ): KmpTarget.Ios.Framework =
-        KmpTarget.Ios.Framework(baseName, export, isStatic, freeCompilerArgs, releaseFreeCompilerArgs)
-
-    /** A Kotlin/JS target; no [environments] means all of them. */
-    public fun js(vararg environments: JsEnv, isApplication: Boolean = false): KmpTarget.Js =
-        KmpTarget.Js(isApplication, environments.toSet().ifEmpty { JsEnv.entries.toSet() })
-
-    /** A Kotlin/Wasm target; no [environments] means all of them. */
-    public fun wasm(vararg environments: JsEnv, isApplication: Boolean = false): KmpTarget.Wasm =
-        KmpTarget.Wasm(isApplication, environments.toSet().ifEmpty { JsEnv.entries.toSet() })
-
-    /** Desktop native targets; no [hosts] means all of them. */
-    public fun desktop(vararg hosts: DesktopHost, isApplication: Boolean = false): KmpTarget.Desktop =
-        KmpTarget.Desktop(isApplication, hosts.toSet().ifEmpty { DesktopHost.entries.toSet() })
+    public fun kmp(
+        name: String,
+        targets: KmpTargetsScope.() -> Set<KmpTarget>,
+        hasExplicitApi: Boolean = true,
+        autoConfigureTargets: Boolean = true,
+        usesCompose: Boolean = false,
+    ) {
+        custom(
+            KmpLibrary(
+                name = name,
+                targets = KmpTargetsScope.run(targets),
+                hasExplicitApi = hasExplicitApi,
+                autoConfigureTargets = autoConfigureTargets,
+                usesCompose = usesCompose,
+            ),
+        )
+    }
 
     public fun root(
         name: String,
@@ -140,40 +111,6 @@ public abstract class ModuleContainerDsl {
                 hasExplicitApi = hasExplicitApi,
                 usesCompose = usesCompose,
             ),
-        )
-    }
-
-    public fun kmp(
-        name: String,
-        targets: Set<KmpTarget>,
-        hasExplicitApi: Boolean = true,
-        autoConfigureTargets: Boolean = true,
-        usesCompose: Boolean = false,
-    ) {
-        custom(
-            KmpLibrary(
-                name = name,
-                targets = targets,
-                hasExplicitApi = hasExplicitApi,
-                autoConfigureTargets = autoConfigureTargets,
-                usesCompose = usesCompose,
-            ),
-        )
-    }
-
-    public fun kmp(
-        name: String,
-        target: KmpTarget,
-        hasExplicitApi: Boolean = true,
-        autoConfigureTargets: Boolean = true,
-        usesCompose: Boolean = false,
-    ) {
-        kmp(
-            name = name,
-            targets = setOf(target),
-            hasExplicitApi = hasExplicitApi,
-            autoConfigureTargets = autoConfigureTargets,
-            usesCompose = usesCompose,
         )
     }
 }

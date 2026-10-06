@@ -37,5 +37,7 @@ private fun registryFrom(holder: Any?, owner: String): ModuleRegistry =
  */
 public fun Project.findModule(): Module? {
     val registry = moduleRegistry()
-    return if (path == ProjectPath.ROOT.gradlePath) registry.findRoot(name) else registry.findByPath(ProjectPath.parse(path))
+    return if (path == ProjectPath.ROOT.gradlePath) registry.findRoot(name) else registry.findByPath(
+        ProjectPath(path)
+    )
 }

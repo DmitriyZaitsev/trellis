@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ProjectPluginFunctionalTest {
+class TrellisProjectPluginFunctionalTest {
     @TempDir
     lateinit var dir: File
 
@@ -40,7 +40,7 @@ class ProjectPluginFunctionalTest {
                 createMissingDirectories()
                 group("libs") { group("jvm") { java("core") } }
                 java("app", mainClass = "app.MainKt")
-                kmp("multi", jvm + js(browser))
+                kmp("multi", targets = { setOf(jvm, js { setOf(browser) }) })
             }
             """.trimIndent(),
         )
@@ -82,7 +82,7 @@ class ProjectPluginFunctionalTest {
         settings.writeText(settings.readText()
             .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }")
             .replace("java(\"core\")", "java(\"core\", usesCompose = true)")
-            .replace("kmp(\"multi\", jvm + js(browser))", "kmp(\"multi\", jvm, usesCompose = true)"))
+            .replace("kmp(\"multi\", targets = { setOf(jvm, js { setOf(browser) }) })", "kmp(\"multi\", targets = { setOf(jvm) }, usesCompose = true)"))
         val root = file("build.gradle.kts")
         root.writeText(root.readText().replace("plugins {", """
             plugins {
@@ -93,8 +93,8 @@ class ProjectPluginFunctionalTest {
             file("$path/build.gradle.kts").writeText(
                 "check(plugins.hasPlugin(\"org.jetbrains.kotlin.plugin.compose\"))\n" +
                     "check(plugins.hasPlugin(\"org.jetbrains.compose\"))\n" +
-                    if (path == "multi") "kotlin { sourceSets.commonMain.dependencies { implementation(compose.runtime) } }\n"
-                    else "dependencies { implementation(compose.runtime) }\n",
+                    if (path == "multi") "kotlin { sourceSets.commonMain.dependencies { implementation(\"org.jetbrains.compose.runtime:runtime:1.12.1\") } }\n"
+                    else "dependencies { implementation(\"org.jetbrains.compose.runtime:runtime:1.12.1\") }\n",
             )
         }
         build(":libs:jvm:core:compileKotlin", ":multi:compileKotlinJvm")
@@ -123,7 +123,7 @@ class ProjectPluginFunctionalTest {
             trellis {
                 androidApp("nativeApp", namespace = "fixture.app", usesCompose = true)
                 androidLibrary("nativeLibrary", namespace = "fixture.library", usesCompose = true)
-                kmp("androidMulti", android("fixture.multi", enableResources = true) + jvm, usesCompose = true)
+                kmp("androidMulti", targets = { setOf(android("fixture.multi", enableResources = true), jvm) }, usesCompose = true)
             }
         """.trimIndent())
         val root = file("build.gradle.kts")
@@ -157,7 +157,7 @@ class ProjectPluginFunctionalTest {
             check(plugins.hasPlugin("org.jetbrains.kotlin.plugin.compose"))
             check(plugins.hasPlugin("org.jetbrains.compose"))
             kotlin {
-                sourceSets.commonMain.dependencies { implementation(compose.runtime) }
+                sourceSets.commonMain.dependencies { implementation("org.jetbrains.compose.runtime:runtime:1.12.1") }
                 android {
                     check(namespace == "fixture.multi")
                     check(compileSdk == 37)
@@ -175,10 +175,15 @@ class ProjectPluginFunctionalTest {
     @Test
     fun `local conventions support isolated projects and reuse the configuration cache`() {
         val settings = file("settings.gradle.kts")
-        settings.writeText(settings.readText().replace("jvm + js(browser)", "jvm"))
+        settings.writeText(
+            settings.readText()
+                .replace("setOf(jvm, js { setOf(browser) })", "setOf(jvm)")
+                .replace("jvm + js(browser)", "setOf(jvm)"),
+        )
         file("settings.gradle.kts").appendText(
             "\ntrellis { projectConventions { kotlinVersion = \"$KOTLIN_VERSION\"; javaVersion = 17 } }\n",
         )
+
         file("build.gradle.kts").writeText(
             """
             plugins {

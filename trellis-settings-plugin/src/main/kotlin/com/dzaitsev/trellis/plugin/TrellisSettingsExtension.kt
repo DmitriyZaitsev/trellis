@@ -2,14 +2,14 @@ package com.dzaitsev.trellis.plugin
 
 import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.dsl.ModuleContainerDsl
-import com.dzaitsev.trellis.dsl.ModuleDslMarker
+import com.dzaitsev.trellis.dsl.TrellisDslMarker
 import com.dzaitsev.trellis.dsl.ModuleGroupScope
 import com.dzaitsev.trellis.dsl.ModuleRegistry
 import com.dzaitsev.trellis.dsl.ModuleRegistryBuilder
 import com.dzaitsev.trellis.dsl.ModuleRegistryOptions.MissingDirectoryPolicy
 
-@ModuleDslMarker
-public abstract class SettingsExtension : ModuleContainerDsl() {
+@TrellisDslMarker
+public abstract class TrellisSettingsExtension : ModuleContainerDsl() {
     private val builder = ModuleRegistryBuilder()
     internal var conventions: ProjectConventions? = null
 

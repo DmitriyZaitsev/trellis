@@ -2,7 +2,7 @@ package com.dzaitsev.trellis.dsl
 
 import com.dzaitsev.trellis.Module
 
-@ModuleDslMarker
+@TrellisDslMarker
 public class ModuleGroupScope internal constructor(
     private val builder: ModuleGroupBuilder,
 ) : ModuleContainerDsl() {

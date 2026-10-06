@@ -31,20 +31,20 @@ public data class ProjectPath(
         /** The Gradle root project, `:`. */
         public val ROOT: ProjectPath = ProjectPath(emptyList())
 
-        public fun parse(value: String): ProjectPath {
-            val trimmed = value.trim()
-            require(trimmed.isNotEmpty()) {
-                "Project path must not be blank"
-            }
-
-            val normalized = trimmed.removePrefix(":")
-            return if (normalized.isEmpty()) ROOT else ProjectPath(normalized.split(':'))
-        }
-
         internal fun isValidSegment(value: String): Boolean =
             value.isNotBlank() &&
                 ':' !in value &&
                 '/' !in value &&
                 '\\' !in value
     }
+}
+
+public fun ProjectPath(value: String): ProjectPath {
+    val trimmed = value.trim()
+    require(trimmed.isNotEmpty()) {
+        "Project path must not be blank"
+    }
+
+    val normalized = trimmed.removePrefix(":")
+    return if (normalized.isEmpty()) ProjectPath.ROOT else ProjectPath(normalized.split(':'))
 }

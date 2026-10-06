@@ -5,7 +5,7 @@ import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.android.AndroidAttrs
 import com.dzaitsev.trellis.plugin.Configurator
-import com.dzaitsev.trellis.plugin.ProjectExtension
+import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.kotlin.dsl.configure
@@ -18,8 +18,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * rather than via a separate `com.android.library`/`com.android.application` extension.
  */
 public class KmpAndroidTargetConfigurator(private val androidAttrs: AndroidAttrs.Kmp) :
-    Configurator<Module, ProjectExtension> {
-    override fun configure(project: Project, module: Module, extension: ProjectExtension) {
+    Configurator<Module, TrellisProjectExtension> {
+    override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         project.pluginManager.withPlugin(PluginIds.ANDROID_KMP_LIBRARY) {
             project.pluginManager.withPlugin(PluginIds.KOTLIN_MULTIPLATFORM) {
                 val kmpExt = project.extensions.getByType<KotlinMultiplatformExtension>()

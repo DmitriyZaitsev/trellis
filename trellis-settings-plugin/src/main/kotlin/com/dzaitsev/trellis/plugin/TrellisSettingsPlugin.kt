@@ -13,7 +13,7 @@ import java.nio.file.Path
 /** Settings plugin `com.dzaitsev.trellis`: the `trellis { }` module declarations. */
 public class TrellisSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
-        val extension = settings.extensions.create<SettingsExtension>("trellis")
+        val extension = settings.extensions.create<TrellisSettingsExtension>("trellis")
 
         settings.gradle.settingsEvaluated {
             val registry = extension.buildRegistry()

@@ -42,13 +42,13 @@ public final class com/dzaitsev/trellis/KmpTarget$Desktop$Companion : com/dzaits
 	public synthetic fun of (Z)Lcom/dzaitsev/trellis/KmpTarget;
 }
 
-public final class com/dzaitsev/trellis/KmpTarget$DesktopHost : java/lang/Enum {
-	public static final field LINUX_X64 Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
-	public static final field MACOS_ARM64 Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
-	public static final field MINGW_X64 Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
+public final class com/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost : java/lang/Enum {
+	public static final field LINUX_X64 Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
+	public static final field MACOS_ARM64 Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
+	public static final field MINGW_X64 Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
-	public static fun values ()[Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
+	public static fun valueOf (Ljava/lang/String;)Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
+	public static fun values ()[Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
 }
 
 public final class com/dzaitsev/trellis/KmpTarget$Ios : com/dzaitsev/trellis/KmpTarget {
@@ -92,17 +92,17 @@ public final class com/dzaitsev/trellis/KmpTarget$Ios$Framework$Companion {
 	public final fun getDEFAULT_RELEASE_FREE_COMPILER_ARGS ()Ljava/util/List;
 }
 
-public final class com/dzaitsev/trellis/KmpTarget$IosHost : java/lang/Enum {
-	public static final field Companion Lcom/dzaitsev/trellis/KmpTarget$IosHost$Companion;
-	public static final field IOS_ARM64 Lcom/dzaitsev/trellis/KmpTarget$IosHost;
-	public static final field IOS_SIMULATOR_ARM64 Lcom/dzaitsev/trellis/KmpTarget$IosHost;
-	public static final field IOS_X64 Lcom/dzaitsev/trellis/KmpTarget$IosHost;
+public final class com/dzaitsev/trellis/KmpTarget$Ios$IosHost : java/lang/Enum {
+	public static final field Companion Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost$Companion;
+	public static final field IOS_ARM64 Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
+	public static final field IOS_SIMULATOR_ARM64 Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
+	public static final field IOS_X64 Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/dzaitsev/trellis/KmpTarget$IosHost;
-	public static fun values ()[Lcom/dzaitsev/trellis/KmpTarget$IosHost;
+	public static fun valueOf (Ljava/lang/String;)Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
+	public static fun values ()[Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
 }
 
-public final class com/dzaitsev/trellis/KmpTarget$IosHost$Companion {
+public final class com/dzaitsev/trellis/KmpTarget$Ios$IosHost$Companion {
 	public final fun getDEFAULT ()Ljava/util/Set;
 }
 
@@ -127,12 +127,12 @@ public final class com/dzaitsev/trellis/KmpTarget$Js$Companion : com/dzaitsev/tr
 	public synthetic fun of (ZLjava/util/Set;)Lcom/dzaitsev/trellis/KmpTarget;
 }
 
-public final class com/dzaitsev/trellis/KmpTarget$JsEnvironment : java/lang/Enum {
-	public static final field BROWSER Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;
-	public static final field NODE_JS Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;
+public final class com/dzaitsev/trellis/KmpTarget$JsEnv : java/lang/Enum {
+	public static final field BROWSER Lcom/dzaitsev/trellis/KmpTarget$JsEnv;
+	public static final field NODE_JS Lcom/dzaitsev/trellis/KmpTarget$JsEnv;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;
-	public static fun values ()[Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;
+	public static fun valueOf (Ljava/lang/String;)Lcom/dzaitsev/trellis/KmpTarget$JsEnv;
+	public static fun values ()[Lcom/dzaitsev/trellis/KmpTarget$JsEnv;
 }
 
 public final class com/dzaitsev/trellis/KmpTarget$Jvm : com/dzaitsev/trellis/KmpTarget {
@@ -274,8 +274,8 @@ public abstract interface class com/dzaitsev/trellis/ModuleModel {
 }
 
 public abstract interface class com/dzaitsev/trellis/WebTargetFactory : com/dzaitsev/trellis/AppLibraryFactory {
-	public fun application ([Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;)Lcom/dzaitsev/trellis/KmpTarget;
-	public fun library ([Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;)Lcom/dzaitsev/trellis/KmpTarget;
+	public fun application ([Lcom/dzaitsev/trellis/KmpTarget$JsEnv;)Lcom/dzaitsev/trellis/KmpTarget;
+	public fun library ([Lcom/dzaitsev/trellis/KmpTarget$JsEnv;)Lcom/dzaitsev/trellis/KmpTarget;
 	public fun of (Z)Lcom/dzaitsev/trellis/KmpTarget;
 	public abstract fun of (ZLjava/util/Set;)Lcom/dzaitsev/trellis/KmpTarget;
 }
@@ -327,10 +327,53 @@ public abstract interface class com/dzaitsev/trellis/android/HasAndroidAttrs {
 	public abstract fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs;
 }
 
+public final class com/dzaitsev/trellis/dsl/KmpTargetsScope {
+	public static final field INSTANCE Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;
+	public final fun android (Ljava/lang/String;ZZ)Lcom/dzaitsev/trellis/KmpTarget$Android;
+	public static synthetic fun android$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;Ljava/lang/String;ZZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Android;
+	public final fun desktop (ZLkotlin/jvm/functions/Function1;)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
+	public final fun desktop ([Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;Z)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
+	public static synthetic fun desktop$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
+	public static synthetic fun desktop$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;[Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
+	public final fun framework (Ljava/lang/String;Ljava/util/List;ZLjava/util/List;Ljava/util/List;)Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;
+	public static synthetic fun framework$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;Ljava/lang/String;Ljava/util/List;ZLjava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;
+	public final fun getJvm ()Lcom/dzaitsev/trellis/KmpTarget$Jvm;
+	public final fun ios (Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
+	public final fun ios (Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;Lkotlin/jvm/functions/Function1;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
+	public static synthetic fun ios$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
+	public static synthetic fun ios$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
+	public final fun js (ZLkotlin/jvm/functions/Function1;)Lcom/dzaitsev/trellis/KmpTarget$Js;
+	public final fun js ([Lcom/dzaitsev/trellis/KmpTarget$JsEnv;Z)Lcom/dzaitsev/trellis/KmpTarget$Js;
+	public static synthetic fun js$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Js;
+	public static synthetic fun js$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;[Lcom/dzaitsev/trellis/KmpTarget$JsEnv;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Js;
+	public final fun wasm (ZLkotlin/jvm/functions/Function1;)Lcom/dzaitsev/trellis/KmpTarget$Wasm;
+	public final fun wasm ([Lcom/dzaitsev/trellis/KmpTarget$JsEnv;Z)Lcom/dzaitsev/trellis/KmpTarget$Wasm;
+	public static synthetic fun wasm$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Wasm;
+	public static synthetic fun wasm$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;[Lcom/dzaitsev/trellis/KmpTarget$JsEnv;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Wasm;
+}
+
+public final class com/dzaitsev/trellis/dsl/KmpTargetsScope$DesktopTargetsScope {
+	public static final field INSTANCE Lcom/dzaitsev/trellis/dsl/KmpTargetsScope$DesktopTargetsScope;
+	public final fun getLinuxX64 ()Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
+	public final fun getMacosArm64 ()Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
+	public final fun getMingwX64 ()Lcom/dzaitsev/trellis/KmpTarget$Desktop$DesktopHost;
+}
+
+public final class com/dzaitsev/trellis/dsl/KmpTargetsScope$IosTargetsScope {
+	public static final field INSTANCE Lcom/dzaitsev/trellis/dsl/KmpTargetsScope$IosTargetsScope;
+	public final fun getIosArm64 ()Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
+	public final fun getIosSimulatorArm64 ()Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
+	public final fun getIosX64 ()Lcom/dzaitsev/trellis/KmpTarget$Ios$IosHost;
+}
+
+public final class com/dzaitsev/trellis/dsl/KmpTargetsScope$JsTargetsScope {
+	public static final field INSTANCE Lcom/dzaitsev/trellis/dsl/KmpTargetsScope$JsTargetsScope;
+	public final fun getBrowser ()Lcom/dzaitsev/trellis/KmpTarget$JsEnv;
+	public final fun getNodeJs ()Lcom/dzaitsev/trellis/KmpTarget$JsEnv;
+}
+
 public abstract class com/dzaitsev/trellis/dsl/ModuleContainerDsl {
 	public fun <init> ()V
-	public final fun android (Ljava/lang/String;ZZ)Lcom/dzaitsev/trellis/KmpTarget$Android;
-	public static synthetic fun android$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;ZZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Android;
 	public final fun androidApp (Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;Z)V
 	public final fun androidApp (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;Z)V
 	public static synthetic fun androidApp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;ZILjava/lang/Object;)V
@@ -340,35 +383,12 @@ public abstract class com/dzaitsev/trellis/dsl/ModuleContainerDsl {
 	public static synthetic fun androidLibrary$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;ZILjava/lang/Object;)V
 	public static synthetic fun androidLibrary$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ZILjava/lang/Object;)V
 	public abstract fun custom (Lcom/dzaitsev/trellis/Module;)V
-	public final fun desktop ([Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;Z)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
-	public static synthetic fun desktop$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;[Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Desktop;
-	public final fun framework (Ljava/lang/String;Ljava/util/List;ZLjava/util/List;Ljava/util/List;)Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;
-	public static synthetic fun framework$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/util/List;ZLjava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;
-	public final fun getBrowser ()Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;
-	public final fun getIosArm64 ()Lcom/dzaitsev/trellis/KmpTarget$IosHost;
-	public final fun getIosSimulatorArm64 ()Lcom/dzaitsev/trellis/KmpTarget$IosHost;
-	public final fun getIosX64 ()Lcom/dzaitsev/trellis/KmpTarget$IosHost;
-	public final fun getJvm ()Lcom/dzaitsev/trellis/KmpTarget$Jvm;
-	public final fun getLinuxX64 ()Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
-	public final fun getMacosArm64 ()Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
-	public final fun getMingwX64 ()Lcom/dzaitsev/trellis/KmpTarget$DesktopHost;
-	public final fun getNodeJs ()Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;
-	public final fun ios (Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
-	public final fun ios ([Lcom/dzaitsev/trellis/KmpTarget$IosHost;Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
-	public static synthetic fun ios$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
-	public static synthetic fun ios$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;[Lcom/dzaitsev/trellis/KmpTarget$IosHost;Lcom/dzaitsev/trellis/KmpTarget$Ios$Framework;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Ios;
 	public final fun java (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ)V
 	public static synthetic fun java$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZILjava/lang/Object;)V
-	public final fun js ([Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;Z)Lcom/dzaitsev/trellis/KmpTarget$Js;
-	public static synthetic fun js$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;[Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Js;
-	public final fun kmp (Ljava/lang/String;Lcom/dzaitsev/trellis/KmpTarget;ZZZ)V
-	public final fun kmp (Ljava/lang/String;Ljava/util/Set;ZZZ)V
-	public static synthetic fun kmp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Lcom/dzaitsev/trellis/KmpTarget;ZZZILjava/lang/Object;)V
-	public static synthetic fun kmp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/util/Set;ZZZILjava/lang/Object;)V
+	public final fun kmp (Ljava/lang/String;Lkotlin/jvm/functions/Function1;ZZZ)V
+	public static synthetic fun kmp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ZZZILjava/lang/Object;)V
 	public final fun root (Ljava/lang/String;Z)V
 	public static synthetic fun root$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;ZILjava/lang/Object;)V
-	public final fun wasm ([Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;Z)Lcom/dzaitsev/trellis/KmpTarget$Wasm;
-	public static synthetic fun wasm$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;[Lcom/dzaitsev/trellis/KmpTarget$JsEnvironment;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Wasm;
 }
 
 public final class com/dzaitsev/trellis/dsl/ModuleDeclaration {
@@ -382,9 +402,6 @@ public final class com/dzaitsev/trellis/dsl/ModuleDeclaration {
 	public final fun getPath ()Lcom/dzaitsev/trellis/dsl/ProjectPath;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
-}
-
-public abstract interface annotation class com/dzaitsev/trellis/dsl/ModuleDslMarker : java/lang/annotation/Annotation {
 }
 
 public final class com/dzaitsev/trellis/dsl/ModuleGroupBuilder : com/dzaitsev/trellis/dsl/ModuleContainerDsl {
@@ -461,7 +478,13 @@ public final class com/dzaitsev/trellis/dsl/ProjectPath {
 
 public final class com/dzaitsev/trellis/dsl/ProjectPath$Companion {
 	public final fun getROOT ()Lcom/dzaitsev/trellis/dsl/ProjectPath;
-	public final fun parse (Ljava/lang/String;)Lcom/dzaitsev/trellis/dsl/ProjectPath;
+}
+
+public final class com/dzaitsev/trellis/dsl/ProjectPathKt {
+	public static final fun ProjectPath (Ljava/lang/String;)Lcom/dzaitsev/trellis/dsl/ProjectPath;
+}
+
+public abstract interface annotation class com/dzaitsev/trellis/dsl/TrellisDslMarker : java/lang/annotation/Annotation {
 }
 
 public final class com/dzaitsev/trellis/plugin/ModuleRegistryAccessKt {
@@ -491,7 +514,7 @@ public final class com/dzaitsev/trellis/plugin/ProjectConventions {
 	public final fun setUseJavaToolchain (Z)V
 }
 
-public abstract class com/dzaitsev/trellis/plugin/SettingsExtension : com/dzaitsev/trellis/dsl/ModuleContainerDsl {
+public abstract class com/dzaitsev/trellis/plugin/TrellisSettingsExtension : com/dzaitsev/trellis/dsl/ModuleContainerDsl {
 	public fun <init> ()V
 	public final fun createMissingDirectories ()V
 	public fun custom (Lcom/dzaitsev/trellis/Module;)V

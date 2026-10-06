@@ -1,13 +1,13 @@
 package com.dzaitsev.trellis.configurator
 
 import com.dzaitsev.trellis.KmpTarget
-import com.dzaitsev.trellis.KmpTarget.DesktopHost
-import com.dzaitsev.trellis.KmpTarget.IosHost
+import com.dzaitsev.trellis.KmpTarget.Desktop.DesktopHost
+import com.dzaitsev.trellis.KmpTarget.Ios.IosHost
 import com.dzaitsev.trellis.KmpTarget.JsEnv
 import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.plugin.Configurator
-import com.dzaitsev.trellis.plugin.ProjectExtension
+import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.project
@@ -40,9 +40,9 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
  * Project-specific extras with no generic default (e.g. a shared test-module dependency added to
  * `commonTest`) are not this library's concern; add them via your own additional [Configurator].
  */
-public class KotlinMultiplatformTargetsConfigurator : Configurator<Module, ProjectExtension> {
+public class KotlinMultiplatformTargetsConfigurator : Configurator<Module, TrellisProjectExtension> {
     @OptIn(ExperimentalWasmDsl::class)
-    override fun configure(project: Project, module: Module, extension: ProjectExtension) {
+    override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (module !is Module.KmpLibrary || !module.autoConfigureTargets) return
 
         project.pluginManager.withPlugin(PluginIds.KOTLIN_MULTIPLATFORM) {

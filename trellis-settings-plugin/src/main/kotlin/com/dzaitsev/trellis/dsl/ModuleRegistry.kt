@@ -73,7 +73,7 @@ public class ModuleRegistry internal constructor(
         val unknownExports = module.targets
             .filterIsInstance<KmpTarget.Ios>()
             .flatMap { it.framework?.export.orEmpty() }
-            .filter { findByPath(ProjectPath.parse(it)) == null }
+            .filter { findByPath(ProjectPath(it)) == null }
 
         require(unknownExports.isEmpty()) {
             "iOS framework of $path exports undeclared modules: " + unknownExports.joinToString()
@@ -92,7 +92,7 @@ public class ModuleRegistry internal constructor(
 
     public operator fun get(value: String): Module =
         if (value.startsWith(":")) {
-            getByPath(ProjectPath.parse(value))
+            getByPath(ProjectPath(value))
         } else {
             getByName(value)
         }

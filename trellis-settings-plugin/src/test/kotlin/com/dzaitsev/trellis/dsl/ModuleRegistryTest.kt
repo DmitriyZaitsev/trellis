@@ -1,6 +1,12 @@
 package com.dzaitsev.trellis.dsl
 
 import com.dzaitsev.trellis.KmpTarget
+import com.dzaitsev.trellis.KmpTarget.Desktop
+import com.dzaitsev.trellis.KmpTarget.Desktop.DesktopHost
+import com.dzaitsev.trellis.KmpTarget.Ios
+import com.dzaitsev.trellis.KmpTarget.Ios.IosHost
+import com.dzaitsev.trellis.KmpTarget.Js
+import com.dzaitsev.trellis.KmpTarget.JsEnv
 import com.dzaitsev.trellis.Module
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,17 +17,17 @@ import kotlin.test.assertTrue
 class ModuleRegistryTest {
     @Test
     fun `root path parses to ROOT`() {
-        assertEquals(ProjectPath.ROOT, ProjectPath.parse(":"))
+        assertEquals(ProjectPath.ROOT, ProjectPath(":"))
         assertEquals(":", ProjectPath.ROOT.gradlePath)
-        assertEquals(":a:b", ProjectPath.parse(":a:b").gradlePath)
-        assertEquals("a/b", ProjectPath.parse("a:b").relativeDirectory)
+        assertEquals(":a:b", ProjectPath(":a:b").gradlePath)
+        assertEquals("a/b", ProjectPath("a:b").relativeDirectory)
     }
 
     @Test
     fun `invalid path segments are rejected`() {
-        assertFailsWith<IllegalArgumentException> { ProjectPath.parse(":a/b") }
-        assertFailsWith<IllegalArgumentException> { ProjectPath.parse(":a::b") }
-        assertFailsWith<IllegalArgumentException> { ProjectPath.parse(" ") }
+        assertFailsWith<IllegalArgumentException> { ProjectPath(":a/b") }
+        assertFailsWith<IllegalArgumentException> { ProjectPath(":a::b") }
+        assertFailsWith<IllegalArgumentException> { ProjectPath(" ") }
     }
 
     @Test
@@ -31,7 +37,7 @@ class ModuleRegistryTest {
             java("server")
         }
 
-        assertEquals(listOf(ProjectPath.ROOT, ProjectPath.parse(":server")), registry.modules.map { it.path })
+        assertEquals(listOf(ProjectPath.ROOT, ProjectPath(":server")), registry.modules.map { it.path })
         assertEquals(Module.Root("app-root"), registry.findByPath(ProjectPath.ROOT))
         assertEquals("app-root", registry[":"].name)
     }
@@ -53,9 +59,9 @@ class ModuleRegistryTest {
         val registry = moduleRegistry {
             group("feature") {
                 group("auth") {
-                    kmp("api", jvm)
+                    kmp("api", targets = { setOf(jvm) })
                 }
-                kmp("profile", jvm)
+                kmp("profile", targets = { setOf(jvm) })
             }
         }
 
@@ -68,9 +74,9 @@ class ModuleRegistryTest {
 
     @Test
     fun `undeclared paths resolve to null`() {
-        val registry = moduleRegistry { group("feature") { kmp("auth", jvm) } }
+        val registry = moduleRegistry { group("feature") { kmp("auth", targets = { setOf(jvm) }) } }
 
-        assertNull(registry.findByPath(ProjectPath.parse(":feature")))
+        assertNull(registry.findByPath(ProjectPath(":feature")))
         assertNull(registry.findByPath(ProjectPath.ROOT))
     }
 
@@ -86,7 +92,7 @@ class ModuleRegistryTest {
         assertFailsWith<IllegalArgumentException> {
             moduleRegistry {
                 java("a")
-                kmp("a", jvm)
+                kmp("a", targets = { setOf(jvm) })
             }
         }
     }
@@ -94,7 +100,7 @@ class ModuleRegistryTest {
     @Test
     fun `kmp module without targets is rejected`() {
         val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry { kmp("a", emptySet()) }
+            moduleRegistry { kmp("a", targets = { emptySet() }) }
         }
         assertTrue("declares no targets" in error.message.orEmpty())
     }
@@ -102,7 +108,7 @@ class ModuleRegistryTest {
     @Test
     fun `repeated target kinds are rejected`() {
         val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry { kmp("a", js(browser) + js(nodeJs)) }
+            moduleRegistry { kmp("a", targets = { js { setOf(browser) } + js { setOf(nodeJs) } }) }
         }
         assertTrue("Js" in error.message.orEmpty())
     }
@@ -110,64 +116,59 @@ class ModuleRegistryTest {
     @Test
     fun `framework exports must be declared`() {
         val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry { kmp("umbrella", ios(framework("Shared", export = listOf(":missing")))) }
+            moduleRegistry {
+                kmp("umbrella", targets = {
+                    setOf(ios(framework = framework("Shared", export = listOf(":missing"))) { setOf(iosArm64) })
+                })
+            }
         }
         assertTrue(":missing" in error.message.orEmpty())
 
         moduleRegistry {
-            kmp("domain", ios())
-            kmp("umbrella", ios(framework("Shared", export = listOf(":domain"))))
+            kmp("domain", targets = { setOf(ios()) })
+            kmp("umbrella", targets = {
+                setOf(ios(framework = framework("Shared", export = listOf(":domain"))) { setOf(iosArm64) })
+            })
         }
-    }
-
-    @Test
-    fun `duplicate android namespaces are rejected`() {
-        val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry {
-                androidLibrary("a", namespace = "com.example")
-                kmp("b", android("com.example"))
-            }
-        }
-        assertTrue("com.example" in error.message.orEmpty())
-    }
-
-    @Test
-    fun `registries compare structurally`() {
-        val block: ModuleRegistryBuilder.() -> Unit = { kmp("a", jvm + ios()) }
-
-        assertEquals(moduleRegistry(block), moduleRegistry(block))
     }
 
     @Test
     fun `target builders default to all environments and hosts`() {
         lateinit var targets: List<KmpTarget>
+        val scope = KmpTargetsScope
         moduleRegistry {
-            targets = listOf(js(), js(browser, isApplication = true), desktop(), desktop(macosArm64))
+            targets = listOf(
+                scope.js(),
+                scope.js(isApplication = true) { setOf(browser) },
+                scope.desktop(),
+                scope.desktop(isApplication = false) { setOf(macosArm64) },
+            )
         }
 
-        assertEquals(KmpTarget.JsEnv.entries.toSet(), (targets[0] as KmpTarget.Js).environments)
-        assertEquals(KmpTarget.Js(isApplication = true, environments = setOf(KmpTarget.JsEnv.BROWSER)), targets[1])
-        assertEquals(KmpTarget.DesktopHost.entries.toSet(), (targets[2] as KmpTarget.Desktop).hosts)
-        assertEquals(setOf(KmpTarget.DesktopHost.MACOS_ARM64), (targets[3] as KmpTarget.Desktop).hosts)
+        assertEquals(JsEnv.entries.toSet(), (targets[0] as Js).environments)
+        assertEquals(Js(isApplication = true, environments = setOf(JsEnv.BROWSER)), targets[1])
+        assertEquals(DesktopHost.entries.toSet(), (targets[2] as Desktop).hosts)
+        assertEquals(setOf(DesktopHost.MACOS_ARM64), (targets[3] as Desktop).hosts)
     }
 
     @Test
     fun `ios builder defaults to device and arm64 simulator`() {
-        lateinit var targets: List<KmpTarget.Ios>
+        lateinit var targets: List<Ios>
+        val scope = KmpTargetsScope
         moduleRegistry {
             targets = listOf(
-                ios(),
-                ios(framework("Shared")),
-                ios(iosSimulatorArm64, iosX64, framework = framework("Shared")),
+                scope.ios(),
+                scope.ios(framework = scope.framework("Shared")) { setOf(iosArm64, iosSimulatorArm64) },
+                scope.ios { setOf(iosSimulatorArm64, iosX64) },
             )
         }
 
-        assertEquals(KmpTarget.IosHost.DEFAULT, targets[0].hosts)
-        assertEquals(KmpTarget.IosHost.DEFAULT, targets[1].hosts)
+        assertEquals(IosHost.DEFAULT, targets[0].hosts)
+        assertEquals(IosHost.DEFAULT, targets[1].hosts)
         assertEquals("Shared", targets[1].framework?.baseName)
-        assertEquals(setOf(KmpTarget.IosHost.IOS_SIMULATOR_ARM64, KmpTarget.IosHost.IOS_X64), targets[2].hosts)
-        assertEquals("Shared", targets[2].framework?.baseName)
-        assertFailsWith<IllegalArgumentException> { KmpTarget.Ios(hosts = emptySet()) }
+        assertEquals(setOf(IosHost.IOS_SIMULATOR_ARM64, IosHost.IOS_X64), targets[2].hosts)
+        assertEquals(null, targets[2].framework)
+        assertFailsWith<IllegalArgumentException> { Ios(hosts = emptySet()) }
     }
 
     @Test

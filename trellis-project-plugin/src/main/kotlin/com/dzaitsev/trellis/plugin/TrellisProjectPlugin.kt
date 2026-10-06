@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
  * Subclasses own the shape of their own extension type [E], their module type [M], and the
  * [Configurator]s they ship; this base class only owns module resolution and ordering.
  */
-public abstract class ProjectPlugin<M : ModuleModel, E : ProjectExtension>(
+public abstract class TrellisProjectPlugin<M : ModuleModel, E : TrellisProjectExtension>(
     private val extensionName: String,
     private val extensionType: KClass<E>,
 ) : Plugin<Project> {

@@ -5,5 +5,5 @@ plugins {
 
 tasks.register("ciCheck") {
 	group = "verification"
-	dependsOn(":trellis-settings:check", ":trellis-gradle-plugin:check")
+	dependsOn(":trellis-settings-plugin:check", ":trellis-project-plugin:check")
 }

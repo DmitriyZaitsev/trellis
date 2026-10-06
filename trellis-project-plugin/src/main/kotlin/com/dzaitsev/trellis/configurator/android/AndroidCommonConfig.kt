@@ -3,7 +3,7 @@ package com.dzaitsev.trellis.configurator.android
 import com.android.build.api.dsl.CommonExtension
 import com.dzaitsev.trellis.android.AndroidAttrs
 import com.dzaitsev.trellis.PluginIds
-import com.dzaitsev.trellis.plugin.ProjectExtension
+import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -30,7 +30,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 public fun CommonExtension.configureCommonAndroid(
     project: Project,
     androidAttrs: AndroidAttrs.Native,
-    extension: ProjectExtension,
+    extension: TrellisProjectExtension,
 ) {
     if (androidAttrs.usesCompose) {
         project.pluginManager.apply(PluginIds.KOTLIN_COMPOSE)

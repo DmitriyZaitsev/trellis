@@ -9,7 +9,7 @@ import com.dzaitsev.trellis.Module.KmpLibrary
 import com.dzaitsev.trellis.configurator.android.AndroidAppConfigurator
 import com.dzaitsev.trellis.configurator.android.AndroidLibraryConfigurator
 import com.dzaitsev.trellis.plugin.Configurator
-import com.dzaitsev.trellis.plugin.ProjectExtension
+import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 
 /**
  * The built-in [Configurator]s this library ships for a [Module], dispatched by module
@@ -20,7 +20,7 @@ import com.dzaitsev.trellis.plugin.ProjectExtension
  * Kotlin Multiplatform targets of a [Module.KmpLibrary], then enables `explicitApi()` per
  * [Module.hasExplicitApi] ([ExplicitApiConfigurator]).
  *
- * Call this from your own [com.dzaitsev.trellis.plugin.ProjectPlugin]
+ * Call this from your own [com.dzaitsev.trellis.plugin.TrellisProjectPlugin]
  * subclass's `immediateConfigurators` override and append your own project-specific
  * [Configurator]s (static analysis, publishing, shared test dependencies, etc.):
  * ```
@@ -30,7 +30,7 @@ import com.dzaitsev.trellis.plugin.ProjectExtension
  *     )
  * ```
  */
-public fun <E : ProjectExtension> defaultProjectModuleConfigurators(module: Module): List<Configurator<Module, E>> =
+public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(module: Module): List<Configurator<Module, E>> =
     listOfNotNull(
         ApplyPluginConfigurator(),
         when (module) {

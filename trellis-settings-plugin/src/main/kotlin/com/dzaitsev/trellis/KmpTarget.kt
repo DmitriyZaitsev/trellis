@@ -88,28 +88,22 @@ public interface KmpTarget {
                 )
             }
         }
-    }
 
-    /** Kotlin/Native iOS targets an [Ios] target can register. */
-    public enum class IosHost {
-        IOS_ARM64,
-        IOS_SIMULATOR_ARM64,
-        IOS_X64,
-        ;
+        /** Kotlin/Native iOS targets an [Ios] target can register. */
+        public enum class IosHost {
+            IOS_ARM64,
+            IOS_SIMULATOR_ARM64,
+            IOS_X64,
+            ;
 
-        public companion object {
-            /** Device and Apple Silicon simulator; `IOS_X64` is opt-in as Kotlin is phasing out x86_64 Apple targets. */
-            public val DEFAULT: Set<IosHost> = setOf(IOS_ARM64, IOS_SIMULATOR_ARM64)
+            public companion object {
+                /** Device and Apple Silicon simulator; `IOS_X64` is opt-in as Kotlin is phasing out x86_64 Apple targets. */
+                public val DEFAULT: Set<IosHost> = setOf(IOS_ARM64, IOS_SIMULATOR_ARM64)
+            }
         }
     }
 
     public data object Jvm : KmpTarget
-
-    /** Execution environments of a [Js] or [Wasm] target. */
-    public enum class JsEnv {
-        BROWSER,
-        NODE_JS,
-    }
 
     /** Kotlin/JS target: registers the `browser()` and/or `nodejs()` sub-targets listed in [environments].
      *
@@ -152,6 +146,12 @@ public interface KmpTarget {
         }
     }
 
+    /** Execution environments of a [Js] or [Wasm] target. */
+    public enum class JsEnv {
+        BROWSER,
+        NODE_JS,
+    }
+
     /** Desktop native targets: `macosArm64`, `linuxX64`, `mingwX64` (Windows), limited to [hosts].
      *
      * Set [isApplication] to `true` to additionally register an executable binary on each of
@@ -171,13 +171,13 @@ public interface KmpTarget {
         public companion object : AppLibraryFactory<Desktop> {
             override fun of(isApplication: Boolean): Desktop = Desktop(isApplication)
         }
-    }
 
-    /** Kotlin/Native desktop targets a [Desktop] target can register. */
-    public enum class DesktopHost {
-        MACOS_ARM64,
-        LINUX_X64,
-        MINGW_X64,
+        /** Kotlin/Native desktop targets a [Desktop] target can register. */
+        public enum class DesktopHost {
+            MACOS_ARM64,
+            LINUX_X64,
+            MINGW_X64,
+        }
     }
 }
 

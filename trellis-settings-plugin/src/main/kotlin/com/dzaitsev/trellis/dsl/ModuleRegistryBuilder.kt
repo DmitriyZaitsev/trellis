@@ -2,7 +2,7 @@ package com.dzaitsev.trellis.dsl
 
 import com.dzaitsev.trellis.Module
 
-@ModuleDslMarker
+@TrellisDslMarker
 public class ModuleRegistryBuilder : ModuleContainerDsl() {
     private val modules = mutableListOf<ModuleDeclaration>()
     internal var missingDirectoryPolicy: ModuleRegistryOptions.MissingDirectoryPolicy = ModuleRegistryOptions.MissingDirectoryPolicy.FAIL

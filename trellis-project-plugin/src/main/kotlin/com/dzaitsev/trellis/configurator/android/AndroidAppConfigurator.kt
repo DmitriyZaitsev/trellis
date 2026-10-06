@@ -5,7 +5,7 @@ import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.android.AndroidAttrs
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.plugin.Configurator
-import com.dzaitsev.trellis.plugin.ProjectExtension
+import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
@@ -16,8 +16,8 @@ import org.gradle.kotlin.dsl.configure
  * `buildConfig = false`) are defaults that the module's `android { }` block can override.
  */
 public class AndroidAppConfigurator(private val androidAttrs: AndroidAttrs.Native) :
-    Configurator<Module, ProjectExtension> {
-    override fun configure(project: Project, module: Module, extension: ProjectExtension) {
+    Configurator<Module, TrellisProjectExtension> {
+    override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         project.pluginManager.withPlugin(PluginIds.ANDROID_APPLICATION) {
             project.extensions.configure<ApplicationExtension> {
                 configureCommonAndroid(project, androidAttrs, extension)
