@@ -33,10 +33,11 @@ class ModuleRegistryTest {
 
     @Test
     fun `root module maps to the root path, not a subproject`() {
-        val registry = moduleRegistry {
-            root("app-root")
-            java("server")
-        }
+        val registry =
+            moduleRegistry {
+                root("app-root")
+                java("server")
+            }
 
         assertEquals(listOf(ProjectPath.ROOT, ProjectPath(":server")), registry.modules.map { it.path })
         assertEquals(Module.Root("app-root"), registry.findByPath(ProjectPath.ROOT))
@@ -45,10 +46,11 @@ class ModuleRegistryTest {
 
     @Test
     fun `several roots resolve by root project name`() {
-        val registry = moduleRegistry {
-            root("android")
-            root("ios")
-        }
+        val registry =
+            moduleRegistry {
+                root("android")
+                root("ios")
+            }
 
         assertEquals("ios", registry.findRoot("ios")?.name)
         assertNull(registry.findRoot("other"))
@@ -57,14 +59,15 @@ class ModuleRegistryTest {
 
     @Test
     fun `nested groups build nested paths`() {
-        val registry = moduleRegistry {
-            group("feature") {
-                group("auth") {
-                    kmp("api") { setOf(jvm) }
+        val registry =
+            moduleRegistry {
+                group("feature") {
+                    group("auth") {
+                        kmp("api") { setOf(jvm) }
+                    }
+                    kmp("profile") { setOf(jvm) }
                 }
-                kmp("profile") { setOf(jvm) }
             }
-        }
 
         assertEquals(
             listOf(":feature:auth:api", ":feature:profile"),
@@ -100,39 +103,46 @@ class ModuleRegistryTest {
 
     @Test
     fun `kmp module without targets is rejected`() {
-        val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry { kmp("a") { emptySet() } }
-        }
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                moduleRegistry { kmp("a") { emptySet() } }
+            }
         assertTrue("declares no targets" in error.message.orEmpty())
     }
 
     @Test
     fun `repeated target kinds are rejected`() {
-        val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry { kmp("a") { js { setOf(browser) } + js { setOf(nodeJs) } } }
-        }
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                moduleRegistry { kmp("a") { js { setOf(browser) } + js { setOf(nodeJs) } } }
+            }
         assertTrue("Js" in error.message.orEmpty())
     }
 
     @Test
     fun `framework exports must be declared`() {
-        val error = assertFailsWith<IllegalArgumentException> {
-            moduleRegistry {
-                kmp("umbrella") {
-                    setOf(ios(framework = Framework("Shared", export = listOf(":missing"))) {
-                        setOf(iosArm64)
-                    })
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                moduleRegistry {
+                    kmp("umbrella") {
+                        setOf(
+                            ios(framework = Framework("Shared", export = listOf(":missing"))) {
+                                setOf(iosArm64)
+                            },
+                        )
+                    }
                 }
             }
-        }
         assertTrue(":missing" in error.message.orEmpty())
 
         moduleRegistry {
             kmp("domain") { setOf(ios()) }
             kmp("umbrella") {
-                setOf(ios(framework = Framework("Shared", export = listOf(":domain"))) {
-                    setOf(iosArm64)
-                })
+                setOf(
+                    ios(framework = Framework("Shared", export = listOf(":domain"))) {
+                        setOf(iosArm64)
+                    },
+                )
             }
         }
     }
@@ -142,12 +152,13 @@ class ModuleRegistryTest {
         lateinit var targets: List<KmpTarget>
         val scope = KmpTargetsScope
         moduleRegistry {
-            targets = listOf(
-                scope.js(),
-                scope.js(isApplication = true) { setOf(browser) },
-                scope.desktop(),
-                scope.desktop(isApplication = false) { setOf(macosArm64) },
-            )
+            targets =
+                listOf(
+                    scope.js(),
+                    scope.js(isApplication = true) { setOf(browser) },
+                    scope.desktop(),
+                    scope.desktop(isApplication = false) { setOf(macosArm64) },
+                )
         }
 
         assertEquals(JsEnv.entries.toSet(), (targets[0] as Js).environments)
@@ -161,11 +172,12 @@ class ModuleRegistryTest {
         lateinit var targets: List<Ios>
         val scope = KmpTargetsScope
         moduleRegistry {
-            targets = listOf(
-                scope.ios(),
-                scope.ios(framework = Framework("Shared")) { setOf(iosArm64, iosSimulatorArm64) },
-                scope.ios { setOf(iosSimulatorArm64, iosX64) },
-            )
+            targets =
+                listOf(
+                    scope.ios(),
+                    scope.ios(framework = Framework("Shared")) { setOf(iosArm64, iosSimulatorArm64) },
+                    scope.ios { setOf(iosSimulatorArm64, iosX64) },
+                )
         }
 
         assertEquals(IosHost.DEFAULT, targets[0].hosts)
@@ -178,11 +190,12 @@ class ModuleRegistryTest {
 
     @Test
     fun `application modules default to no explicit api`() {
-        val registry = moduleRegistry {
-            androidApp("app", namespace = "com.example.app")
-            java("server", mainClass = "MainKt")
-            java("lib")
-        }
+        val registry =
+            moduleRegistry {
+                androidApp("app", namespace = "com.example.app")
+                java("server", mainClass = "MainKt")
+                java("lib")
+            }
 
         assertEquals(false, registry["app"].hasExplicitApi)
         assertEquals(false, registry["server"].hasExplicitApi)

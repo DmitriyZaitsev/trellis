@@ -44,37 +44,37 @@ public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtens
         module: Module,
         extension: TrellisProjectExtension,
     ) {
-         val pluginManager = project.pluginManager
-         when (module) {
-             is AndroidApp -> {
-                 pluginManager.apply(PluginIds.ANDROID_APPLICATION)
-                 applyKotlinAndroidUnlessBuiltIn(project)
-             }
-             is AndroidLibrary -> {
-                 pluginManager.apply(PluginIds.ANDROID_LIBRARY)
-                 applyKotlinAndroidUnlessBuiltIn(project)
-             }
-             is Java -> {
-                 pluginManager.apply(PluginIds.KOTLIN_JVM)
-                 if (module.usesCompose) {
-                     pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
-                     pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
-                 }
-             }
-             is KmpLibrary -> {
-                 pluginManager.apply(PluginIds.KOTLIN_MULTIPLATFORM)
-                 if (module.targets.any { it is KmpTarget.Android }) {
-                     pluginManager.apply(PluginIds.ANDROID_KMP_LIBRARY)
-                 }
-                 if (module.usesCompose) {
-                     pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
-                     pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
-                 }
-             }
+        val pluginManager = project.pluginManager
+        when (module) {
+            is AndroidApp -> {
+                pluginManager.apply(PluginIds.ANDROID_APPLICATION)
+                applyKotlinAndroidUnlessBuiltIn(project)
+            }
+            is AndroidLibrary -> {
+                pluginManager.apply(PluginIds.ANDROID_LIBRARY)
+                applyKotlinAndroidUnlessBuiltIn(project)
+            }
+            is Java -> {
+                pluginManager.apply(PluginIds.KOTLIN_JVM)
+                if (module.usesCompose) {
+                    pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
+                    pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
+                }
+            }
+            is KmpLibrary -> {
+                pluginManager.apply(PluginIds.KOTLIN_MULTIPLATFORM)
+                if (module.targets.any { it is KmpTarget.Android }) {
+                    pluginManager.apply(PluginIds.ANDROID_KMP_LIBRARY)
+                }
+                if (module.usesCompose) {
+                    pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
+                    pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
+                }
+            }
 
-             is Root -> Unit
-             else -> Unit // consumer-added Module kinds: no built-in default
-         }
+            is Root -> Unit
+            else -> Unit // consumer-added Module kinds: no built-in default
+        }
     }
 
     // AGP 9 built-in Kotlin registers the `kotlin` extension itself and rejects kotlin-android;

@@ -12,10 +12,11 @@ public class ModuleGroupBuilder internal constructor(
         require(module !is Module.Root) {
             "Root module '${module.name}' cannot be declared inside group '$prefix'"
         }
-        modules += ModuleDeclaration(
-            path = prefix.child(module.name),
-            module = module,
-        )
+        modules +=
+            ModuleDeclaration(
+                path = prefix.child(module.name),
+                module = module,
+            )
     }
 
     public fun group(
@@ -25,6 +26,5 @@ public class ModuleGroupBuilder internal constructor(
         modules += ModuleGroupBuilder(prefix.child(name)).apply(block).build()
     }
 
-    internal fun build(): List<ModuleDeclaration> =
-        modules.toList()
+    internal fun build(): List<ModuleDeclaration> = modules.toList()
 }

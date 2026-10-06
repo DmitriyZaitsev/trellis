@@ -30,24 +30,30 @@ public object KmpTargetsScope {
         hosts: IosTargetsScope.() -> Set<IosHost>,
     ): Ios = Ios(framework, IosTargetsScope.run(hosts))
 
-    public fun js(vararg environments: JsEnv, isApplication: Boolean = false): Js =
-        Js(isApplication, environments.toSet().ifEmpty { JsEnv.entries.toSet() })
+    public fun js(
+        vararg environments: JsEnv,
+        isApplication: Boolean = false,
+    ): Js = Js(isApplication, environments.toSet().ifEmpty { JsEnv.entries.toSet() })
 
     public fun js(
         isApplication: Boolean = false,
         environments: JsTargetsScope.() -> Set<JsEnv>,
     ): Js = Js(isApplication, JsTargetsScope.run(environments))
 
-    public fun wasm(vararg environments: JsEnv, isApplication: Boolean = false): Wasm =
-        Wasm(isApplication, environments.toSet().ifEmpty { JsEnv.entries.toSet() })
+    public fun wasm(
+        vararg environments: JsEnv,
+        isApplication: Boolean = false,
+    ): Wasm = Wasm(isApplication, environments.toSet().ifEmpty { JsEnv.entries.toSet() })
 
     public fun wasm(
         isApplication: Boolean = false,
         environments: JsTargetsScope.() -> Set<JsEnv>,
     ): Wasm = Wasm(isApplication, JsTargetsScope.run(environments))
 
-    public fun desktop(vararg hosts: DesktopHost, isApplication: Boolean = false): Desktop =
-        Desktop(isApplication, hosts.toSet().ifEmpty { DesktopHost.entries.toSet() })
+    public fun desktop(
+        vararg hosts: DesktopHost,
+        isApplication: Boolean = false,
+    ): Desktop = Desktop(isApplication, hosts.toSet().ifEmpty { DesktopHost.entries.toSet() })
 
     public fun desktop(
         isApplication: Boolean = false,

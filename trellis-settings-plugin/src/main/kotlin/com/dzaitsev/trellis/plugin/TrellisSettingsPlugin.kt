@@ -40,15 +40,17 @@ public class TrellisSettingsPlugin : Plugin<Settings> {
         settings: Settings,
         registry: ModuleRegistry,
     ) {
-        val rootDirectory = settings.settingsDir.toPath()
-            .toAbsolutePath()
-            .normalize()
+        val rootDirectory =
+            settings.settingsDir.toPath()
+                .toAbsolutePath()
+                .normalize()
 
         registry.modules.filterNot { it.path.isRoot }.forEach { declaration ->
             settings.include(declaration.path.gradlePath)
-            val projectDirectory = settings.project(declaration.path.gradlePath).projectDir.toPath()
-                .toAbsolutePath()
-                .normalize()
+            val projectDirectory =
+                settings.project(declaration.path.gradlePath).projectDir.toPath()
+                    .toAbsolutePath()
+                    .normalize()
 
             require(projectDirectory.startsWith(rootDirectory)) {
                 "Project path escapes settings directory: " +
@@ -58,7 +60,8 @@ public class TrellisSettingsPlugin : Plugin<Settings> {
             ensureDirectory(
                 directory = projectDirectory,
                 path = declaration.path,
-                policy = registry
+                policy =
+                registry
                     .moduleRegistryOptions
                     .missingDirectoryPolicy,
             )

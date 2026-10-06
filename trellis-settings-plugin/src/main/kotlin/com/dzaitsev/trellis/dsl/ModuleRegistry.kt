@@ -16,23 +16,25 @@ public class ModuleRegistry internal constructor(
     internal val moduleRegistryOptions: ModuleRegistryOptions,
 ) {
     init {
-        val duplicatePaths = modules
-            .filterNot { it.path.isRoot }
-            .groupingBy { it.path }
-            .eachCount()
-            .filterValues { it > 1 }
-            .keys
+        val duplicatePaths =
+            modules
+                .filterNot { it.path.isRoot }
+                .groupingBy { it.path }
+                .eachCount()
+                .filterValues { it > 1 }
+                .keys
 
         require(duplicatePaths.isEmpty()) {
             "Duplicate Gradle project paths: " +
                 duplicatePaths.joinToString { it.gradlePath }
         }
 
-        val duplicateRootNames = roots
-            .groupingBy { it.name }
-            .eachCount()
-            .filterValues { it > 1 }
-            .keys
+        val duplicateRootNames =
+            roots
+                .groupingBy { it.name }
+                .eachCount()
+                .filterValues { it > 1 }
+                .keys
 
         require(duplicateRootNames.isEmpty()) {
             "Duplicate root module names: " + duplicateRootNames.joinToString()
@@ -42,38 +44,45 @@ public class ModuleRegistry internal constructor(
             if (module is Module.KmpLibrary) validateKmp(path, module)
         }
 
-        val duplicateNamespaces = modules
-            .mapNotNull { declaration -> declaration.module.getAndroidAttrs()?.let { it.namespace to declaration.path } }
-            .groupBy({ it.first }, { it.second })
-            .filterValues { it.size > 1 }
+        val duplicateNamespaces =
+            modules
+                .mapNotNull { declaration -> declaration.module.getAndroidAttrs()?.let { it.namespace to declaration.path } }
+                .groupBy({ it.first }, { it.second })
+                .filterValues { it.size > 1 }
 
         require(duplicateNamespaces.isEmpty()) {
-            "Duplicate Android namespaces: " + duplicateNamespaces.entries.joinToString { (namespace, paths) ->
-                "$namespace (${paths.joinToString()})"
-            }
+            "Duplicate Android namespaces: " +
+                duplicateNamespaces.entries.joinToString { (namespace, paths) ->
+                    "$namespace (${paths.joinToString()})"
+                }
         }
     }
 
-    private fun validateKmp(path: ProjectPath, module: Module.KmpLibrary) {
+    private fun validateKmp(
+        path: ProjectPath,
+        module: Module.KmpLibrary,
+    ) {
         require(module.targets.isNotEmpty()) {
             "KMP module $path declares no targets"
         }
 
-        val repeatedKinds = module.targets
-            .groupingBy { it::class }
-            .eachCount()
-            .filterValues { it > 1 }
-            .keys
+        val repeatedKinds =
+            module.targets
+                .groupingBy { it::class }
+                .eachCount()
+                .filterValues { it > 1 }
+                .keys
 
         require(repeatedKinds.isEmpty()) {
             "KMP module $path declares more than one target of kind: " +
                 repeatedKinds.joinToString { it.simpleName.orEmpty() }
         }
 
-        val unknownExports = module.targets
-            .filterIsInstance<KmpTarget.Ios>()
-            .flatMap { it.framework?.export.orEmpty() }
-            .filter { findByPath(ProjectPath(it)) == null }
+        val unknownExports =
+            module.targets
+                .filterIsInstance<KmpTarget.Ios>()
+                .flatMap { it.framework?.export.orEmpty() }
+                .filter { findByPath(ProjectPath(it)) == null }
 
         require(unknownExports.isEmpty()) {
             "iOS framework of $path exports undeclared modules: " + unknownExports.joinToString()
@@ -97,8 +106,7 @@ public class ModuleRegistry internal constructor(
             getByName(value)
         }
 
-    public operator fun get(path: ProjectPath): Module =
-        getByPath(path)
+    public operator fun get(path: ProjectPath): Module = getByPath(path)
 
     public fun getByName(name: String): Module {
         val matches = modules.filter { it.module.name == name }
@@ -106,11 +114,12 @@ public class ModuleRegistry internal constructor(
         return when (matches.size) {
             0 -> error("Unknown module: $name")
             1 -> matches.single().module
-            else -> error(
-                "Ambiguous module name '$name'. " +
-                    "Matching project paths: " +
-                    matches.joinToString { it.path.gradlePath },
-            )
+            else ->
+                error(
+                    "Ambiguous module name '$name'. " +
+                        "Matching project paths: " +
+                        matches.joinToString { it.path.gradlePath },
+                )
         }
     }
 
@@ -131,8 +140,7 @@ public class ModuleRegistry internal constructor(
         }
 
     /** The root module named [rootProjectName], falling back to the single declared root module. */
-    public fun findRoot(rootProjectName: String): Module? =
-        roots.firstOrNull { it.name == rootProjectName } ?: roots.singleOrNull()
+    public fun findRoot(rootProjectName: String): Module? = roots.firstOrNull { it.name == rootProjectName } ?: roots.singleOrNull()
 
     override fun equals(other: Any?): Boolean =
         other is ModuleRegistry &&

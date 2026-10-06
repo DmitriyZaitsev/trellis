@@ -2,8 +2,8 @@ package com.dzaitsev.trellis.configurator.android
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.dzaitsev.trellis.Module
-import com.dzaitsev.trellis.android.AndroidAttrs
 import com.dzaitsev.trellis.PluginIds
+import com.dzaitsev.trellis.android.AndroidAttrs
 import com.dzaitsev.trellis.plugin.Configurator
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.Project

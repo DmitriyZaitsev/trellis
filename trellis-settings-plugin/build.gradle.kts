@@ -78,9 +78,11 @@ tasks.named("check") {
 
 tasks.named("publishPlugins") {
     doFirst {
-        check(providers.gradleProperty("trellis.allowPublicPublish").orNull == "true" &&
-            providers.gradleProperty("trellis.website").isPresent &&
-            providers.gradleProperty("trellis.vcsUrl").isPresent) {
+        check(
+            providers.gradleProperty("trellis.allowPublicPublish").orNull == "true" &&
+                providers.gradleProperty("trellis.website").isPresent &&
+                providers.gradleProperty("trellis.vcsUrl").isPresent,
+        ) {
             "Public publishing requires verified trellis.website / trellis.vcsUrl and explicit trellis.allowPublicPublish=true"
         }
     }

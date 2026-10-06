@@ -79,22 +79,32 @@ class TrellisProjectPluginFunctionalTest {
     @Test
     fun `compose jvm and kmp modules apply compiler and multiplatform plugins`() {
         val settings = file("settings.gradle.kts")
-        settings.writeText(settings.readText()
-            .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }")
-            .replace("java(\"core\")", "java(\"core\", usesCompose = true)")
-            .replace("kmp(\"multi\", targets = { setOf(jvm, js { setOf(browser) }) })", "kmp(\"multi\", targets = { setOf(jvm) }, usesCompose = true)"))
+        settings.writeText(
+            settings.readText()
+                .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }")
+                .replace("java(\"core\")", "java(\"core\", usesCompose = true)")
+                .replace("kmp(\"multi\", targets = { setOf(jvm, js { setOf(browser) }) })", "kmp(\"multi\", targets = { setOf(jvm) }, usesCompose = true)"),
+        )
         val root = file("build.gradle.kts")
-        root.writeText(root.readText().replace("plugins {", """
+        root.writeText(
+            root.readText().replace(
+                "plugins {",
+                """
             plugins {
                 id("org.jetbrains.kotlin.plugin.compose") version "$KOTLIN_VERSION" apply false
                 id("org.jetbrains.compose") version "1.12.1" apply false
-        """.trimIndent()))
+                """.trimIndent(),
+            ),
+        )
         listOf("libs/jvm/core", "multi").forEach { path ->
             file("$path/build.gradle.kts").writeText(
                 "check(plugins.hasPlugin(\"org.jetbrains.kotlin.plugin.compose\"))\n" +
                     "check(plugins.hasPlugin(\"org.jetbrains.compose\"))\n" +
-                    if (path == "multi") "kotlin { sourceSets.commonMain.dependencies { implementation(\"org.jetbrains.compose.runtime:runtime:1.12.1\") } }\n"
-                    else "dependencies { implementation(\"org.jetbrains.compose.runtime:runtime:1.12.1\") }\n",
+                    if (path == "multi") {
+                        "kotlin { sourceSets.commonMain.dependencies { implementation(\"org.jetbrains.compose.runtime:runtime:1.12.1\") } }\n"
+                    } else {
+                        "dependencies { implementation(\"org.jetbrains.compose.runtime:runtime:1.12.1\") }\n"
+                    },
             )
         }
         build(":libs:jvm:core:compileKotlin", ":multi:compileKotlinJvm")
@@ -117,24 +127,31 @@ class TrellisProjectPluginFunctionalTest {
             Properties().apply { setProperty("sdk.dir", sdk!!.absolutePath) }.store(output, null)
         }
         val settings = file("settings.gradle.kts")
-        settings.writeText(settings.readText().replace("gradlePluginPortal()", "google()\n gradlePluginPortal()")
-            .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }") + """
+        settings.writeText(
+            settings.readText().replace("gradlePluginPortal()", "google()\n gradlePluginPortal()")
+                .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }") + """
 
             trellis {
                 androidApp("nativeApp", namespace = "fixture.app", usesCompose = true)
                 androidLibrary("nativeLibrary", namespace = "fixture.library", usesCompose = true)
                 kmp("androidMulti", targets = { setOf(android("fixture.multi", enableResources = true), jvm) }, usesCompose = true)
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
         val root = file("build.gradle.kts")
-        root.writeText(root.readText().replace("plugins {", """
+        root.writeText(
+            root.readText().replace(
+                "plugins {",
+                """
             plugins {
                 id("com.android.application") version "9.3.3" apply false
                 id("com.android.library") version "9.3.3" apply false
                 id("com.android.kotlin.multiplatform.library") version "9.3.3" apply false
                 id("org.jetbrains.kotlin.plugin.compose") version "$KOTLIN_VERSION" apply false
                 id("org.jetbrains.compose") version "1.12.1" apply false
-        """.trimIndent()).replace("androidTargetSdk = 36", "androidTargetSdk = 37"))
+                """.trimIndent(),
+            ).replace("androidTargetSdk = 36", "androidTargetSdk = 37"),
+        )
         listOf("nativeApp", "nativeLibrary").forEach { path ->
             file("$path/build.gradle.kts").writeText(
                 """
@@ -199,8 +216,12 @@ class TrellisProjectPluginFunctionalTest {
         }
         val isolatedHome = File(testKitDir, "isolated-home").apply { mkdirs() }
         val arguments = arrayOf(
-            ":app:compileKotlin", ":multi:compileKotlinJvm", "--configuration-cache",
-            "-Dorg.gradle.unsafe.isolated-projects=true", "--gradle-user-home", isolatedHome.absolutePath,
+            ":app:compileKotlin",
+            ":multi:compileKotlinJvm",
+            "--configuration-cache",
+            "-Dorg.gradle.unsafe.isolated-projects=true",
+            "--gradle-user-home",
+            isolatedHome.absolutePath,
         )
         build(*arguments)
         val second = build(*arguments)

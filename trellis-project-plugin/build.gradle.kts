@@ -9,19 +9,19 @@ gradlePlugin {
     website.set(providers.gradleProperty("trellis.website"))
     vcsUrl.set(providers.gradleProperty("trellis.vcsUrl"))
     plugins {
+        create("trellisConventions") {
+            id = "com.dzaitsev.trellis.conventions"
+            implementationClass = "com.dzaitsev.trellis.plugin.TrellisConventionsPlugin"
+            displayName = "Trellis Conventions"
+            description = "Applies and configures Android, Kotlin Multiplatform and JVM plugins for modules declared with Trellis"
+            tags.set(listOf("kotlin", "multiplatform", "android", "modules"))
+        }
+
         create("trellisLocal") {
             id = "com.dzaitsev.trellis.local"
             implementationClass = "com.dzaitsev.trellis.plugin.TrellisLocalPlugin"
             displayName = "Trellis Local Conventions"
             description = "Configures only the current project using settings-provided Trellis conventions"
-            tags.set(listOf("kotlin", "multiplatform", "android", "modules"))
-        }
-        create("trellisConventions") {
-            id = "com.dzaitsev.trellis.conventions"
-            implementationClass = "com.dzaitsev.trellis.plugin.TrellisConventionsPlugin"
-
-            displayName = "Trellis Conventions"
-            description = "Applies and configures Android, Kotlin Multiplatform and JVM plugins for modules declared with Trellis"
             tags.set(listOf("kotlin", "multiplatform", "android", "modules"))
         }
     }
@@ -115,9 +115,11 @@ tasks.withType<Jar>().configureEach {
 
 tasks.named("publishPlugins") {
     doFirst {
-        check(providers.gradleProperty("trellis.allowPublicPublish").orNull == "true" &&
-            providers.gradleProperty("trellis.website").isPresent &&
-            providers.gradleProperty("trellis.vcsUrl").isPresent) {
+        check(
+            providers.gradleProperty("trellis.allowPublicPublish").orNull == "true" &&
+                providers.gradleProperty("trellis.website").isPresent &&
+                providers.gradleProperty("trellis.vcsUrl").isPresent,
+        ) {
             "Public publishing requires verified trellis.website / trellis.vcsUrl and explicit trellis.allowPublicPublish=true"
         }
     }

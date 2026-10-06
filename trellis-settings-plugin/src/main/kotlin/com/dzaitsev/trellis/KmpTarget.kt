@@ -81,11 +81,12 @@ public interface KmpTarget {
         ) {
             public companion object {
                 public val DEFAULT_FREE_COMPILER_ARGS: List<String> = listOf("-Xpartial-linkage-loglevel=WARNING")
-                public val DEFAULT_RELEASE_FREE_COMPILER_ARGS: List<String> = listOf(
-                    "-Xbinary=gc=concurrent_mark_and_sweep",
-                    "-Xallocator=std",
-                    "-opt",
-                )
+                public val DEFAULT_RELEASE_FREE_COMPILER_ARGS: List<String> =
+                    listOf(
+                        "-Xbinary=gc=concurrent_mark_and_sweep",
+                        "-Xallocator=std",
+                        "-opt",
+                    )
             }
         }
 
@@ -121,8 +122,10 @@ public interface KmpTarget {
         }
 
         public companion object : WebTargetFactory<Js> {
-            override fun of(isApplication: Boolean, environments: Set<JsEnv>): Js =
-                Js(isApplication, environments)
+            override fun of(
+                isApplication: Boolean,
+                environments: Set<JsEnv>,
+            ): Js = Js(isApplication, environments)
         }
     }
 
@@ -141,8 +144,10 @@ public interface KmpTarget {
         }
 
         public companion object : WebTargetFactory<Wasm> {
-            override fun of(isApplication: Boolean, environments: Set<JsEnv>): Wasm =
-                Wasm(isApplication, environments)
+            override fun of(
+                isApplication: Boolean,
+                environments: Set<JsEnv>,
+            ): Wasm = Wasm(isApplication, environments)
         }
     }
 
@@ -190,13 +195,18 @@ public interface KmpTarget {
  */
 public interface AppLibraryFactory<T : KmpTarget> {
     public fun of(isApplication: Boolean): T
+
     public fun library(): T = of(isApplication = false)
+
     public fun application(): T = of(isApplication = true)
 }
 
 /** [AppLibraryFactory] for [KmpTarget.Js]/[KmpTarget.Wasm], additionally choosing their [KmpTarget.JsEnv]s. */
 public interface WebTargetFactory<T : KmpTarget> : AppLibraryFactory<T> {
-    public fun of(isApplication: Boolean, environments: Set<KmpTarget.JsEnv>): T
+    public fun of(
+        isApplication: Boolean,
+        environments: Set<KmpTarget.JsEnv>,
+    ): T
 
     override fun of(isApplication: Boolean): T = of(isApplication, KmpTarget.JsEnv.entries.toSet())
 

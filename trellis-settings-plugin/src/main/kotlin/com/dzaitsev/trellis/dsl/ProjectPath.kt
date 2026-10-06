@@ -22,8 +22,7 @@ public data class ProjectPath(
     public val name: String
         get() = segments.lastOrNull().orEmpty()
 
-    public fun child(name: String): ProjectPath =
-        ProjectPath(segments + name)
+    public fun child(name: String): ProjectPath = ProjectPath(segments + name)
 
     override fun toString(): String = gradlePath
 

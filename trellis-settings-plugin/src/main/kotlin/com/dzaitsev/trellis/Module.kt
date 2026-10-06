@@ -75,11 +75,12 @@ public interface Module : ModuleModel {
  * [Module] kind that implements [HasAndroidAttrs] directly, or exposes one through a
  * [KmpTarget] that implements it.
  */
-public fun Module.getAndroidAttrs(): AndroidAttrs? = when (this) {
-    is HasAndroidAttrs -> androidAttrs
-    is Module.KmpLibrary -> targets.firstNotNullOfOrNull { (it as? HasAndroidAttrs)?.androidAttrs }
-    else -> null
-}
+public fun Module.getAndroidAttrs(): AndroidAttrs? =
+    when (this) {
+        is HasAndroidAttrs -> androidAttrs
+        is Module.KmpLibrary -> targets.firstNotNullOfOrNull { (it as? HasAndroidAttrs)?.androidAttrs }
+        else -> null
+    }
 
 @OptIn(ExperimentalContracts::class)
 public fun Module.isRoot(): Boolean {

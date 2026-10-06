@@ -2,11 +2,11 @@ package com.dzaitsev.trellis.plugin
 
 import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.dsl.ModuleContainerDsl
-import com.dzaitsev.trellis.dsl.TrellisDslMarker
 import com.dzaitsev.trellis.dsl.ModuleGroupScope
 import com.dzaitsev.trellis.dsl.ModuleRegistry
 import com.dzaitsev.trellis.dsl.ModuleRegistryBuilder
 import com.dzaitsev.trellis.dsl.ModuleRegistryOptions.MissingDirectoryPolicy
+import com.dzaitsev.trellis.dsl.TrellisDslMarker
 
 @TrellisDslMarker
 public abstract class TrellisSettingsExtension : ModuleContainerDsl() {
@@ -41,6 +41,5 @@ public abstract class TrellisSettingsExtension : ModuleContainerDsl() {
         builder.custom(module)
     }
 
-    internal fun buildRegistry(): ModuleRegistry =
-        builder.build()
+    internal fun buildRegistry(): ModuleRegistry = builder.build()
 }
