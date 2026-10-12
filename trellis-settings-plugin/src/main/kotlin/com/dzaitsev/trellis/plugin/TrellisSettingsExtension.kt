@@ -28,10 +28,7 @@ public abstract class TrellisSettingsExtension : ModuleContainerDsl() {
         builder.createMissingDirectories()
     }
 
-    public fun group(
-        name: String,
-        block: ModuleGroupScope.() -> Unit,
-    ) {
+    public fun group(name: String, block: ModuleGroupScope.() -> Unit) {
         builder.group(name = name) {
             ModuleGroupScope(this).block()
         }

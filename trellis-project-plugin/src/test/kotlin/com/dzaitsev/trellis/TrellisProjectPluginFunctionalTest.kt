@@ -80,19 +80,23 @@ class TrellisProjectPluginFunctionalTest {
     fun `compose jvm and kmp modules apply compiler and multiplatform plugins`() {
         val settings = file("settings.gradle.kts")
         settings.writeText(
-            settings.readText()
+            settings
+                .readText()
                 .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }")
                 .replace("java(\"core\")", "java(\"core\", usesCompose = true)")
-                .replace("kmp(\"multi\", targets = { setOf(jvm, js { setOf(browser) }) })", "kmp(\"multi\", targets = { setOf(jvm) }, usesCompose = true)"),
+                .replace(
+                    "kmp(\"multi\", targets = { setOf(jvm, js { setOf(browser) }) })",
+                    "kmp(\"multi\", targets = { setOf(jvm) }, usesCompose = true)",
+                ),
         )
         val root = file("build.gradle.kts")
         root.writeText(
             root.readText().replace(
                 "plugins {",
                 """
-            plugins {
-                id("org.jetbrains.kotlin.plugin.compose") version "$KOTLIN_VERSION" apply false
-                id("org.jetbrains.compose") version "1.12.1" apply false
+                plugins {
+                    id("org.jetbrains.kotlin.plugin.compose") version "$KOTLIN_VERSION" apply false
+                    id("org.jetbrains.compose") version "1.12.1" apply false
                 """.trimIndent(),
             ),
         )
@@ -115,11 +119,14 @@ class TrellisProjectPluginFunctionalTest {
         val properties = Properties()
         val localProperties = File(System.getProperty("trellis.localProperties"))
         if (localProperties.isFile) localProperties.inputStream().use(properties::load)
-        val sdk = sequenceOf(properties.getProperty("sdk.dir"), System.getenv("ANDROID_HOME"))
-            .filterNotNull().map(::File).firstOrNull {
-                it.resolve("platforms/android-37/android.jar").isFile ||
-                    it.resolve("platforms/android-37.0/android.jar").isFile
-            }
+        val sdk =
+            sequenceOf(properties.getProperty("sdk.dir"), System.getenv("ANDROID_HOME"))
+                .filterNotNull()
+                .map(::File)
+                .firstOrNull {
+                    it.resolve("platforms/android-37/android.jar").isFile ||
+                        it.resolve("platforms/android-37.0/android.jar").isFile
+                }
         val sdkMessage = "Android SDK with platform 37 unavailable (local.properties / ANDROID_HOME)"
         if (System.getProperty("trellis.requireAndroidSdk").toBoolean()) checkNotNull(sdk) { sdkMessage }
         assumeTrue(sdk != null, sdkMessage)
@@ -128,29 +135,34 @@ class TrellisProjectPluginFunctionalTest {
         }
         val settings = file("settings.gradle.kts")
         settings.writeText(
-            settings.readText().replace("gradlePluginPortal()", "google()\n gradlePluginPortal()")
-                .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }") + """
+            settings
+                .readText()
+                .replace("gradlePluginPortal()", "google()\n gradlePluginPortal()")
+                .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }") +
+                """
 
-            trellis {
-                androidApp("nativeApp", namespace = "fixture.app", usesCompose = true)
-                androidLibrary("nativeLibrary", namespace = "fixture.library", usesCompose = true)
-                kmp("androidMulti", targets = { setOf(android("fixture.multi", enableResources = true), jvm) }, usesCompose = true)
-            }
-            """.trimIndent(),
+                trellis {
+                    androidApp("nativeApp", namespace = "fixture.app", usesCompose = true)
+                    androidLibrary("nativeLibrary", namespace = "fixture.library", usesCompose = true)
+                    kmp("androidMulti", targets = { setOf(android("fixture.multi", enableResources = true), jvm) }, usesCompose = true)
+                }
+                """.trimIndent(),
         )
         val root = file("build.gradle.kts")
         root.writeText(
-            root.readText().replace(
-                "plugins {",
-                """
-            plugins {
-                id("com.android.application") version "9.3.3" apply false
-                id("com.android.library") version "9.3.3" apply false
-                id("com.android.kotlin.multiplatform.library") version "9.3.3" apply false
-                id("org.jetbrains.kotlin.plugin.compose") version "$KOTLIN_VERSION" apply false
-                id("org.jetbrains.compose") version "1.12.1" apply false
-                """.trimIndent(),
-            ).replace("androidTargetSdk = 36", "androidTargetSdk = 37"),
+            root
+                .readText()
+                .replace(
+                    "plugins {",
+                    """
+                    plugins {
+                        id("com.android.application") version "9.3.3" apply false
+                        id("com.android.library") version "9.3.3" apply false
+                        id("com.android.kotlin.multiplatform.library") version "9.3.3" apply false
+                        id("org.jetbrains.kotlin.plugin.compose") version "$KOTLIN_VERSION" apply false
+                        id("org.jetbrains.compose") version "1.12.1" apply false
+                    """.trimIndent(),
+                ).replace("androidTargetSdk = 36", "androidTargetSdk = 37"),
         )
         listOf("nativeApp", "nativeLibrary").forEach { path ->
             file("$path/build.gradle.kts").writeText(
@@ -186,14 +198,16 @@ class TrellisProjectPluginFunctionalTest {
         )
         file("androidMulti/src/commonMain/kotlin/Multi.kt").writeText("public fun androidValue(): Int = 1\n")
         runner(":nativeApp:assembleDebug", ":nativeLibrary:assembleDebug", ":androidMulti:assemble")
-            .withGradleVersion("9.8.0").build()
+            .withGradleVersion("9.8.0")
+            .build()
     }
 
     @Test
     fun `local conventions support isolated projects and reuse the configuration cache`() {
         val settings = file("settings.gradle.kts")
         settings.writeText(
-            settings.readText()
+            settings
+                .readText()
                 .replace("setOf(jvm, js { setOf(browser) })", "setOf(jvm)")
                 .replace("jvm + js(browser)", "setOf(jvm)"),
         )
@@ -215,14 +229,15 @@ class TrellisProjectPluginFunctionalTest {
             script.writeText("plugins { id(\"com.dzaitsev.trellis.local\") }\n" + if (script.exists()) script.readText() else "")
         }
         val isolatedHome = File(testKitDir, "isolated-home").apply { mkdirs() }
-        val arguments = arrayOf(
-            ":app:compileKotlin",
-            ":multi:compileKotlinJvm",
-            "--configuration-cache",
-            "-Dorg.gradle.unsafe.isolated-projects=true",
-            "--gradle-user-home",
-            isolatedHome.absolutePath,
-        )
+        val arguments =
+            arrayOf(
+                ":app:compileKotlin",
+                ":multi:compileKotlinJvm",
+                "--configuration-cache",
+                "-Dorg.gradle.unsafe.isolated-projects=true",
+                "--gradle-user-home",
+                isolatedHome.absolutePath,
+            )
         build(*arguments)
         val second = build(*arguments)
         assertTrue("Configuration cache entry reused" in second.output, second.output)
@@ -283,17 +298,19 @@ class TrellisProjectPluginFunctionalTest {
 
     private fun file(path: String): File = dir.resolve(path).apply { parentFile.mkdirs() }
 
-    private fun runner(vararg arguments: String): GradleRunner =
-        GradleRunner.create()
-            .withProjectDir(dir)
-            .withTestKitDir(testKitDir)
-            .withArguments(*arguments, "--stacktrace")
-            .forwardOutput()
+    private fun runner(vararg arguments: String): GradleRunner = GradleRunner
+        .create()
+        .withProjectDir(dir)
+        .withTestKitDir(testKitDir)
+        .withArguments(*arguments, "--stacktrace")
+        .forwardOutput()
 
     private fun build(vararg arguments: String): BuildResult = runner(*arguments).build()
 
-    private fun classMajorVersion(path: String): Int =
-        dir.resolve(path).readBytes().let { (it[6].toInt() and 0xff shl 8) or (it[7].toInt() and 0xff) }
+    private fun classMajorVersion(path: String): Int = dir.resolve(path).readBytes().let {
+        (it[6].toInt() and 0xff shl 8) or
+            (it[7].toInt() and 0xff)
+    }
 
     private companion object {
         const val KOTLIN_VERSION = "2.4.20"

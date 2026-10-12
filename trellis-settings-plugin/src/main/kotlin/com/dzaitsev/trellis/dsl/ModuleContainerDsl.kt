@@ -34,10 +34,7 @@ public abstract class ModuleContainerDsl {
         )
     }
 
-    public fun root(
-        name: String,
-        hasExplicitApi: Boolean = false,
-    ) {
+    public fun root(name: String, hasExplicitApi: Boolean = false) {
         custom(
             Root(
                 name = name,
@@ -46,11 +43,7 @@ public abstract class ModuleContainerDsl {
         )
     }
 
-    public fun androidApp(
-        name: String,
-        attrs: Native,
-        hasExplicitApi: Boolean = false,
-    ) {
+    public fun androidApp(name: String, attrs: Native, hasExplicitApi: Boolean = false) {
         custom(
             AndroidApp(
                 name = name,
@@ -67,7 +60,11 @@ public abstract class ModuleContainerDsl {
         flavors: List<Flavor> = emptyList(),
         hasExplicitApi: Boolean = false,
     ) {
-        androidApp(name, Native(namespace, usesCompose, flavors), hasExplicitApi)
+        androidApp(
+            name,
+            Native(namespace, usesCompose, flavors),
+            hasExplicitApi,
+        )
     }
 
     public fun androidLibrary(
@@ -77,14 +74,14 @@ public abstract class ModuleContainerDsl {
         flavors: List<Flavor> = emptyList(),
         hasExplicitApi: Boolean = false,
     ) {
-        androidLibrary(name, Native(namespace, usesCompose, flavors), hasExplicitApi)
+        androidLibrary(
+            name,
+            Native(namespace, usesCompose, flavors),
+            hasExplicitApi,
+        )
     }
 
-    public fun androidLibrary(
-        name: String,
-        attrs: Native,
-        hasExplicitApi: Boolean = false,
-    ) {
+    public fun androidLibrary(name: String, attrs: Native, hasExplicitApi: Boolean = false) {
         custom(
             AndroidLibrary(
                 name = name,

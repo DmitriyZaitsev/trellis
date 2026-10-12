@@ -111,15 +111,16 @@ public class KotlinMultiplatformTargetsConfigurator : Configurator<Module, Trell
                         }
 
                         is KmpTarget.Desktop -> {
-                            target.hosts.map { host ->
-                                when (host) {
-                                    DesktopHost.MACOS_ARM64 -> macosArm64()
-                                    DesktopHost.LINUX_X64 -> linuxX64()
-                                    DesktopHost.MINGW_X64 -> mingwX64()
+                            target.hosts
+                                .map { host ->
+                                    when (host) {
+                                        DesktopHost.MACOS_ARM64 -> macosArm64()
+                                        DesktopHost.LINUX_X64 -> linuxX64()
+                                        DesktopHost.MINGW_X64 -> mingwX64()
+                                    }
+                                }.forEach {
+                                    if (target.isApplication) it.binaries.executable()
                                 }
-                            }.forEach {
-                                if (target.isApplication) it.binaries.executable()
-                            }
                         }
 
                         else -> Unit // consumer-added KmpTarget kinds: no built-in default

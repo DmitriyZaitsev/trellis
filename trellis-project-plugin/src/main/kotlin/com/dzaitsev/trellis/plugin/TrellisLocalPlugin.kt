@@ -13,13 +13,15 @@ public class TrellisLocalPlugin : Plugin<Project> {
             "Declare trellis { projectConventions { ... } } in settings before applying com.dzaitsev.trellis.local"
         }
         val module = project.findModule() ?: return
-        val extension = project.extensions.create<TrellisProjectExtension>("trellis").apply {
-            kotlinVersion.set(config.kotlinVersion)
-            javaVersion.set(config.javaVersion)
-            androidMinSdk.set(config.androidMinSdk)
-            androidTargetSdk.set(config.androidTargetSdk)
-            useJavaToolchain.set(config.useJavaToolchain)
-        }
+        val extension =
+            project.extensions
+                .create<TrellisProjectExtension>("trellis").apply {
+                    kotlinVersion.set(config.kotlinVersion)
+                    javaVersion.set(config.javaVersion)
+                    androidMinSdk.set(config.androidMinSdk)
+                    androidTargetSdk.set(config.androidTargetSdk)
+                    useJavaToolchain.set(config.useJavaToolchain)
+                }
         defaultProjectModuleConfigurators<TrellisProjectExtension>(module).forEach {
             it.configure(project, module, extension)
         }

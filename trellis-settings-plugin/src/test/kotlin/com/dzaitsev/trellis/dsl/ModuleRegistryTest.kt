@@ -39,8 +39,16 @@ class ModuleRegistryTest {
                 java("server")
             }
 
-        assertEquals(listOf(ProjectPath.ROOT, ProjectPath(":server")), registry.modules.map { it.path })
-        assertEquals(Module.Root("app-root"), registry.findByPath(ProjectPath.ROOT))
+        assertEquals(
+            listOf(ProjectPath.ROOT, ProjectPath(":server")),
+            registry.modules.map {
+                it.path
+            },
+        )
+        assertEquals(
+            Module.Root("app-root"),
+            registry.findByPath(ProjectPath.ROOT),
+        )
         assertEquals("app-root", registry[":"].name)
     }
 
@@ -78,7 +86,8 @@ class ModuleRegistryTest {
 
     @Test
     fun `undeclared paths resolve to null`() {
-        val registry = moduleRegistry { group("feature") { kmp("auth") { setOf(jvm) } } }
+        val registry =
+            moduleRegistry { group("feature") { kmp("auth") { setOf(jvm) } } }
 
         assertNull(registry.findByPath(ProjectPath(":feature")))
         assertNull(registry.findByPath(ProjectPath.ROOT))
@@ -114,7 +123,12 @@ class ModuleRegistryTest {
     fun `repeated target kinds are rejected`() {
         val error =
             assertFailsWith<IllegalArgumentException> {
-                moduleRegistry { kmp("a") { js { setOf(browser) } + js { setOf(nodeJs) } } }
+                moduleRegistry {
+                    kmp("a") {
+                        js { setOf(browser) } +
+                            js { setOf(nodeJs) }
+                    }
+                }
             }
         assertTrue("Js" in error.message.orEmpty())
     }
@@ -126,7 +140,13 @@ class ModuleRegistryTest {
                 moduleRegistry {
                     kmp("umbrella") {
                         setOf(
-                            ios(framework = Framework("Shared", export = listOf(":missing"))) {
+                            ios(
+                                framework =
+                                Framework(
+                                    "Shared",
+                                    export = listOf(":missing"),
+                                ),
+                            ) {
                                 setOf(iosArm64)
                             },
                         )
@@ -139,7 +159,13 @@ class ModuleRegistryTest {
             kmp("domain") { setOf(ios()) }
             kmp("umbrella") {
                 setOf(
-                    ios(framework = Framework("Shared", export = listOf(":domain"))) {
+                    ios(
+                        framework =
+                        Framework(
+                            "Shared",
+                            export = listOf(":domain"),
+                        ),
+                    ) {
                         setOf(iosArm64)
                     },
                 )
@@ -162,9 +188,15 @@ class ModuleRegistryTest {
         }
 
         assertEquals(JsEnv.entries.toSet(), (targets[0] as Js).environments)
-        assertEquals(Js(isApplication = true, environments = setOf(JsEnv.BROWSER)), targets[1])
+        assertEquals(
+            Js(isApplication = true, environments = setOf(JsEnv.BROWSER)),
+            targets[1],
+        )
         assertEquals(DesktopHost.entries.toSet(), (targets[2] as Desktop).hosts)
-        assertEquals(setOf(DesktopHost.MACOS_ARM64), (targets[3] as Desktop).hosts)
+        assertEquals(
+            setOf(DesktopHost.MACOS_ARM64),
+            (targets[3] as Desktop).hosts,
+        )
     }
 
     @Test
@@ -175,7 +207,9 @@ class ModuleRegistryTest {
             targets =
                 listOf(
                     scope.ios(),
-                    scope.ios(framework = Framework("Shared")) { setOf(iosArm64, iosSimulatorArm64) },
+                    scope.ios(framework = Framework("Shared")) {
+                        setOf(iosArm64, iosSimulatorArm64)
+                    },
                     scope.ios { setOf(iosSimulatorArm64, iosX64) },
                 )
         }
@@ -183,7 +217,10 @@ class ModuleRegistryTest {
         assertEquals(IosHost.DEFAULT, targets[0].hosts)
         assertEquals(IosHost.DEFAULT, targets[1].hosts)
         assertEquals("Shared", targets[1].framework?.baseName)
-        assertEquals(setOf(IosHost.IOS_SIMULATOR_ARM64, IosHost.IOS_X64), targets[2].hosts)
+        assertEquals(
+            setOf(IosHost.IOS_SIMULATOR_ARM64, IosHost.IOS_X64),
+            targets[2].hosts,
+        )
         assertEquals(null, targets[2].framework)
         assertFailsWith<IllegalArgumentException> { Ios(hosts = emptySet()) }
     }

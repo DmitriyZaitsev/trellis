@@ -4,6 +4,8 @@ import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.plugin.Configurator
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 
@@ -19,8 +21,8 @@ public class ExplicitApiConfigurator : Configurator<Module, TrellisProjectExtens
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (!module.hasExplicitApi) return
 
-        project.plugins.withType(KotlinBasePlugin::class.java).configureEach {
-            project.extensions.findByType(KotlinProjectExtension::class.java)?.explicitApi()
+        project.plugins.withType<KotlinBasePlugin>().configureEach {
+            project.extensions.findByType<KotlinProjectExtension>()?.explicitApi()
         }
     }
 }

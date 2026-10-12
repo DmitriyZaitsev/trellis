@@ -14,7 +14,6 @@ package com.dzaitsev.trellis.dsl
  * }
  * ```
  */
-public fun moduleRegistry(block: ModuleRegistryBuilder.() -> Unit): ModuleRegistry =
-    ModuleRegistryBuilder()
-        .apply(block)
-        .build()
+public fun moduleRegistry(block: ModuleRegistryBuilder.() -> Unit): ModuleRegistry = ModuleRegistryBuilder()
+    .apply(block)
+    .build()

@@ -38,7 +38,9 @@ public interface KmpTarget {
      * dropped by [com.dzaitsev.trellis.configurator.KmpAndroidTargetConfigurator]'s
      * dispatch, the way an unconstrained `AndroidAttrs` parameter would allow.
      */
-    public data class Android(override val androidAttrs: AndroidAttrs.Kmp) : KmpTarget, HasAndroidAttrs
+    public data class Android(override val androidAttrs: AndroidAttrs.Kmp) :
+        KmpTarget,
+        HasAndroidAttrs
 
     /**
      * The iOS targets listed in [hosts]: `iosArm64` and `iosSimulatorArm64` by default, `iosX64`
@@ -49,10 +51,7 @@ public interface KmpTarget {
      * Leave it `null` (the default) for a target meant to be consumed as Kotlin source by another
      * KMP module rather than built as a standalone framework.
      */
-    public data class Ios(
-        public val framework: Framework? = null,
-        public val hosts: Set<IosHost> = IosHost.DEFAULT,
-    ) : KmpTarget {
+    public data class Ios(public val framework: Framework? = null, public val hosts: Set<IosHost> = IosHost.DEFAULT) : KmpTarget {
         init {
             require(hosts.isNotEmpty()) { "Ios target needs at least one host" }
         }
@@ -113,19 +112,14 @@ public interface KmpTarget {
      * default) for a target meant to be consumed as a library by another module. Prefer the
      * [library]/[application] factories over the raw constructor for readability at the call site.
      */
-    public data class Js(
-        public val isApplication: Boolean = false,
-        public val environments: Set<JsEnv> = JsEnv.entries.toSet(),
-    ) : KmpTarget {
+    public data class Js(public val isApplication: Boolean = false, public val environments: Set<JsEnv> = JsEnv.entries.toSet()) :
+        KmpTarget {
         init {
             require(environments.isNotEmpty()) { "Js target needs at least one environment" }
         }
 
         public companion object : WebTargetFactory<Js> {
-            override fun of(
-                isApplication: Boolean,
-                environments: Set<JsEnv>,
-            ): Js = Js(isApplication, environments)
+            override fun of(isApplication: Boolean, environments: Set<JsEnv>): Js = Js(isApplication, environments)
         }
     }
 
@@ -135,19 +129,14 @@ public interface KmpTarget {
      * Prefer the [library]/[application] factories over the raw constructor for readability at
      * the call site.
      */
-    public data class Wasm(
-        public val isApplication: Boolean = false,
-        public val environments: Set<JsEnv> = JsEnv.entries.toSet(),
-    ) : KmpTarget {
+    public data class Wasm(public val isApplication: Boolean = false, public val environments: Set<JsEnv> = JsEnv.entries.toSet()) :
+        KmpTarget {
         init {
             require(environments.isNotEmpty()) { "Wasm target needs at least one environment" }
         }
 
         public companion object : WebTargetFactory<Wasm> {
-            override fun of(
-                isApplication: Boolean,
-                environments: Set<JsEnv>,
-            ): Wasm = Wasm(isApplication, environments)
+            override fun of(isApplication: Boolean, environments: Set<JsEnv>): Wasm = Wasm(isApplication, environments)
         }
     }
 
@@ -203,10 +192,7 @@ public interface AppLibraryFactory<T : KmpTarget> {
 
 /** [AppLibraryFactory] for [KmpTarget.Js]/[KmpTarget.Wasm], additionally choosing their [KmpTarget.JsEnv]s. */
 public interface WebTargetFactory<T : KmpTarget> : AppLibraryFactory<T> {
-    public fun of(
-        isApplication: Boolean,
-        environments: Set<KmpTarget.JsEnv>,
-    ): T
+    public fun of(isApplication: Boolean, environments: Set<KmpTarget.JsEnv>): T
 
     override fun of(isApplication: Boolean): T = of(isApplication, KmpTarget.JsEnv.entries.toSet())
 

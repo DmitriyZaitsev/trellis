@@ -7,12 +7,11 @@ public class ProjectConventions {
     public var androidTargetSdk: Int = 36
     public var useJavaToolchain: Boolean = false
 
-    internal fun snapshot(): ProjectConventions =
-        ProjectConventions().also {
-            it.kotlinVersion = kotlinVersion
-            it.javaVersion = javaVersion
-            it.androidMinSdk = androidMinSdk
-            it.androidTargetSdk = androidTargetSdk
-            it.useJavaToolchain = useJavaToolchain
-        }
+    internal fun snapshot(): ProjectConventions = ProjectConventions().also {
+        it.kotlinVersion = kotlinVersion
+        it.javaVersion = javaVersion
+        it.androidMinSdk = androidMinSdk
+        it.androidTargetSdk = androidTargetSdk
+        it.useJavaToolchain = useJavaToolchain
+    }
 }

@@ -30,20 +30,33 @@ import com.dzaitsev.trellis.plugin.TrellisProjectExtension
  *     )
  * ```
  */
-public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(module: Module): List<Configurator<Module, E>> =
-    listOfNotNull(
-        ApplyPluginConfigurator(),
-        when (module) {
-            is AndroidApp -> AndroidAppConfigurator(module.androidAttrs)
-            is AndroidLibrary -> AndroidLibraryConfigurator(module.androidAttrs)
-            is Java -> JavaConfigurator()
-            is KmpLibrary ->
-                module.targets.filterIsInstance<KmpTarget.Android>().firstOrNull()
-                    ?.let { KmpAndroidTargetConfigurator(it.androidAttrs) }
+public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(module: Module): List<Configurator<Module, E>> = listOfNotNull(
+    ApplyPluginConfigurator(),
+    when (module) {
+        is AndroidApp -> {
+            AndroidAppConfigurator(module.androidAttrs)
+        }
 
-            else -> null
-        },
-        KotlinMultiplatformTargetsConfigurator(),
-        JvmTargetConfigurator(),
-        ExplicitApiConfigurator(),
-    )
+        is AndroidLibrary -> {
+            AndroidLibraryConfigurator(module.androidAttrs)
+        }
+
+        is Java -> {
+            JavaConfigurator()
+        }
+
+        is KmpLibrary -> {
+            module.targets
+                .filterIsInstance<KmpTarget.Android>()
+                .firstOrNull()
+                ?.let { KmpAndroidTargetConfigurator(it.androidAttrs) }
+        }
+
+        else -> {
+            null
+        }
+    },
+    KotlinMultiplatformTargetsConfigurator(),
+    JvmTargetConfigurator(),
+    ExplicitApiConfigurator(),
+)

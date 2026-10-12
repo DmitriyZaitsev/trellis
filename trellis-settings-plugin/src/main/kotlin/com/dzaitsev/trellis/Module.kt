@@ -17,24 +17,23 @@ public interface Module : ModuleModel {
     public val hasExplicitApi: Boolean
 
     /** An umbrella/aggregator project that has no sources of its own (e.g. the Gradle root project). */
-    public data class Root(
-        override val name: String,
-        override val hasExplicitApi: Boolean = false,
-    ) : Module
+    public data class Root(override val name: String, override val hasExplicitApi: Boolean = false) : Module
 
     /** An Android application module — expected to apply `com.android.application`. Explicit API mode is off by default. */
     public data class AndroidApp(
         override val name: String,
         override val androidAttrs: AndroidAttrs.Native,
         override val hasExplicitApi: Boolean = false,
-    ) : Module, HasAndroidAttrs
+    ) : Module,
+        HasAndroidAttrs
 
     /** A plain (non-KMP) Android library module — expected to apply `com.android.library`. */
     public data class AndroidLibrary(
         override val name: String,
         override val androidAttrs: AndroidAttrs.Native,
         override val hasExplicitApi: Boolean = false,
-    ) : Module, HasAndroidAttrs
+    ) : Module,
+        HasAndroidAttrs
 
     /**
      * A plain Java module (application or library). Optionally provide a main class to make it an
@@ -75,12 +74,21 @@ public interface Module : ModuleModel {
  * [Module] kind that implements [HasAndroidAttrs] directly, or exposes one through a
  * [KmpTarget] that implements it.
  */
-public fun Module.getAndroidAttrs(): AndroidAttrs? =
-    when (this) {
-        is HasAndroidAttrs -> androidAttrs
-        is Module.KmpLibrary -> targets.firstNotNullOfOrNull { (it as? HasAndroidAttrs)?.androidAttrs }
-        else -> null
+public fun Module.getAndroidAttrs(): AndroidAttrs? = when (this) {
+    is HasAndroidAttrs -> {
+        androidAttrs
     }
+
+    is Module.KmpLibrary -> {
+        targets.firstNotNullOfOrNull {
+            (it as? HasAndroidAttrs)?.androidAttrs
+        }
+    }
+
+    else -> {
+        null
+    }
+}
 
 @OptIn(ExperimentalContracts::class)
 public fun Module.isRoot(): Boolean {

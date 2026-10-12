@@ -40,9 +40,9 @@ public interface TrellisProjectExtension {
     public val useJavaToolchain: Property<Boolean>
 }
 
-public fun TrellisProjectExtension.getKotlinVersion(): KotlinVersion = kotlinVersion.get()
+public fun TrellisProjectExtension.getKotlinVersion(): KotlinVersion = kotlinVersion
+    .get()
     .split(".")
     .let { KotlinVersion.fromVersion("${it[0]}.${it[1]}") }
 
-public fun TrellisProjectExtension.getJvmTarget(): JvmTarget =
-    JvmTarget.fromTarget(JavaVersion.toVersion(javaVersion.get()).toString())
+public fun TrellisProjectExtension.getJvmTarget(): JvmTarget = JvmTarget.fromTarget(JavaVersion.toVersion(javaVersion.get()).toString())

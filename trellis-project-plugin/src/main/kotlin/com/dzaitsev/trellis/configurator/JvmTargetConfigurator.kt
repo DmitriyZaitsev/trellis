@@ -49,11 +49,15 @@ public class JvmTargetConfigurator : Configurator<Module, TrellisProjectExtensio
             if (useToolchain) kotlin.jvmToolchain(extension.javaVersion.get())
 
             when (kotlin) {
-                is KotlinMultiplatformExtension -> kotlin.targets.configureEach {
-                    jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
+                is KotlinMultiplatformExtension -> {
+                    kotlin.targets.configureEach {
+                        jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
+                    }
                 }
 
-                else -> kotlin.jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
+                else -> {
+                    kotlin.jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
+                }
             }
         }
     }

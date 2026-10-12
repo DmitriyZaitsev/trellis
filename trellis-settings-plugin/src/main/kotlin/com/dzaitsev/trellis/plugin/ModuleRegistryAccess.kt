@@ -14,25 +14,27 @@ public fun Gradle.moduleRegistry(): ModuleRegistry = registryFrom(extensions.fin
 /** Like [Gradle.moduleRegistry], but Isolated Projects compatible. */
 public fun Project.moduleRegistry(): ModuleRegistry = registryFrom(extensions.findByName(MODULE_REGISTRY_HOLDER_NAME), path)
 
-private fun registryFrom(
-    holder: Any?,
-    owner: String,
-): ModuleRegistry =
-    when (holder) {
-        is ModuleRegistryHolder -> holder.registry
-        null ->
-            error(
-                "No module registry found for '$owner'. Apply the 'com.dzaitsev.trellis' " +
-                    "plugin in settings.gradle.kts.",
-            )
-        // Same class name, different class loader: the plugin artifact is on two classpaths.
-        else ->
-            error(
-                "Module registry holder was loaded by a different class loader " +
-                    "(${holder.javaClass.classLoader}). Make sure the Trellis artifacts are only " +
-                    "added to the settings classpath, not again to build-logic/buildSrc at runtime.",
-            )
+private fun registryFrom(holder: Any?, owner: String): ModuleRegistry = when (holder) {
+    is ModuleRegistryHolder -> {
+        holder.registry
     }
+
+    null -> {
+        error(
+            "No module registry found for '$owner'. Apply the 'com.dzaitsev.trellis' " +
+                "plugin in settings.gradle.kts.",
+        )
+    }
+
+    // Same class name, different class loader: the plugin artifact is on two classpaths.
+    else -> {
+        error(
+            "Module registry holder was loaded by a different class loader " +
+                "(${holder.javaClass.classLoader}). Make sure the Trellis artifacts are only " +
+                "added to the settings classpath, not again to build-logic/buildSrc at runtime.",
+        )
+    }
+}
 
 /**
  * The module declared for this project, or `null` for projects absent from the registry (e.g.

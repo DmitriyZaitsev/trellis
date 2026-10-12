@@ -17,8 +17,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * registers it directly on [KotlinMultiplatformExtension] as [KotlinMultiplatformAndroidLibraryTarget],
  * rather than via a separate `com.android.library`/`com.android.application` extension.
  */
-public class KmpAndroidTargetConfigurator(private val androidAttrs: AndroidAttrs.Kmp) :
-    Configurator<Module, TrellisProjectExtension> {
+public class KmpAndroidTargetConfigurator(private val androidAttrs: AndroidAttrs.Kmp) : Configurator<Module, TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         project.pluginManager.withPlugin(PluginIds.ANDROID_KMP_LIBRARY) {
             project.pluginManager.withPlugin(PluginIds.KOTLIN_MULTIPLATFORM) {

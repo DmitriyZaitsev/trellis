@@ -3,9 +3,7 @@ package com.dzaitsev.trellis.dsl
 import com.dzaitsev.trellis.Module
 
 @TrellisDslMarker
-public class ModuleGroupBuilder internal constructor(
-    private val prefix: ProjectPath,
-) : ModuleContainerDsl() {
+public class ModuleGroupBuilder internal constructor(private val prefix: ProjectPath) : ModuleContainerDsl() {
     private val modules = mutableListOf<ModuleDeclaration>()
 
     override fun custom(module: Module) {
@@ -19,10 +17,7 @@ public class ModuleGroupBuilder internal constructor(
             )
     }
 
-    public fun group(
-        name: String,
-        block: ModuleGroupBuilder.() -> Unit,
-    ) {
+    public fun group(name: String, block: ModuleGroupBuilder.() -> Unit) {
         modules += ModuleGroupBuilder(prefix.child(name)).apply(block).build()
     }
 

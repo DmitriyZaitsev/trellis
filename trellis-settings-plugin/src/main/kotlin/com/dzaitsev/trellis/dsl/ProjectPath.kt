@@ -1,8 +1,6 @@
 package com.dzaitsev.trellis.dsl
 
-public data class ProjectPath(
-    public val segments: List<String>,
-) {
+public data class ProjectPath(public val segments: List<String>) {
     init {
         require(segments.all(::isValidSegment)) {
             "Invalid project path: ${segments.joinToString(":")}"
@@ -30,11 +28,10 @@ public data class ProjectPath(
         /** The Gradle root project, `:`. */
         public val ROOT: ProjectPath = ProjectPath(emptyList())
 
-        internal fun isValidSegment(value: String): Boolean =
-            value.isNotBlank() &&
-                ':' !in value &&
-                '/' !in value &&
-                '\\' !in value
+        internal fun isValidSegment(value: String): Boolean = value.isNotBlank() &&
+            ':' !in value &&
+            '/' !in value &&
+            '\\' !in value
     }
 }
 
@@ -45,5 +42,11 @@ public fun ProjectPath(value: String): ProjectPath {
     }
 
     val normalized = trimmed.removePrefix(":")
-    return if (normalized.isEmpty()) ProjectPath.ROOT else ProjectPath(normalized.split(':'))
+    return if (normalized.isEmpty()) {
+        ProjectPath.ROOT
+    } else {
+        ProjectPath(
+            normalized.split(':'),
+        )
+    }
 }

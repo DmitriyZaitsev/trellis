@@ -15,10 +15,7 @@ public class ModuleRegistryBuilder : ModuleContainerDsl() {
             )
     }
 
-    public fun group(
-        name: String,
-        block: ModuleGroupBuilder.() -> Unit,
-    ) {
+    public fun group(name: String, block: ModuleGroupBuilder.() -> Unit) {
         modules +=
             ModuleGroupBuilder(
                 prefix = ProjectPath(listOf(name)),
@@ -29,9 +26,8 @@ public class ModuleRegistryBuilder : ModuleContainerDsl() {
         missingDirectoryPolicy = ModuleRegistryOptions.MissingDirectoryPolicy.CREATE
     }
 
-    internal fun build(): ModuleRegistry =
-        ModuleRegistry(
-            modules = modules.toList(),
-            moduleRegistryOptions = ModuleRegistryOptions(missingDirectoryPolicy),
-        )
+    internal fun build(): ModuleRegistry = ModuleRegistry(
+        modules = modules.toList(),
+        moduleRegistryOptions = ModuleRegistryOptions(missingDirectoryPolicy),
+    )
 }

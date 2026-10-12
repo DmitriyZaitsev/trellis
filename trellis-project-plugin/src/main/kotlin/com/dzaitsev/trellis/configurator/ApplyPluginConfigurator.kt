@@ -39,21 +39,19 @@ import org.gradle.api.Project
  * script to (redundantly) re-declare the plugin.
  */
 public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtension> {
-    override fun configure(
-        project: Project,
-        module: Module,
-        extension: TrellisProjectExtension,
-    ) {
+    override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         val pluginManager = project.pluginManager
         when (module) {
             is AndroidApp -> {
                 pluginManager.apply(PluginIds.ANDROID_APPLICATION)
                 applyKotlinAndroidUnlessBuiltIn(project)
             }
+
             is AndroidLibrary -> {
                 pluginManager.apply(PluginIds.ANDROID_LIBRARY)
                 applyKotlinAndroidUnlessBuiltIn(project)
             }
+
             is Java -> {
                 pluginManager.apply(PluginIds.KOTLIN_JVM)
                 if (module.usesCompose) {
@@ -61,6 +59,7 @@ public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtens
                     pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
                 }
             }
+
             is KmpLibrary -> {
                 pluginManager.apply(PluginIds.KOTLIN_MULTIPLATFORM)
                 if (module.targets.any { it is KmpTarget.Android }) {
@@ -73,6 +72,7 @@ public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtens
             }
 
             is Root -> Unit
+
             else -> Unit // consumer-added Module kinds: no built-in default
         }
     }

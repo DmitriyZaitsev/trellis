@@ -36,19 +36,20 @@ public class TrellisSettingsPlugin : Plugin<Settings> {
         }
     }
 
-    private fun registerProjects(
-        settings: Settings,
-        registry: ModuleRegistry,
-    ) {
+    private fun registerProjects(settings: Settings, registry: ModuleRegistry) {
         val rootDirectory =
-            settings.settingsDir.toPath()
+            settings.settingsDir
+                .toPath()
                 .toAbsolutePath()
                 .normalize()
 
         registry.modules.filterNot { it.path.isRoot }.forEach { declaration ->
             settings.include(declaration.path.gradlePath)
             val projectDirectory =
-                settings.project(declaration.path.gradlePath).projectDir.toPath()
+                settings
+                    .project(declaration.path.gradlePath)
+                    .projectDir
+                    .toPath()
                     .toAbsolutePath()
                     .normalize()
 
@@ -68,11 +69,7 @@ public class TrellisSettingsPlugin : Plugin<Settings> {
         }
     }
 
-    private fun ensureDirectory(
-        directory: Path,
-        path: ProjectPath,
-        policy: MissingDirectoryPolicy,
-    ) {
+    private fun ensureDirectory(directory: Path, path: ProjectPath, policy: MissingDirectoryPolicy) {
         when (policy) {
             MissingDirectoryPolicy.FAIL -> {
                 require(Files.isDirectory(directory)) {
@@ -97,10 +94,7 @@ public class TrellisSettingsPlugin : Plugin<Settings> {
         }
     }
 
-    private fun publishRegistry(
-        settings: Settings,
-        registry: ModuleRegistry,
-    ) {
+    private fun publishRegistry(settings: Settings, registry: ModuleRegistry) {
         val extensions = settings.gradle.extensions
         when (val existing = extensions.findByName(MODULE_REGISTRY_HOLDER_NAME)) {
             null -> {
@@ -132,9 +126,7 @@ public class TrellisSettingsPlugin : Plugin<Settings> {
     }
 }
 
-public class ModuleRegistryHolder(
-    public val registry: ModuleRegistry,
-) {
+public class ModuleRegistryHolder(public val registry: ModuleRegistry) {
     public var projectConventions: ProjectConventions? = null
         private set
 

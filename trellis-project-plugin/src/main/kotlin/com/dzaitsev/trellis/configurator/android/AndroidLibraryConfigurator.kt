@@ -15,8 +15,7 @@ import org.gradle.kotlin.dsl.configure
  * Runs before the module's own script, so values set here are defaults that the module's
  * `android { }` block can override.
  */
-public class AndroidLibraryConfigurator(private val androidAttrs: AndroidAttrs.Native) :
-    Configurator<Module, TrellisProjectExtension> {
+public class AndroidLibraryConfigurator(private val androidAttrs: AndroidAttrs.Native) : Configurator<Module, TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         project.pluginManager.withPlugin(PluginIds.ANDROID_LIBRARY) {
             project.extensions.configure<LibraryExtension> {

@@ -34,7 +34,6 @@ public abstract class TrellisProjectPlugin<M : ModuleModel, E : TrellisProjectEx
     private val extensionName: String,
     private val extensionType: KClass<E>,
 ) : Plugin<Project> {
-
     /**
      * Resolves the module of type [M] declared for [project], e.g. via [findModule]. Return `null`
      * for projects that should be left untouched (implicit intermediate projects such as
@@ -66,9 +65,10 @@ public abstract class TrellisProjectPlugin<M : ModuleModel, E : TrellisProjectEx
 
             val rootConfigurators = rootConfigurators(extension)
             if (rootConfigurators.isNotEmpty()) {
-                val rootModule = checkNotNull(moduleOf(project)) {
-                    "No module declared for ${project.path}, which root configurators require"
-                }
+                val rootModule =
+                    checkNotNull(moduleOf(project)) {
+                        "No module declared for ${project.path}, which root configurators require"
+                    }
                 rootConfigurators.forEach { it.configure(project, rootModule, extension) }
             }
         }
