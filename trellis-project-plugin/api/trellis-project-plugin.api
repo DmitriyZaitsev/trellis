@@ -38,6 +38,12 @@ public final class com/dzaitsev/trellis/configurator/KotlinMultiplatformTargetsC
 	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)V
 }
 
+public final class com/dzaitsev/trellis/configurator/KotlinVersionConfigurator : com/dzaitsev/trellis/plugin/Configurator {
+	public fun <init> ()V
+	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)V
+	public synthetic fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/ModuleModel;Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)V
+}
+
 public final class com/dzaitsev/trellis/configurator/android/AndroidAppConfigurator : com/dzaitsev/trellis/plugin/Configurator {
 	public fun <init> ()V
 	public fun configure (Lorg/gradle/api/Project;Lcom/dzaitsev/trellis/Module;Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)V

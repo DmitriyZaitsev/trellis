@@ -260,6 +260,20 @@ class TrellisProjectPluginFunctionalTest {
     }
 
     @Test
+    fun `kotlin version applies to jvm modules and is optional`() {
+        file("libs/jvm/core/build.gradle.kts").writeText(
+            "println(\"LANG=\" + kotlin.compilerOptions.languageVersion.orNull?.version)\n",
+        )
+
+        val expected = KOTLIN_VERSION.split('.').take(2).joinToString(".")
+        assertTrue("LANG=$expected" in build("help").output)
+
+        val root = file("build.gradle.kts")
+        root.writeText(root.readText().replace("kotlinVersion = \"$KOTLIN_VERSION\"", ""))
+        assertTrue("LANG=null" in build("help").output)
+    }
+
+    @Test
     fun `configures declared modules and reuses the configuration cache`() {
         val tasks = arrayOf(":app:compileKotlin", ":multi:compileKotlinJvm", ":multi:compileKotlinJs", "--configuration-cache")
 

@@ -30,6 +30,7 @@ public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(modul
     JavaConfigurator(),
     KmpAndroidTargetConfigurator(),
     KotlinMultiplatformTargetsConfigurator(),
+    KotlinVersionConfigurator(),
     JvmTargetConfigurator(),
     ExplicitApiConfigurator(),
 )

@@ -19,7 +19,6 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.project
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
@@ -60,12 +59,6 @@ public class KotlinMultiplatformTargetsConfigurator : Configurator<Module, Trell
 
         project.pluginManager.withPlugin(PluginIds.KOTLIN_MULTIPLATFORM) {
             project.extensions.configure<KotlinMultiplatformExtension> {
-                val kotlinVersion = extension.kotlinVersion.map { version ->
-                    KotlinVersion.fromVersion(version.split('.').take(2).joinToString("."))
-                }
-                compilerOptions.languageVersion.convention(kotlinVersion)
-                compilerOptions.apiVersion.convention(kotlinVersion)
-
                 if (module.autoConfigureTargets) registerTargets(module, project)
             }
         }

@@ -18,8 +18,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
  * (Kotlin/Java toolchain setup, Android app/library/KMP-target configuration) needs them.
  */
 public interface TrellisProjectExtension {
-    /** The Kotlin language/API version to compile against, e.g. `"2.2"`. */
+    /** The Kotlin language/API version to compile against, e.g. `"2.4"`; unset keeps the compiler's default. */
     @get:Input
+    @get:Optional
     public val kotlinVersion: Property<String>
 
     /** The JVM target/toolchain version, e.g. `17`. */
@@ -40,10 +41,11 @@ public interface TrellisProjectExtension {
     public val useJavaToolchain: Property<Boolean>
 }
 
-public fun TrellisProjectExtension.getKotlinVersion(): KotlinVersion = kotlinVersion
-    .get()
-    .split(".")
-    .let { KotlinVersion.fromVersion("${it[0]}.${it[1]}") }
+/** The configured Kotlin language/API version, or `null` when the compiler's default applies. */
+public fun TrellisProjectExtension.getKotlinVersion(): KotlinVersion? = kotlinVersion.orNull?.toKotlinVersion()
+
+/** Parses `"2.4"` or a full release such as `"2.4.20"`; only major and minor matter for the language version. */
+internal fun String.toKotlinVersion(): KotlinVersion = KotlinVersion.fromVersion(split('.').take(2).joinToString("."))
 
 public fun TrellisProjectExtension.getJvmTarget(): JvmTarget = JvmTarget.fromTarget(JavaVersion.toVersion(javaVersion.get()).toString())
 

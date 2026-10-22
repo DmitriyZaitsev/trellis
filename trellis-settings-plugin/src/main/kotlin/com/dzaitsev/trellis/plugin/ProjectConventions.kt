@@ -1,7 +1,8 @@
 package com.dzaitsev.trellis.plugin
 
 public class ProjectConventions {
-    public var kotlinVersion: String = "2.4"
+    /** Kotlin language and API version, e.g. `"2.4"`; `null` keeps the compiler's default. */
+    public var kotlinVersion: String? = null
     public var javaVersion: Int = 17
     public var androidMinSdk: Int = 24
     public var androidTargetSdk: Int = 36

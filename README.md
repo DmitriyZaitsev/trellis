@@ -332,7 +332,7 @@ there win over settings. That is useful when they come from a version catalog, w
 
 | Property           | Meaning                                                            |
 |--------------------|--------------------------------------------------------------------|
-| `kotlinVersion`    | Kotlin language and API version, for example `"2.4.20"`            |
+| `kotlinVersion`    | Kotlin language and API version for every Kotlin module, for example `"2.4"`; unset keeps the compiler's default |
 | `javaVersion`      | JVM bytecode target for Kotlin, Java and Android, for example `17` |
 | `androidMinSdk`    | `minSdk` for every Android module and KMP Android target           |
 | `androidTargetSdk` | `compileSdk` for every Android module and KMP Android target       |
