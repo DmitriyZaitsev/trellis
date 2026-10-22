@@ -46,3 +46,15 @@ public fun TrellisProjectExtension.getKotlinVersion(): KotlinVersion = kotlinVer
     .let { KotlinVersion.fromVersion("${it[0]}.${it[1]}") }
 
 public fun TrellisProjectExtension.getJvmTarget(): JvmTarget = JvmTarget.fromTarget(JavaVersion.toVersion(javaVersion.get()).toString())
+
+/**
+ * Uses [conventions] declared in settings (`trellis { projectConventions { } }`) as this extension's
+ * defaults; values assigned in a build script still win.
+ */
+public fun TrellisProjectExtension.useSettingsConventions(conventions: ProjectConventions) {
+    kotlinVersion.convention(conventions.kotlinVersion)
+    javaVersion.convention(conventions.javaVersion)
+    androidMinSdk.convention(conventions.androidMinSdk)
+    androidTargetSdk.convention(conventions.androidTargetSdk)
+    useJavaToolchain.convention(conventions.useJavaToolchain)
+}

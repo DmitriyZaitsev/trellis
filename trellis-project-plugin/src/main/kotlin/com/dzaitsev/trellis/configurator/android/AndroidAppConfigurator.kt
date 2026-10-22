@@ -20,7 +20,7 @@ public class AndroidAppConfigurator : Configurator<Module, TrellisProjectExtensi
 
         project.pluginManager.withPlugin(PluginIds.ANDROID_APPLICATION) {
             project.extensions.configure<ApplicationExtension> {
-                configureCommonAndroid(project, module.namespace, module.usesCompose, module.flavors, extension)
+                configureCommonAndroid(module.namespace, module.usesCompose, module.flavors, extension)
 
                 defaultConfig.targetSdk = extension.androidTargetSdk.get()
 

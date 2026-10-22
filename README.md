@@ -312,15 +312,31 @@ Declaring the same target kind twice in one module is rejected.
 
 ## Conventions
 
-Conventions are the values shared by all modules. In root mode they are set in the root build script:
+Conventions are the values shared by all modules. Declare them once in settings; both the root and the local plugin
+read them from there:
 
-| Property           | Meaning                                                         |
-|--------------------|-----------------------------------------------------------------|
-| `kotlinVersion`    | Kotlin language and API version, for example `"2.4.20"`         |
+```kotlin
+// settings.gradle.kts
+trellis {
+    projectConventions {
+        kotlinVersion = "2.4.20"
+        javaVersion = 17
+        androidMinSdk = 24
+        androidTargetSdk = 37
+    }
+}
+```
+
+In root mode you can instead, or additionally, set them in the root build script's `trellis { }` block; values assigned
+there win over settings. That is useful when they come from a version catalog, which settings scripts cannot read.
+
+| Property           | Meaning                                                            |
+|--------------------|--------------------------------------------------------------------|
+| `kotlinVersion`    | Kotlin language and API version, for example `"2.4.20"`            |
 | `javaVersion`      | JVM bytecode target for Kotlin, Java and Android, for example `17` |
-| `androidMinSdk`    | `minSdk` for every Android module and KMP Android target        |
-| `androidTargetSdk` | `compileSdk` for every Android module and KMP Android target    |
-| `useJavaToolchain` | Compile with a JDK toolchain of `javaVersion` (default `false`) |
+| `androidMinSdk`    | `minSdk` for every Android module and KMP Android target           |
+| `androidTargetSdk` | `compileSdk` for every Android module and KMP Android target       |
+| `useJavaToolchain` | Compile with a JDK toolchain of `javaVersion` (default `false`)    |
 
 What Trellis configures from a declaration:
 
@@ -338,20 +354,8 @@ has a good reason. Declared targets and host tests are additive; opt a module ou
 ## Isolated Projects mode
 
 Root mode uses `allprojects`, which Gradle's Isolated Projects feature does not allow. If you need isolation, use the local
-plugin. Keep the module declarations in settings and move the conventions there:
-
-```kotlin
-// settings.gradle.kts
-trellis {
-    projectConventions {
-        kotlinVersion = "2.4.20"
-        javaVersion = 17
-        androidMinSdk = 24
-        androidTargetSdk = 37
-        useJavaToolchain = false
-    }
-}
-```
+plugin. It reads conventions only from settings, so declare them with `projectConventions { }` as shown in
+[Conventions](#conventions).
 
 Replace `com.dzaitsev.trellis.conventions` in the root build script with
 `id("com.dzaitsev.trellis.local") version "0.1.0" apply false`, keeping the Kotlin and Android plugins with
@@ -572,13 +576,8 @@ class AcmeLocalPlugin : Plugin<Project> {
         val conventions = requireNotNull(project.extensions.getByType<ModuleRegistryHolder>().projectConventions) {
             "Declare trellis { projectConventions { ... } } in settings first"
         }
-        val extension = project.extensions.create<AcmeExtension>("trellis").apply {
-            kotlinVersion.set(conventions.kotlinVersion)
-            javaVersion.set(conventions.javaVersion)
-            androidMinSdk.set(conventions.androidMinSdk)
-            androidTargetSdk.set(conventions.androidTargetSdk)
-            useJavaToolchain.set(conventions.useJavaToolchain)
-        }
+        val extension = project.extensions.create<AcmeExtension>("trellis")
+        extension.useSettingsConventions(conventions)
         (defaultProjectModuleConfigurators<AcmeExtension>(module) + DetektConfigurator())
             .forEach { it.configure(project, module, extension) }
     }

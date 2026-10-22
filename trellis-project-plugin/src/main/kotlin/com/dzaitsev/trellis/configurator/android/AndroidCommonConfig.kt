@@ -4,7 +4,6 @@ import com.android.build.api.dsl.CommonExtension
 import com.dzaitsev.trellis.android.Flavor
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.JavaVersion
-import org.gradle.api.Project
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 /**
@@ -27,7 +26,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
  * project-specific extras (e.g. a shared test-module dependency) this library has no opinion on.
  */
 public fun CommonExtension.configureCommonAndroid(
-    project: Project,
     namespace: String,
     usesCompose: Boolean,
     flavors: List<Flavor>,

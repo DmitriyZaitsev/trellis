@@ -20,7 +20,7 @@ public class AndroidLibraryConfigurator : Configurator<Module, TrellisProjectExt
 
         project.pluginManager.withPlugin(PluginIds.ANDROID_LIBRARY) {
             project.extensions.configure<LibraryExtension> {
-                configureCommonAndroid(project, module.namespace, module.usesCompose, module.flavors, extension)
+                configureCommonAndroid(module.namespace, module.usesCompose, module.flavors, extension)
 
                 val consumerRules = project.file("consumer-rules.pro")
                 if (consumerRules.exists()) {

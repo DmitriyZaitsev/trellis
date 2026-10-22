@@ -244,6 +244,22 @@ class TrellisProjectPluginFunctionalTest {
     }
 
     @Test
+    fun `root conventions default to settings and root script values win`() {
+        file("settings.gradle.kts").appendText(
+            "\ntrellis { projectConventions { kotlinVersion = \"$KOTLIN_VERSION\"; javaVersion = 11 } }\n",
+        )
+        val root = file("build.gradle.kts")
+        root.writeText(root.readText().substringBefore("trellis {"))
+
+        build(":app:compileKotlin")
+        assertEquals(JAVA_11_MAJOR, classMajorVersion("app/build/classes/kotlin/main/app/MainKt.class"))
+
+        root.appendText("trellis { javaVersion = 17 }\n")
+        build(":app:compileKotlin")
+        assertEquals(JAVA_17_MAJOR, classMajorVersion("app/build/classes/kotlin/main/app/MainKt.class"))
+    }
+
+    @Test
     fun `configures declared modules and reuses the configuration cache`() {
         val tasks = arrayOf(":app:compileKotlin", ":multi:compileKotlinJvm", ":multi:compileKotlinJs", "--configuration-cache")
 

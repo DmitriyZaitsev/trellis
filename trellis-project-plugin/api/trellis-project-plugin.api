@@ -45,7 +45,7 @@ public final class com/dzaitsev/trellis/configurator/android/AndroidAppConfigura
 }
 
 public final class com/dzaitsev/trellis/configurator/android/AndroidCommonConfigKt {
-	public static final fun configureCommonAndroid (Lcom/android/build/api/dsl/CommonExtension;Lorg/gradle/api/Project;Ljava/lang/String;ZLjava/util/List;Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)V
+	public static final fun configureCommonAndroid (Lcom/android/build/api/dsl/CommonExtension;Ljava/lang/String;ZLjava/util/List;Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)V
 }
 
 public final class com/dzaitsev/trellis/configurator/android/AndroidLibraryConfigurator : com/dzaitsev/trellis/plugin/Configurator {
@@ -81,6 +81,7 @@ public abstract interface class com/dzaitsev/trellis/plugin/TrellisProjectExtens
 public final class com/dzaitsev/trellis/plugin/TrellisProjectExtensionKt {
 	public static final fun getJvmTarget (Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)Lorg/jetbrains/kotlin/gradle/dsl/JvmTarget;
 	public static final fun getKotlinVersion (Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)Lorg/jetbrains/kotlin/gradle/dsl/KotlinVersion;
+	public static final fun useSettingsConventions (Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;Lcom/dzaitsev/trellis/plugin/ProjectConventions;)V
 }
 
 public abstract class com/dzaitsev/trellis/plugin/TrellisProjectPlugin : org/gradle/api/Plugin {

@@ -52,6 +52,10 @@ public abstract class TrellisProjectPlugin<M : ModuleModel, E : TrellisProjectEx
 
     final override fun apply(project: Project) {
         val extension = project.extensions.create(extensionName, extensionType.java)
+        project.extensions
+            .findByType(ModuleRegistryHolder::class.java)
+            ?.projectConventions
+            ?.let(extension::useSettingsConventions)
 
         project.afterEvaluate {
             project.allprojects {
