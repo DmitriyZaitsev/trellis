@@ -8,8 +8,8 @@ package com.dzaitsev.trellis.dsl
  *     root("app-root")
  *
  *     group("feature") {
- *         kmp("auth", jvm + ios())
- *         kmp("profile", jvm + ios())
+ *         kmp("auth") { jvm(); ios() }
+ *         kmp("profile") { jvm(); ios() }
  *     }
  * }
  * ```

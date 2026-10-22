@@ -3,6 +3,7 @@ package com.dzaitsev.trellis.dsl
 import com.dzaitsev.trellis.KmpTarget
 import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.getAndroidAttrs
+import com.dzaitsev.trellis.isGroup
 
 /**
  * The set of [com.dzaitsev.trellis.Module]s declared for a build, keyed by [com.dzaitsev.trellis.ModuleModel.name].
@@ -63,16 +64,24 @@ public class ModuleRegistry internal constructor(
             "KMP module $path declares no targets"
         }
 
+        val groupTargets = module.targets.filter { it.isGroup }
+
+        require(groupTargets.isEmpty()) {
+            "KMP module $path declares group targets: " +
+                groupTargets.joinToString { it.name } +
+                "; declare concrete targets (e.g. ios(), macos(), js()) instead"
+        }
+
+        // `name` identifies a kind regardless of its configuration (e.g. `ios()` vs `ios(framework = ...)`).
         val repeatedKinds =
             module.targets
-                .groupingBy { it::class }
+                .groupingBy { it.name }
                 .eachCount()
                 .filterValues { it > 1 }
                 .keys
 
         require(repeatedKinds.isEmpty()) {
-            "KMP module $path declares more than one target of kind: " +
-                repeatedKinds.joinToString { it.simpleName.orEmpty() }
+            "KMP module $path declares more than one target of kind: " + repeatedKinds.joinToString()
         }
 
         val unknownExports =

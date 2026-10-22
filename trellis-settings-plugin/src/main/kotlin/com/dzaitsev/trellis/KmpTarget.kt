@@ -1,35 +1,47 @@
 package com.dzaitsev.trellis
 
-import com.dzaitsev.trellis.KmpTarget.Desktop.Companion.application
-import com.dzaitsev.trellis.KmpTarget.Desktop.Companion.library
-import com.dzaitsev.trellis.KmpTarget.Js.Companion.application
-import com.dzaitsev.trellis.KmpTarget.Js.Companion.library
-import com.dzaitsev.trellis.KmpTarget.Wasm.Companion.application
-import com.dzaitsev.trellis.KmpTarget.Wasm.Companion.library
 import com.dzaitsev.trellis.android.AndroidAttrs
 import com.dzaitsev.trellis.android.HasAndroidAttrs
 
 /**
  * A Kotlin Multiplatform compilation target attached to a [Module.KmpLibrary].
  *
+ * Targets form a hierarchy that mirrors Kotlin's default source-set hierarchy; [name] is the
+ * Kotlin source-set / target-group name (`"apple"`, `"ios"`, `"wasmJs"`, ...), and is unique per
+ * kind:
+ *
+ * ```
+ * KmpTarget
+ * └── Common
+ *     ├── Jvm, Android          (not part of Native/Web, like in Kotlin's own template)
+ *     ├── Native
+ *     │   ├── Apple ── Macos, Ios, Tvos, Watchos
+ *     │   ├── Linux
+ *     │   ├── Mingw
+ *     │   └── AndroidNative
+ *     └── Web ── Js, WasmJs
+ * ```
+ *
+ * Every kind with options is a data class; only [Jvm] has none and is an object. Kinds with
+ * several platform variants carry them as a non-empty set that defaults to the kind's `DEFAULT`:
+ * `hosts` for [Ios], [Tvos], [Watchos] and [AndroidNative], `environments` for [Js] and [WasmJs].
+ * Consumers can dispatch on any level of the hierarchy, e.g. `target is KmpTarget.Apple`.
+ *
+ * The group singletons ([com.dzaitsev.trellis.Common], [com.dzaitsev.trellis.Native],
+ * [com.dzaitsev.trellis.Web], [com.dzaitsev.trellis.Apple]) only name a level of the hierarchy and
+ * are rejected as module targets: declare the concrete targets instead.
+ *
  * Whether a target produces a library-only (klib) output or an additional runnable
  * application/executable is a per-target Gradle DSL toggle (`binaries.executable()`), not a
  * whole-module plugin choice the way `com.android.application`/`com.android.library` is — see
- * [Js.isApplication]/[Wasm.isApplication]/[Desktop.isApplication]. A module can freely mix
- * library-shaped targets (e.g. [Jvm], [Ios]) with application-shaped ones (e.g. a [Desktop] with
- * `isApplication = true`) — [Module.KmpLibrary]'s name describes what this library always
- * produces by default, not a hard constraint on what any individual target can opt into.
- *
- * This interface is open: a consuming project can add its own target kinds (e.g. a single native
- * target instead of the [Desktop] group) as additional implementations without changing this
- * library. [Jvm], [Ios], [Android], [Js], [Wasm] and [Desktop] are provided as the built-ins this
- * project currently needs.
+ * `isApplication` on [Js], [WasmJs], [Macos], [Linux] and [Mingw]. A module can freely mix
+ * library-shaped targets (e.g. [Jvm], [Ios]) with application-shaped ones.
  */
-public interface KmpTarget {
-    /** Builds a target set: `jvm + ios()`; the stdlib `Set<T> + T` extends it further. */
-    public operator fun plus(that: KmpTarget): Set<KmpTarget> = setOf(this, that)
+public sealed class KmpTarget(public val name: String) {
+    public sealed class Common(name: String) : KmpTarget(name)
 
-    public operator fun plus(that: Collection<KmpTarget>): Set<KmpTarget> = setOf(this) + that
+    /** The JVM target. */
+    public data object Jvm : Common("jvm")
 
     /**
      * The Android target of a KMP module. Constructor-narrowed to [AndroidAttrs.Kmp] — not the
@@ -39,8 +51,99 @@ public interface KmpTarget {
      * dispatch, the way an unconstrained `AndroidAttrs` parameter would allow.
      */
     public data class Android(override val androidAttrs: AndroidAttrs.Kmp) :
-        KmpTarget,
+        Common("android"),
         HasAndroidAttrs
+
+    public sealed class Native(name: String) : Common(name)
+
+    public sealed class Web(name: String) : Common(name)
+
+    public sealed class Apple(name: String) : Native(name)
+
+    /** Kotlin/Native Linux (`linuxX64`). Set [isApplication] to register an executable binary. */
+    public data class Linux(public val isApplication: Boolean = false) : Native("linux") {
+        public companion object : AppLibraryFactory<Linux> {
+            override fun of(isApplication: Boolean): Linux = Linux(isApplication)
+        }
+    }
+
+    /** Kotlin/Native Windows (`mingwX64`). Set [isApplication] to register an executable binary. */
+    public data class Mingw(public val isApplication: Boolean = false) : Native("mingw") {
+        public companion object : AppLibraryFactory<Mingw> {
+            override fun of(isApplication: Boolean): Mingw = Mingw(isApplication)
+        }
+    }
+
+    /**
+     * Kotlin/Native Android (`androidNativeArm64`, `androidNativeX64`) — not to be confused with
+     * [Android], the JVM-based Android target.
+     */
+    public data class AndroidNative(public val hosts: Set<AndroidNativeHost> = AndroidNativeHost.DEFAULT) : Native("androidNative") {
+        init {
+            require(hosts.isNotEmpty()) { "AndroidNative target needs at least one host" }
+        }
+
+        public enum class AndroidNativeHost {
+            ANDROID_NATIVE_ARM64,
+            ANDROID_NATIVE_X64,
+            ;
+
+            public companion object {
+                public val DEFAULT: Set<AndroidNativeHost> = entries.toSet()
+            }
+        }
+    }
+
+    /**
+     * Kotlin/JS target: registers the `browser()` and/or `nodejs()` sub-targets listed in [environments].
+     *
+     * Set [isApplication] to `true` to additionally register an executable binary (`fun main()`
+     * in this target's source set becomes a runnable/bundled JS app); leave it `false` (the
+     * default) for a target meant to be consumed as a library by another module.
+     */
+    public data class Js(public val isApplication: Boolean = false, public val environments: Set<JsEnv> = JsEnv.DEFAULT) : Web("js") {
+        init {
+            require(environments.isNotEmpty()) { "Js target needs at least one environment" }
+        }
+
+        public companion object : WebTargetFactory<Js> {
+            override fun of(isApplication: Boolean, environments: Set<JsEnv>): Js = Js(isApplication, environments)
+        }
+    }
+
+    /**
+     * Kotlin/Wasm (`wasmJs`) target: registers the `browser()` and/or `nodejs()` sub-targets listed
+     * in [environments]. Set [isApplication] to `true` to additionally register an executable
+     * binary, same as [Js].
+     */
+    public data class WasmJs(public val isApplication: Boolean = false, public val environments: Set<JsEnv> = JsEnv.DEFAULT) :
+        Web("wasmJs") {
+        init {
+            require(environments.isNotEmpty()) { "WasmJs target needs at least one environment" }
+        }
+
+        public companion object : WebTargetFactory<WasmJs> {
+            override fun of(isApplication: Boolean, environments: Set<JsEnv>): WasmJs = WasmJs(isApplication, environments)
+        }
+    }
+
+    /** Execution environments of a [Js] or [WasmJs] target. */
+    public enum class JsEnv {
+        BROWSER,
+        NODE_JS,
+        ;
+
+        public companion object {
+            public val DEFAULT: Set<JsEnv> = entries.toSet()
+        }
+    }
+
+    /** Kotlin/Native macOS (`macosArm64`). Set [isApplication] to register an executable binary. */
+    public data class Macos(public val isApplication: Boolean = false) : Apple("macos") {
+        public companion object : AppLibraryFactory<Macos> {
+            override fun of(isApplication: Boolean): Macos = Macos(isApplication)
+        }
+    }
 
     /**
      * The iOS targets listed in [hosts]: `iosArm64` and `iosSimulatorArm64` by default, `iosX64`
@@ -51,7 +154,7 @@ public interface KmpTarget {
      * Leave it `null` (the default) for a target meant to be consumed as Kotlin source by another
      * KMP module rather than built as a standalone framework.
      */
-    public data class Ios(public val framework: Framework? = null, public val hosts: Set<IosHost> = IosHost.DEFAULT) : KmpTarget {
+    public data class Ios(public val framework: Framework? = null, public val hosts: Set<IosHost> = IosHost.DEFAULT) : Apple("ios") {
         init {
             require(hosts.isNotEmpty()) { "Ios target needs at least one host" }
         }
@@ -61,8 +164,8 @@ public interface KmpTarget {
          *
          * [export] takes Gradle project paths (e.g. `":domain"`) rather than `Project`
          * references, so a [Module] declaration stays plain data with no Gradle API
-         * dependency. Each exported path is also added as an `api` dependency of the `iosMain`
-         * source set — Kotlin/Native requires a dependency exported from a framework to be an API
+         * dependency. Each exported path is also added as an `api` dependency of each iOS target's
+         * main source set — Kotlin/Native requires a dependency exported from a framework to be an API
          * dependency of that compilation, so the configurator wires both from this one list
          * instead of requiring it to be declared twice.
          *
@@ -79,7 +182,8 @@ public interface KmpTarget {
             public val releaseFreeCompilerArgs: List<String> = DEFAULT_RELEASE_FREE_COMPILER_ARGS,
         ) {
             public companion object {
-                public val DEFAULT_FREE_COMPILER_ARGS: List<String> = listOf("-Xpartial-linkage-loglevel=WARNING")
+                public val DEFAULT_FREE_COMPILER_ARGS: List<String> =
+                    listOf("-Xpartial-linkage-loglevel=WARNING")
                 public val DEFAULT_RELEASE_FREE_COMPILER_ARGS: List<String> =
                     listOf(
                         "-Xbinary=gc=concurrent_mark_and_sweep",
@@ -103,84 +207,61 @@ public interface KmpTarget {
         }
     }
 
-    public data object Jvm : KmpTarget
-
-    /** Kotlin/JS target: registers the `browser()` and/or `nodejs()` sub-targets listed in [environments].
-     *
-     * Set [isApplication] to `true` to additionally register an executable binary (`fun main()`
-     * in this target's source set becomes a runnable/bundled JS app); leave it `false` (the
-     * default) for a target meant to be consumed as a library by another module. Prefer the
-     * [library]/[application] factories over the raw constructor for readability at the call site.
-     */
-    public data class Js(public val isApplication: Boolean = false, public val environments: Set<JsEnv> = JsEnv.entries.toSet()) :
-        KmpTarget {
+    /** Kotlin/Native tvOS: device and Apple Silicon simulator. */
+    public data class Tvos(public val hosts: Set<TvosHost> = TvosHost.DEFAULT) : Apple("tvos") {
         init {
-            require(environments.isNotEmpty()) { "Js target needs at least one environment" }
+            require(hosts.isNotEmpty()) { "Tvos target needs at least one host" }
         }
 
-        public companion object : WebTargetFactory<Js> {
-            override fun of(isApplication: Boolean, environments: Set<JsEnv>): Js = Js(isApplication, environments)
+        public enum class TvosHost {
+            TVOS_ARM64,
+            TVOS_SIMULATOR_ARM64,
+            ;
+
+            public companion object {
+                public val DEFAULT: Set<TvosHost> = entries.toSet()
+            }
         }
     }
 
-    /** Kotlin/Wasm (`wasmJs`) target: registers the `browser()` and/or `nodejs()` sub-targets listed in [environments].
-     *
-     * Set [isApplication] to `true` to additionally register an executable binary, same as [Js].
-     * Prefer the [library]/[application] factories over the raw constructor for readability at
-     * the call site.
-     */
-    public data class Wasm(public val isApplication: Boolean = false, public val environments: Set<JsEnv> = JsEnv.entries.toSet()) :
-        KmpTarget {
+    /** Kotlin/Native watchOS: device and Apple Silicon simulator. */
+    public data class Watchos(public val hosts: Set<WatchosHost> = WatchosHost.DEFAULT) : Apple("watchos") {
         init {
-            require(environments.isNotEmpty()) { "Wasm target needs at least one environment" }
+            require(hosts.isNotEmpty()) { "Watchos target needs at least one host" }
         }
 
-        public companion object : WebTargetFactory<Wasm> {
-            override fun of(isApplication: Boolean, environments: Set<JsEnv>): Wasm = Wasm(isApplication, environments)
-        }
-    }
+        public enum class WatchosHost {
+            WATCHOS_ARM64,
+            WATCHOS_SIMULATOR_ARM64,
+            ;
 
-    /** Execution environments of a [Js] or [Wasm] target. */
-    public enum class JsEnv {
-        BROWSER,
-        NODE_JS,
-    }
-
-    /** Desktop native targets: `macosArm64`, `linuxX64`, `mingwX64` (Windows), limited to [hosts].
-     *
-     * Set [isApplication] to `true` to additionally register an executable binary on each of
-     * them (`fun main()` in this target's source set becomes a runnable native binary); leave it
-     * `false` (the default) for targets meant to be consumed as a library by another module.
-     * Prefer the [library]/[application] factories over the raw constructor for readability at
-     * the call site.
-     */
-    public data class Desktop(
-        public val isApplication: Boolean = false,
-        public val hosts: Set<DesktopHost> = DesktopHost.entries.toSet(),
-    ) : KmpTarget {
-        init {
-            require(hosts.isNotEmpty()) { "Desktop target needs at least one host" }
-        }
-
-        public companion object : AppLibraryFactory<Desktop> {
-            override fun of(isApplication: Boolean): Desktop = Desktop(isApplication)
-        }
-
-        /** Kotlin/Native desktop targets a [Desktop] target can register. */
-        public enum class DesktopHost {
-            MACOS_ARM64,
-            LINUX_X64,
-            MINGW_X64,
+            public companion object {
+                public val DEFAULT: Set<WatchosHost> = entries.toSet()
+            }
         }
     }
 }
 
+// Group singletons: name a level of the hierarchy; not declarable as module targets.
+public data object Common : KmpTarget.Common("common")
+
+public data object Native : KmpTarget.Native("native")
+
+public data object Web : KmpTarget.Web("web")
+
+public data object Apple : KmpTarget.Apple("apple")
+
+/** True for the group singletons that only name a hierarchy level rather than a concrete target. */
+internal val KmpTarget.isGroup: Boolean
+    get() = this === Common || this === Native || this === Web || this === Apple
+
 /**
  * Shared factory shape for [KmpTarget] kinds that toggle between library-only and
  * application (executable-producing) output through a single `isApplication` flag — currently
- * [KmpTarget.Js], [KmpTarget.Wasm] and [KmpTarget.Desktop]. Implement [of] once in each target's
- * companion object; [library] and [application] come for free and read the same way
- * `androidApp`/`androidLibrary` do at the call site (e.g. `KmpTarget.Desktop.application()`).
+ * [KmpTarget.Js], [KmpTarget.WasmJs], [KmpTarget.Macos], [KmpTarget.Linux] and [KmpTarget.Mingw].
+ * Implement [of] once in each kind's companion object; [library] and [application] come for free
+ * and read the same way `androidApp`/`androidLibrary` do at the call site (e.g.
+ * `KmpTarget.Linux.application()`).
  */
 public interface AppLibraryFactory<T : KmpTarget> {
     public fun of(isApplication: Boolean): T
@@ -190,20 +271,13 @@ public interface AppLibraryFactory<T : KmpTarget> {
     public fun application(): T = of(isApplication = true)
 }
 
-/** [AppLibraryFactory] for [KmpTarget.Js]/[KmpTarget.Wasm], additionally choosing their [KmpTarget.JsEnv]s. */
+/** [AppLibraryFactory] for [KmpTarget.Js]/[KmpTarget.WasmJs], additionally choosing their [KmpTarget.JsEnv]s. */
 public interface WebTargetFactory<T : KmpTarget> : AppLibraryFactory<T> {
     public fun of(isApplication: Boolean, environments: Set<KmpTarget.JsEnv>): T
 
-    override fun of(isApplication: Boolean): T = of(isApplication, KmpTarget.JsEnv.entries.toSet())
+    override fun of(isApplication: Boolean): T = of(isApplication, KmpTarget.JsEnv.DEFAULT)
 
-    public fun library(vararg environments: KmpTarget.JsEnv): T = of(false, environments.toSet())
+    public fun library(vararg environments: KmpTarget.JsEnv): T = of(false, environments.toSet().ifEmpty { KmpTarget.JsEnv.DEFAULT })
 
-    public fun application(vararg environments: KmpTarget.JsEnv): T = of(true, environments.toSet())
+    public fun application(vararg environments: KmpTarget.JsEnv): T = of(true, environments.toSet().ifEmpty { KmpTarget.JsEnv.DEFAULT })
 }
-
-// Kept for source compatibility of existing `import com.dzaitsev.trellis.plus`.
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public operator fun KmpTarget.plus(that: KmpTarget): Set<KmpTarget> = setOf(this, that)
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public operator fun KmpTarget.plus(that: Collection<KmpTarget>): Set<KmpTarget> = setOf(this) + that

@@ -40,7 +40,7 @@ class TrellisProjectPluginFunctionalTest {
                 createMissingDirectories()
                 group("libs") { group("jvm") { java("core") } }
                 java("app", mainClass = "app.MainKt")
-                kmp("multi", targets = { setOf(jvm, js { setOf(browser) }) })
+                kmp("multi", targets = { jvm(); js(browser) })
             }
             """.trimIndent(),
         )
@@ -85,8 +85,8 @@ class TrellisProjectPluginFunctionalTest {
                 .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }")
                 .replace("java(\"core\")", "java(\"core\", usesCompose = true)")
                 .replace(
-                    "kmp(\"multi\", targets = { setOf(jvm, js { setOf(browser) }) })",
-                    "kmp(\"multi\", targets = { setOf(jvm) }, usesCompose = true)",
+                    "kmp(\"multi\", targets = { jvm(); js(browser) })",
+                    "kmp(\"multi\", targets = { jvm() }, usesCompose = true)",
                 ),
         )
         val root = file("build.gradle.kts")
@@ -144,7 +144,7 @@ class TrellisProjectPluginFunctionalTest {
                 trellis {
                     androidApp("nativeApp", namespace = "fixture.app", usesCompose = true)
                     androidLibrary("nativeLibrary", namespace = "fixture.library", usesCompose = true)
-                    kmp("androidMulti", targets = { setOf(android("fixture.multi", enableResources = true), jvm) }, usesCompose = true)
+                    kmp("androidMulti", targets = { android("fixture.multi", enableResources = true); jvm() }, usesCompose = true)
                 }
                 """.trimIndent(),
         )
@@ -208,8 +208,7 @@ class TrellisProjectPluginFunctionalTest {
         settings.writeText(
             settings
                 .readText()
-                .replace("setOf(jvm, js { setOf(browser) })", "setOf(jvm)")
-                .replace("jvm + js(browser)", "setOf(jvm)"),
+                .replace("{ jvm(); js(browser) }", "{ jvm() }"),
         )
         file("settings.gradle.kts").appendText(
             "\ntrellis { projectConventions { kotlinVersion = \"$KOTLIN_VERSION\"; javaVersion = 17 } }\n",

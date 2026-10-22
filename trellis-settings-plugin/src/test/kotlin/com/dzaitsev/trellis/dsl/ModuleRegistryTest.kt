@@ -1,8 +1,6 @@
 package com.dzaitsev.trellis.dsl
 
 import com.dzaitsev.trellis.KmpTarget
-import com.dzaitsev.trellis.KmpTarget.Desktop
-import com.dzaitsev.trellis.KmpTarget.Desktop.DesktopHost
 import com.dzaitsev.trellis.KmpTarget.Ios
 import com.dzaitsev.trellis.KmpTarget.Ios.Framework
 import com.dzaitsev.trellis.KmpTarget.Ios.IosHost
@@ -71,9 +69,9 @@ class ModuleRegistryTest {
             moduleRegistry {
                 group("feature") {
                     group("auth") {
-                        kmp("api") { setOf(jvm) }
+                        kmp("api") { jvm() }
                     }
-                    kmp("profile") { setOf(jvm) }
+                    kmp("profile") { jvm() }
                 }
             }
 
@@ -87,7 +85,7 @@ class ModuleRegistryTest {
     @Test
     fun `undeclared paths resolve to null`() {
         val registry =
-            moduleRegistry { group("feature") { kmp("auth") { setOf(jvm) } } }
+            moduleRegistry { group("feature") { kmp("auth") { jvm() } } }
 
         assertNull(registry.findByPath(ProjectPath(":feature")))
         assertNull(registry.findByPath(ProjectPath.ROOT))
@@ -105,7 +103,7 @@ class ModuleRegistryTest {
         assertFailsWith<IllegalArgumentException> {
             moduleRegistry {
                 java("a")
-                kmp("a") { setOf(jvm) }
+                kmp("a") { jvm() }
             }
         }
     }
@@ -114,7 +112,7 @@ class ModuleRegistryTest {
     fun `kmp module without targets is rejected`() {
         val error =
             assertFailsWith<IllegalArgumentException> {
-                moduleRegistry { kmp("a") { emptySet() } }
+                moduleRegistry { kmp("a") { } }
             }
         assertTrue("declares no targets" in error.message.orEmpty())
     }
@@ -125,12 +123,61 @@ class ModuleRegistryTest {
             assertFailsWith<IllegalArgumentException> {
                 moduleRegistry {
                     kmp("a") {
-                        js { setOf(browser) } +
-                            js { setOf(nodeJs) }
+                        js(browser)
+                        js(nodeJs)
                     }
                 }
             }
-        assertTrue("Js" in error.message.orEmpty())
+        assertTrue("js" in error.message.orEmpty())
+    }
+
+    @Test
+    fun `differently configured targets of the same kind are repeated kinds`() {
+        assertFailsWith<IllegalArgumentException> {
+            moduleRegistry {
+                kmp("a") {
+                    ios()
+                    ios { framework("Other") }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `hierarchy group targets are rejected`() {
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                moduleRegistry {
+                    custom(Module.KmpLibrary("a", setOf(KmpTarget.Jvm, com.dzaitsev.trellis.Apple)))
+                }
+            }
+        assertTrue("apple" in error.message.orEmpty())
+    }
+
+    @Test
+    fun `targets follow the hierarchy`() {
+        val targets =
+            targetsOf {
+                ios()
+                macos()
+                linux()
+                androidNative()
+                tvos()
+                watchos()
+                js()
+                wasmJs()
+                jvm()
+            }.associateBy { it.name }
+
+        assertTrue(targets.getValue("ios") is KmpTarget.Apple)
+        assertTrue(targets.getValue("macos") is KmpTarget.Apple)
+        assertTrue(targets.getValue("linux") is KmpTarget.Native)
+        assertTrue(targets.getValue("androidNative") is KmpTarget.Native)
+        assertTrue(targets.getValue("tvos") is KmpTarget.Apple)
+        assertTrue(targets.getValue("watchos") is KmpTarget.Apple)
+        assertTrue(targets.getValue("js") is KmpTarget.Web)
+        assertTrue(targets.getValue("wasmJs") is KmpTarget.Web)
+        assertTrue(targets.getValue("jvm") !is KmpTarget.Native)
     }
 
     @Test
@@ -139,91 +186,101 @@ class ModuleRegistryTest {
             assertFailsWith<IllegalArgumentException> {
                 moduleRegistry {
                     kmp("umbrella") {
-                        setOf(
-                            ios(
-                                framework =
-                                Framework(
-                                    "Shared",
-                                    export = listOf(":missing"),
-                                ),
-                            ) {
-                                setOf(iosArm64)
-                            },
-                        )
+                        ios(iosArm64) { framework("Shared") { export(":missing") } }
                     }
                 }
             }
         assertTrue(":missing" in error.message.orEmpty())
 
         moduleRegistry {
-            kmp("domain") { setOf(ios()) }
+            kmp("domain") { ios() }
             kmp("umbrella") {
-                setOf(
-                    ios(
-                        framework =
-                        Framework(
-                            "Shared",
-                            export = listOf(":domain"),
-                        ),
-                    ) {
-                        setOf(iosArm64)
-                    },
-                )
+                ios(iosArm64) { framework("Shared") { export(":domain") } }
             }
         }
     }
 
     @Test
-    fun `target builders default to all environments and hosts`() {
-        lateinit var targets: List<KmpTarget>
-        val scope = KmpTargetsScope
-        moduleRegistry {
-            targets =
-                listOf(
-                    scope.js(),
-                    scope.js(isApplication = true) { setOf(browser) },
-                    scope.desktop(),
-                    scope.desktop(isApplication = false) { setOf(macosArm64) },
-                )
-        }
+    fun `framework scope builds a framework with defaults and overrides`() {
+        val default = targetsOf { ios { framework("Shared") } }.single() as Ios
+        assertEquals(Framework("Shared"), default.framework)
 
-        assertEquals(JsEnv.entries.toSet(), (targets[0] as Js).environments)
+        val custom =
+            targetsOf {
+                ios {
+                    framework("Shared") {
+                        export(":a", ":b")
+                        isStatic = false
+                    }
+                }
+            }.single() as Ios
+        assertEquals(Framework("Shared", export = listOf(":a", ":b"), isStatic = false), custom.framework)
+        assertEquals(null, (targetsOf { ios() }.single() as Ios).framework)
+        assertFailsWith<IllegalStateException> {
+            targetsOf {
+                ios {
+                    framework("A")
+                    framework("B")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `web targets default to all environments`() {
+        val web = targetsOf {
+            js(browser, isApplication = true)
+            wasmJs()
+        }.toList()
+        assertEquals(Js(isApplication = true, environments = setOf(JsEnv.BROWSER)), web[0])
+        assertEquals(JsEnv.DEFAULT, (web[1] as KmpTarget.WasmJs).environments)
+        assertEquals(JsEnv.DEFAULT, (targetsOf { js() }.single() as Js).environments)
+    }
+
+    @Test
+    fun `desktop declares macos linux and mingw`() {
         assertEquals(
-            Js(isApplication = true, environments = setOf(JsEnv.BROWSER)),
-            targets[1],
-        )
-        assertEquals(DesktopHost.entries.toSet(), (targets[2] as Desktop).hosts)
-        assertEquals(
-            setOf(DesktopHost.MACOS_ARM64),
-            (targets[3] as Desktop).hosts,
+            setOf(
+                KmpTarget.Macos(true),
+                KmpTarget.Linux(true),
+                KmpTarget.Mingw(true),
+            ),
+            targetsOf { desktop(isApplication = true) },
         )
     }
 
     @Test
-    fun `ios builder defaults to device and arm64 simulator`() {
-        lateinit var targets: List<Ios>
-        val scope = KmpTargetsScope
-        moduleRegistry {
-            targets =
-                listOf(
-                    scope.ios(),
-                    scope.ios(framework = Framework("Shared")) {
-                        setOf(iosArm64, iosSimulatorArm64)
-                    },
-                    scope.ios { setOf(iosSimulatorArm64, iosX64) },
-                )
-        }
-
-        assertEquals(IosHost.DEFAULT, targets[0].hosts)
-        assertEquals(IosHost.DEFAULT, targets[1].hosts)
-        assertEquals("Shared", targets[1].framework?.baseName)
+    fun `host based targets default to their DEFAULT hosts and honor selections`() {
+        assertEquals(IosHost.DEFAULT, (targetsOf { ios() }.single() as Ios).hosts)
+        assertEquals(KmpTarget.Tvos.TvosHost.DEFAULT, (targetsOf { tvos() }.single() as KmpTarget.Tvos).hosts)
+        assertEquals(KmpTarget.Watchos.WatchosHost.DEFAULT, (targetsOf { watchos() }.single() as KmpTarget.Watchos).hosts)
         assertEquals(
-            setOf(IosHost.IOS_SIMULATOR_ARM64, IosHost.IOS_X64),
-            targets[2].hosts,
+            KmpTarget.AndroidNative.AndroidNativeHost.DEFAULT,
+            (targetsOf { androidNative() }.single() as KmpTarget.AndroidNative).hosts,
         )
-        assertEquals(null, targets[2].framework)
+
+        val ios = targetsOf { ios(iosSimulatorArm64, iosX64) }.single() as Ios
+        assertEquals(setOf(IosHost.IOS_SIMULATOR_ARM64, IosHost.IOS_X64), ios.hosts)
+        assertEquals(
+            setOf(KmpTarget.Tvos.TvosHost.TVOS_ARM64),
+            (targetsOf { tvos(tvosArm64) }.single() as KmpTarget.Tvos).hosts,
+        )
+        assertEquals(
+            setOf(KmpTarget.Watchos.WatchosHost.WATCHOS_ARM64),
+            (targetsOf { watchos(watchosArm64) }.single() as KmpTarget.Watchos).hosts,
+        )
+        assertEquals(
+            setOf(KmpTarget.AndroidNative.AndroidNativeHost.ANDROID_NATIVE_X64),
+            (targetsOf { androidNative(androidNativeX64) }.single() as KmpTarget.AndroidNative).hosts,
+        )
+
         assertFailsWith<IllegalArgumentException> { Ios(hosts = emptySet()) }
+        assertFailsWith<IllegalArgumentException> { KmpTarget.Tvos(emptySet()) }
+        assertFailsWith<IllegalArgumentException> { KmpTarget.Watchos(emptySet()) }
+        assertFailsWith<IllegalArgumentException> { KmpTarget.AndroidNative(emptySet()) }
     }
+
+    private fun targetsOf(block: KmpTargetsScope.() -> Unit): Set<KmpTarget> = KmpTargetsScope().apply(block).build()
 
     @Test
     fun `application modules default to no explicit api`() {

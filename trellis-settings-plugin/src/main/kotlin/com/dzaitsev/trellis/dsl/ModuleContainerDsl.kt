@@ -1,6 +1,5 @@
 package com.dzaitsev.trellis.dsl
 
-import com.dzaitsev.trellis.KmpTarget
 import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.Module.AndroidApp
 import com.dzaitsev.trellis.Module.AndroidLibrary
@@ -21,12 +20,12 @@ public abstract class ModuleContainerDsl {
         hasExplicitApi: Boolean = false,
         autoConfigureTargets: Boolean = true,
         usesCompose: Boolean = false,
-        targets: KmpTargetsScope.() -> Set<KmpTarget>,
+        targets: KmpTargetsScope.() -> Unit,
     ) {
         custom(
             KmpLibrary(
                 name = name,
-                targets = KmpTargetsScope.run(targets),
+                targets = KmpTargetsScope().apply(targets).build(),
                 hasExplicitApi = hasExplicitApi,
                 autoConfigureTargets = autoConfigureTargets,
                 usesCompose = usesCompose,
@@ -43,16 +42,6 @@ public abstract class ModuleContainerDsl {
         )
     }
 
-    public fun androidApp(name: String, attrs: Native, hasExplicitApi: Boolean = false) {
-        custom(
-            AndroidApp(
-                name = name,
-                androidAttrs = attrs,
-                hasExplicitApi = hasExplicitApi,
-            ),
-        )
-    }
-
     public fun androidApp(
         name: String,
         namespace: String,
@@ -60,10 +49,12 @@ public abstract class ModuleContainerDsl {
         flavors: List<Flavor> = emptyList(),
         hasExplicitApi: Boolean = false,
     ) {
-        androidApp(
-            name,
-            Native(namespace, usesCompose, flavors),
-            hasExplicitApi,
+        custom(
+            AndroidApp(
+                name = name,
+                androidAttrs = Native(namespace, usesCompose, flavors),
+                hasExplicitApi = hasExplicitApi,
+            ),
         )
     }
 
@@ -74,18 +65,10 @@ public abstract class ModuleContainerDsl {
         flavors: List<Flavor> = emptyList(),
         hasExplicitApi: Boolean = false,
     ) {
-        androidLibrary(
-            name,
-            Native(namespace, usesCompose, flavors),
-            hasExplicitApi,
-        )
-    }
-
-    public fun androidLibrary(name: String, attrs: Native, hasExplicitApi: Boolean = false) {
         custom(
             AndroidLibrary(
                 name = name,
-                androidAttrs = attrs,
+                androidAttrs = Native(namespace, usesCompose, flavors),
                 hasExplicitApi = hasExplicitApi,
             ),
         )
