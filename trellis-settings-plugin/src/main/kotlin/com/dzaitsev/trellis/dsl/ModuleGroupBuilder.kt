@@ -18,7 +18,8 @@ public class ModuleGroupBuilder internal constructor(private val prefix: Project
     }
 
     public fun group(name: String, block: ModuleGroupBuilder.() -> Unit) {
-        modules += ModuleGroupBuilder(prefix.child(name)).apply(block).build()
+        markModuleDeclared()
+        modules += ModuleGroupBuilder(prefix.child(name)).also { it.defaults = defaults }.apply(block).build()
     }
 
     internal fun build(): List<ModuleDeclaration> = modules.toList()

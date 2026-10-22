@@ -29,8 +29,9 @@ public abstract class TrellisSettingsExtension : ModuleContainerDsl() {
     }
 
     public fun group(name: String, block: ModuleGroupScope.() -> Unit) {
+        markModuleDeclared()
         builder.group(name = name) {
-            ModuleGroupScope(this).block()
+            ModuleGroupScope(this).also { it.defaults = defaults }.block()
         }
     }
 

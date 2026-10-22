@@ -9,8 +9,9 @@ public class ModuleGroupScope internal constructor(private val builder: ModuleGr
     }
 
     public fun group(name: String, block: ModuleGroupScope.() -> Unit) {
+        markModuleDeclared()
         builder.group(name) {
-            ModuleGroupScope(this).block()
+            ModuleGroupScope(this).also { it.defaults = defaults }.block()
         }
     }
 }

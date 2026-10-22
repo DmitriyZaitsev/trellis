@@ -1,8 +1,7 @@
 package com.dzaitsev.trellis.configurator.android
 
 import com.android.build.api.dsl.CommonExtension
-import com.dzaitsev.trellis.PluginIds
-import com.dzaitsev.trellis.android.AndroidAttrs
+import com.dzaitsev.trellis.android.Flavor
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -29,14 +28,12 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
  */
 public fun CommonExtension.configureCommonAndroid(
     project: Project,
-    androidAttrs: AndroidAttrs.Native,
+    namespace: String,
+    usesCompose: Boolean,
+    flavors: List<Flavor>,
     extension: TrellisProjectExtension,
 ) {
-    if (androidAttrs.usesCompose) {
-        project.pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
-    }
-
-    namespace = androidAttrs.namespace
+    this.namespace = namespace
     compileSdk = extension.androidTargetSdk.get()
 
     // CommonExtension only exposes property getters for these (the lambda-block DSL methods are
@@ -63,7 +60,7 @@ public fun CommonExtension.configureCommonAndroid(
 
     buildFeatures.apply {
         viewBinding = false
-        if (androidAttrs.usesCompose) compose = true // don't set `false` explicitly
+        if (usesCompose) compose = true // don't set `false` explicitly
         resValues = true
         buildConfig = false
         aidl = false
@@ -74,7 +71,7 @@ public fun CommonExtension.configureCommonAndroid(
         proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
 
-    if (androidAttrs.flavors.isNotEmpty()) {
-        flavorDimensions += androidAttrs.flavors.map { it.dimension }.distinct()
+    if (flavors.isNotEmpty()) {
+        flavorDimensions += flavors.map { it.dimension }.distinct()
     }
 }

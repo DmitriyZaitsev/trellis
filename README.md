@@ -104,8 +104,8 @@ plugins {
 trellis {
     createMissingDirectories()
 
-    java("service", mainClass = "example.MainKt")
-    androidApp("app", namespace = "example.app", usesCompose = true)
+    java("service") { mainClass = "example.MainKt" }
+    androidApp("app", "example.app") { usesCompose = true }
     kmp("shared") {
         android("example.shared")
         jvm()
@@ -176,9 +176,10 @@ Modules are declared inside `trellis { }` in `settings.gradle.kts`. Use `group("
 ```kotlin
 trellis {
     group("app") {
-        androidApp("androidApp", namespace = "com.example.app", usesCompose = true)
-        kmp("shared", usesCompose = true) {
-            android("com.example.app.shared", enableResources = true)
+        androidApp("androidApp", "com.example.app") { usesCompose = true }
+        kmp("shared") {
+            usesCompose = true
+            android("com.example.app.shared")
             ios { framework("Shared") { export(":core") } }
             jvm()
         }
@@ -193,23 +194,78 @@ trellis {
 
 ### Module kinds
 
-| Declaration                            | Applied plugins                                                                                                   |
-|----------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| `androidApp(name, namespace, ...)`     | `com.android.application`, plus `kotlin-android` when AGP does not provide built-in Kotlin                        |
-| `androidLibrary(name, namespace, ...)` | `com.android.library`, plus `kotlin-android` under the same condition                                             |
-| `java(name, ...)`                      | `org.jetbrains.kotlin.jvm`, plus `application` when `mainClass` is set                                            |
-| `kmp(name, ...) { targets }`           | `org.jetbrains.kotlin.multiplatform`, plus `com.android.kotlin.multiplatform.library` when it has an Android target |
-| `root(name)`                           | None. For the root project or an aggregator without sources                                                       |
+| Declaration                                 | Applied plugins                                                                                                     |
+|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `androidApp(name, namespace) { ... }`       | `com.android.application`, plus `kotlin-android` when AGP does not provide built-in Kotlin                          |
+| `androidLibrary(name, namespace) { ... }`   | `com.android.library`, plus `kotlin-android` under the same condition                                               |
+| `java(name) { ... }`                        | `org.jetbrains.kotlin.jvm`, plus `application` when `mainClass` is set                                              |
+| `kmp(name) { options and targets }`         | `org.jetbrains.kotlin.multiplatform`, plus `com.android.kotlin.multiplatform.library` when it has an Android target |
+| `root(name)`                                | None. For the root project or an aggregator without sources                                                         |
 
-Common options:
+Parameters carry a module's identity: its name, and the namespace of Android modules. Every optional setting goes in
+the trailing block, which you can omit: `java("lib")` and `androidLibrary("ui", "com.example.ui")` are complete
+declarations.
+
+Options:
 
 * `usesCompose = true` applies the Compose compiler plugin, and on `java` and `kmp` modules also Compose Multiplatform.
+  On a `kmp` module with an Android target it also enables Android resources, which Compose resources need.
   Runtime and UI dependencies stay yours.
 * `hasExplicitApi = true` enables Kotlin `explicitApi()` for the module (off by default).
-* `kmp(autoConfigureTargets = false)` opts a single module out of target registration when it needs hand-written target
-  configuration in its own build script.
-* `java(group = ..., version = ..., mainClass = ...)` sets the Gradle group, version and application entry point.
-* `androidApp` and `androidLibrary` accept `flavors`, a list of your own `Flavor` implementations (typically enums).
+* `autoConfigureTargets = false` in a `kmp` block opts that module out of target registration when it needs
+  hand-written target configuration in its own build script.
+* `group`, `version` and `mainClass` in a `java` block set the Gradle group, version and application entry point.
+
+`usesCompose` and `hasExplicitApi` belong to `ModuleOptionsScope`, which every module block implements. Set them for
+many modules at once with `defaults { }`: it applies to every module declared after it in the same container and its
+nested groups, before the module's own block, which can override it. Declare it before the first module or group:
+
+```kotlin
+trellis {
+    defaults { hasExplicitApi = true }
+
+    group("feature") {
+        defaults { usesCompose = true }
+        kmp("profile") { jvm() }       // explicit API and Compose
+    }
+    java("tools") { hasExplicitApi = false }
+}
+```
+
+A preset written once applies to any module kind:
+
+```kotlin
+fun ModuleOptionsScope.uiDefaults() {
+    usesCompose = true
+    hasExplicitApi = true
+}
+
+trellis {
+    androidLibrary("ui", "com.example.ui") { uiDefaults() }
+    kmp("shared") {
+        uiDefaults()
+        jvm()
+    }
+}
+```
+
+Android apps and libraries declare product flavors with a builder. Dimensions are prioritized in the order you declare
+them, and `applicationIdSuffix` applies to apps only:
+
+```kotlin
+androidApp("app", "com.example.app") {
+    flavors {
+        dimension("env") {
+            flavor("dev", isDefault = true) { applicationIdSuffix = ".dev" }
+            flavor("prod")
+        }
+        dimension("market") {
+            flavor("eu")
+            flavor("us")
+        }
+    }
+}
+```
 
 ### KMP targets
 
@@ -219,12 +275,12 @@ the default set:
 | Call                                                    | Registers                                                                                    |
 |---------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | `jvm()`                                                 | JVM                                                                                          |
-| `android(namespace, enableResources, hostTests)`        | Android target of `com.android.kotlin.multiplatform.library`, with host tests on by default  |
+| `android(namespace)`                                    | Android target of `com.android.kotlin.multiplatform.library`, with host tests                |
 | `ios(vararg hosts) { ... }`                             | `iosArm64` and `iosSimulatorArm64`; pass `iosX64` to add Intel simulators                    |
 | `tvos(vararg hosts)`, `watchos(vararg hosts)`           | Device and Apple Silicon simulator targets                                                   |
 | `macos(isApplication)`                                  | `macosArm64`                                                                                 |
 | `linux(isApplication)`, `mingw(isApplication)`          | `linuxX64`, `mingwX64`                                                                       |
-| `androidNative(vararg hosts)`                           | `androidNativeArm64` and `androidNativeX64`                                                  |
+| `androidNative(vararg hosts)`                           | Kotlin/Native for the Android NDK: `androidNativeArm64` and `androidNativeX64`; not the app target |
 | `desktop(isApplication)`                                | `macos()`, `linux()` and `mingw()` together                                                  |
 | `js(vararg environments, isApplication)`, `wasmJs(...)` | `browser` and/or `nodeJs`, both by default                                                   |
 
@@ -272,7 +328,7 @@ What Trellis configures from a declaration:
 * Kotlin Multiplatform targets and the default source-set hierarchy
 * JVM target for Kotlin, Java and Android compilations
 * Android namespace, `compileSdk`, `minSdk`, Java compile options, Compose build feature and product flavors
-* Android resources and host tests for KMP Android targets
+* host tests for KMP Android targets, plus Android resources when the module uses Compose
 * explicit API mode where requested
 * group, version, test logging and the `application` entry point for `java` modules
 
@@ -426,11 +482,12 @@ class DetektConfigurator : Configurator<Module, AcmeExtension> {
 }
 ```
 
-Because the configurator sees the module, it can branch on what the module is:
+Because the configurator sees the module, it can branch on what the module is, or on a capability shared by several
+kinds (`Module.UsesCompose`, `HasAndroidNamespace`):
 
 ```kotlin
-if (module is Module.KmpLibrary && module.usesCompose) {
-    // extra rules only for Compose Multiplatform modules
+if ((module as? Module.UsesCompose)?.usesCompose == true) {
+    // extra rules for every Compose module: Android, JVM or Multiplatform
 }
 ```
 

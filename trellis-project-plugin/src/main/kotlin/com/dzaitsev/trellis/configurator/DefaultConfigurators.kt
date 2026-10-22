@@ -1,24 +1,16 @@
 package com.dzaitsev.trellis.configurator
 
-import com.dzaitsev.trellis.KmpTarget
 import com.dzaitsev.trellis.Module
-import com.dzaitsev.trellis.Module.AndroidApp
-import com.dzaitsev.trellis.Module.AndroidLibrary
-import com.dzaitsev.trellis.Module.Java
-import com.dzaitsev.trellis.Module.KmpLibrary
 import com.dzaitsev.trellis.configurator.android.AndroidAppConfigurator
 import com.dzaitsev.trellis.configurator.android.AndroidLibraryConfigurator
 import com.dzaitsev.trellis.plugin.Configurator
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 
 /**
- * The built-in [Configurator]s this library ships for a [Module], dispatched by module
- * kind: applies the Android/Kotlin/Java Gradle plugin(s) the declared kind implies
- * ([ApplyPluginConfigurator]), then configures `com.android.application`/`com.android.library`
- * DSL for [Module.AndroidApp]/[Module.AndroidLibrary], plain Java configuration for
- * [Module.Java], the Android target of a KMP module, and the declared
- * Kotlin Multiplatform targets of a [Module.KmpLibrary], then enables `explicitApi()` per
- * [Module.hasExplicitApi] ([ExplicitApiConfigurator]).
+ * The built-in [Configurator]s this library ships. Each one decides from the module whether it
+ * applies: [ApplyPluginConfigurator] applies the plugins the declared kind implies, then the Android,
+ * Java and Kotlin Multiplatform configurators set up their module kinds, and [ExplicitApiConfigurator]
+ * enables `explicitApi()` per [Module.hasExplicitApi].
  *
  * Call this from your own [com.dzaitsev.trellis.plugin.TrellisProjectPlugin]
  * subclass's `immediateConfigurators` override and append your own project-specific
@@ -30,32 +22,13 @@ import com.dzaitsev.trellis.plugin.TrellisProjectExtension
  *     )
  * ```
  */
-public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(module: Module): List<Configurator<Module, E>> = listOfNotNull(
+@Suppress("UNUSED_PARAMETER") // kept for source compatibility; the list no longer depends on the module
+public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(module: Module): List<Configurator<Module, E>> = listOf(
     ApplyPluginConfigurator(),
-    when (module) {
-        is AndroidApp -> {
-            AndroidAppConfigurator(module.androidAttrs)
-        }
-
-        is AndroidLibrary -> {
-            AndroidLibraryConfigurator(module.androidAttrs)
-        }
-
-        is Java -> {
-            JavaConfigurator()
-        }
-
-        is KmpLibrary -> {
-            module.targets
-                .filterIsInstance<KmpTarget.Android>()
-                .firstOrNull()
-                ?.let { KmpAndroidTargetConfigurator(it.androidAttrs) }
-        }
-
-        else -> {
-            null
-        }
-    },
+    AndroidAppConfigurator(),
+    AndroidLibraryConfigurator(),
+    JavaConfigurator(),
+    KmpAndroidTargetConfigurator(),
     KotlinMultiplatformTargetsConfigurator(),
     JvmTargetConfigurator(),
     ExplicitApiConfigurator(),

@@ -6,90 +6,92 @@ import com.dzaitsev.trellis.Module.AndroidLibrary
 import com.dzaitsev.trellis.Module.Java
 import com.dzaitsev.trellis.Module.KmpLibrary
 import com.dzaitsev.trellis.Module.Root
-import com.dzaitsev.trellis.android.AndroidAttrs.Native
-import com.dzaitsev.trellis.android.Flavor
 
+/**
+ * Module declarations. Parameters carry a module's identity (its name, and the namespace of
+ * Android modules); every optional setting lives in the trailing block, which may be omitted.
+ */
 @TrellisDslMarker
 public abstract class ModuleContainerDsl {
     public abstract fun custom(module: Module)
 
-    // Module-level DSL API.
+    private var moduleDeclared = false
+    internal var defaults: List<ModuleOptionsScope.() -> Unit> = emptyList()
 
-    public fun kmp(
-        name: String,
-        hasExplicitApi: Boolean = false,
-        autoConfigureTargets: Boolean = true,
-        usesCompose: Boolean = false,
-        targets: KmpTargetsScope.() -> Unit,
-    ) {
+    /**
+     * Options applied to every module declared after this call in this container and its groups,
+     * before the module's own block, which can override them.
+     */
+    public fun defaults(block: ModuleOptionsScope.() -> Unit) {
+        check(!moduleDeclared) { "Declare defaults { } before the modules and groups it applies to" }
+        defaults = defaults + block
+    }
+
+    internal fun markModuleDeclared() {
+        moduleDeclared = true
+    }
+
+    private fun <S : ModuleOptionsScope> S.configure(block: S.() -> Unit): S {
+        markModuleDeclared()
+        defaults.forEach { it() }
+        return apply(block)
+    }
+
+    /** A Kotlin Multiplatform module; declare its targets and options in [block]. */
+    public fun kmp(name: String, block: KmpModuleScope.() -> Unit) {
+        val scope = KmpModuleScope().configure(block)
         custom(
             KmpLibrary(
                 name = name,
-                targets = KmpTargetsScope().apply(targets).build(),
-                hasExplicitApi = hasExplicitApi,
-                autoConfigureTargets = autoConfigureTargets,
-                usesCompose = usesCompose,
+                targets = scope.build(),
+                hasExplicitApi = scope.hasExplicitApi,
+                autoConfigureTargets = scope.autoConfigureTargets,
+                usesCompose = scope.usesCompose,
             ),
         )
     }
 
-    public fun root(name: String, hasExplicitApi: Boolean = false) {
-        custom(
-            Root(
-                name = name,
-                hasExplicitApi = hasExplicitApi,
-            ),
-        )
+    public fun root(name: String) {
+        markModuleDeclared()
+        custom(Root(name))
     }
 
-    public fun androidApp(
-        name: String,
-        namespace: String,
-        usesCompose: Boolean = false,
-        flavors: List<Flavor> = emptyList(),
-        hasExplicitApi: Boolean = false,
-    ) {
+    public fun androidApp(name: String, namespace: String, block: AndroidModuleScope.() -> Unit = {}) {
+        val scope = AndroidModuleScope().configure(block)
         custom(
             AndroidApp(
                 name = name,
-                androidAttrs = Native(namespace, usesCompose, flavors),
-                hasExplicitApi = hasExplicitApi,
+                namespace = namespace,
+                usesCompose = scope.usesCompose,
+                flavors = scope.buildFlavors(),
+                hasExplicitApi = scope.hasExplicitApi,
             ),
         )
     }
 
-    public fun androidLibrary(
-        name: String,
-        namespace: String,
-        usesCompose: Boolean = false,
-        flavors: List<Flavor> = emptyList(),
-        hasExplicitApi: Boolean = false,
-    ) {
+    public fun androidLibrary(name: String, namespace: String, block: AndroidModuleScope.() -> Unit = {}) {
+        val scope = AndroidModuleScope().configure(block)
         custom(
             AndroidLibrary(
                 name = name,
-                androidAttrs = Native(namespace, usesCompose, flavors),
-                hasExplicitApi = hasExplicitApi,
+                namespace = namespace,
+                usesCompose = scope.usesCompose,
+                flavors = scope.buildFlavors(),
+                hasExplicitApi = scope.hasExplicitApi,
             ),
         )
     }
 
-    public fun java(
-        name: String,
-        group: String? = null,
-        version: String? = null,
-        mainClass: String? = null,
-        hasExplicitApi: Boolean = false,
-        usesCompose: Boolean = false,
-    ) {
+    public fun java(name: String, block: JavaModuleScope.() -> Unit = {}) {
+        val scope = JavaModuleScope().configure(block)
         custom(
             Java(
                 name = name,
-                group = group,
-                version = version,
-                mainClass = mainClass,
-                hasExplicitApi = hasExplicitApi,
-                usesCompose = usesCompose,
+                group = scope.group,
+                version = scope.version,
+                mainClass = scope.mainClass,
+                hasExplicitApi = scope.hasExplicitApi,
+                usesCompose = scope.usesCompose,
             ),
         )
     }

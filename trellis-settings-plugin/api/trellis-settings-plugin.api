@@ -23,14 +23,13 @@ public abstract class com/dzaitsev/trellis/KmpTarget {
 	public final fun getName ()Ljava/lang/String;
 }
 
-public final class com/dzaitsev/trellis/KmpTarget$Android : com/dzaitsev/trellis/KmpTarget$Common, com/dzaitsev/trellis/android/HasAndroidAttrs {
-	public fun <init> (Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;)V
-	public final fun component1 ()Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;
-	public final fun copy (Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;)Lcom/dzaitsev/trellis/KmpTarget$Android;
-	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/KmpTarget$Android;Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Android;
+public final class com/dzaitsev/trellis/KmpTarget$Android : com/dzaitsev/trellis/KmpTarget$Common, com/dzaitsev/trellis/android/HasAndroidNamespace {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/dzaitsev/trellis/KmpTarget$Android;
+	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/KmpTarget$Android;Ljava/lang/String;ILjava/lang/Object;)Lcom/dzaitsev/trellis/KmpTarget$Android;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;
-	public synthetic fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs;
+	public fun getNamespace ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -307,41 +306,47 @@ public abstract interface class com/dzaitsev/trellis/Module : com/dzaitsev/trell
 	public abstract fun getHasExplicitApi ()Z
 }
 
-public final class com/dzaitsev/trellis/Module$AndroidApp : com/dzaitsev/trellis/Module, com/dzaitsev/trellis/android/HasAndroidAttrs {
-	public fun <init> (Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;Z)V
-	public synthetic fun <init> (Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+public final class com/dzaitsev/trellis/Module$AndroidApp : com/dzaitsev/trellis/Module, com/dzaitsev/trellis/Module$UsesCompose, com/dzaitsev/trellis/android/HasAndroidNamespace {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;Z)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;
+	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Z
-	public final fun copy (Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;Z)Lcom/dzaitsev/trellis/Module$AndroidApp;
-	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/Module$AndroidApp;Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/Module$AndroidApp;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;Z)Lcom/dzaitsev/trellis/Module$AndroidApp;
+	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/Module$AndroidApp;Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/Module$AndroidApp;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;
-	public synthetic fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs;
+	public final fun getFlavors ()Ljava/util/List;
 	public fun getHasExplicitApi ()Z
 	public fun getName ()Ljava/lang/String;
+	public fun getNamespace ()Ljava/lang/String;
+	public fun getUsesCompose ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/dzaitsev/trellis/Module$AndroidLibrary : com/dzaitsev/trellis/Module, com/dzaitsev/trellis/android/HasAndroidAttrs {
-	public fun <init> (Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;Z)V
-	public synthetic fun <init> (Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+public final class com/dzaitsev/trellis/Module$AndroidLibrary : com/dzaitsev/trellis/Module, com/dzaitsev/trellis/Module$UsesCompose, com/dzaitsev/trellis/android/HasAndroidNamespace {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;Z)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;
+	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Z
-	public final fun copy (Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;Z)Lcom/dzaitsev/trellis/Module$AndroidLibrary;
-	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/Module$AndroidLibrary;Ljava/lang/String;Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/Module$AndroidLibrary;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;Z)Lcom/dzaitsev/trellis/Module$AndroidLibrary;
+	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/Module$AndroidLibrary;Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ZILjava/lang/Object;)Lcom/dzaitsev/trellis/Module$AndroidLibrary;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;
-	public synthetic fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs;
+	public final fun getFlavors ()Ljava/util/List;
 	public fun getHasExplicitApi ()Z
 	public fun getName ()Ljava/lang/String;
+	public fun getNamespace ()Ljava/lang/String;
+	public fun getUsesCompose ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/dzaitsev/trellis/Module$Java : com/dzaitsev/trellis/Module {
+public final class com/dzaitsev/trellis/Module$Java : com/dzaitsev/trellis/Module, com/dzaitsev/trellis/Module$UsesCompose {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
@@ -357,13 +362,13 @@ public final class com/dzaitsev/trellis/Module$Java : com/dzaitsev/trellis/Modul
 	public fun getHasExplicitApi ()Z
 	public final fun getMainClass ()Ljava/lang/String;
 	public fun getName ()Ljava/lang/String;
-	public final fun getUsesCompose ()Z
+	public fun getUsesCompose ()Z
 	public final fun getVersion ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/dzaitsev/trellis/Module$KmpLibrary : com/dzaitsev/trellis/Module {
+public final class com/dzaitsev/trellis/Module$KmpLibrary : com/dzaitsev/trellis/Module, com/dzaitsev/trellis/Module$UsesCompose {
 	public fun <init> (Ljava/lang/String;Ljava/util/Set;ZZZ)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Set;ZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
@@ -378,7 +383,7 @@ public final class com/dzaitsev/trellis/Module$KmpLibrary : com/dzaitsev/trellis
 	public fun getHasExplicitApi ()Z
 	public fun getName ()Ljava/lang/String;
 	public final fun getTargets ()Ljava/util/Set;
-	public final fun getUsesCompose ()Z
+	public fun getUsesCompose ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -397,8 +402,12 @@ public final class com/dzaitsev/trellis/Module$Root : com/dzaitsev/trellis/Modul
 	public fun toString ()Ljava/lang/String;
 }
 
+public abstract interface class com/dzaitsev/trellis/Module$UsesCompose {
+	public abstract fun getUsesCompose ()Z
+}
+
 public final class com/dzaitsev/trellis/ModuleKt {
-	public static final fun getAndroidAttrs (Lcom/dzaitsev/trellis/Module;)Lcom/dzaitsev/trellis/android/AndroidAttrs;
+	public static final fun androidNamespace (Lcom/dzaitsev/trellis/Module;)Ljava/lang/String;
 	public static final fun isAndroidApp (Lcom/dzaitsev/trellis/Module;)Z
 	public static final fun isJava (Lcom/dzaitsev/trellis/Module;)Z
 	public static final fun isRoot (Lcom/dzaitsev/trellis/Module;)Z
@@ -429,56 +438,74 @@ public abstract interface class com/dzaitsev/trellis/WebTargetFactory : com/dzai
 	public abstract fun of (ZLjava/util/Set;)Lcom/dzaitsev/trellis/KmpTarget;
 }
 
-public abstract interface class com/dzaitsev/trellis/android/AndroidAttrs {
+public final class com/dzaitsev/trellis/android/Flavor {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Z
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Lcom/dzaitsev/trellis/android/Flavor;
+	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/android/Flavor;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILjava/lang/Object;)Lcom/dzaitsev/trellis/android/Flavor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getApplicationIdSuffix ()Ljava/lang/String;
+	public final fun getDimension ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun isDefault ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/dzaitsev/trellis/android/HasAndroidNamespace {
 	public abstract fun getNamespace ()Ljava/lang/String;
 }
 
-public final class com/dzaitsev/trellis/android/AndroidAttrs$Kmp : com/dzaitsev/trellis/android/AndroidAttrs {
-	public fun <init> (Ljava/lang/String;ZZ)V
-	public synthetic fun <init> (Ljava/lang/String;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Z
-	public final fun component3 ()Z
-	public final fun copy (Ljava/lang/String;ZZ)Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;
-	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;Ljava/lang/String;ZZILjava/lang/Object;)Lcom/dzaitsev/trellis/android/AndroidAttrs$Kmp;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getEnableResources ()Z
-	public final fun getHostTests ()Z
-	public fun getNamespace ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
+public final class com/dzaitsev/trellis/dsl/AndroidModuleScope : com/dzaitsev/trellis/dsl/ModuleOptionsScope {
+	public final fun flavors (Lkotlin/jvm/functions/Function1;)V
+	public fun getHasExplicitApi ()Z
+	public fun getUsesCompose ()Z
+	public fun setHasExplicitApi (Z)V
+	public fun setUsesCompose (Z)V
 }
 
-public final class com/dzaitsev/trellis/android/AndroidAttrs$Native : com/dzaitsev/trellis/android/AndroidAttrs {
-	public fun <init> (Ljava/lang/String;ZLjava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;ZLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Z
-	public final fun component3 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;ZLjava/util/List;)Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;
-	public static synthetic fun copy$default (Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Object;)Lcom/dzaitsev/trellis/android/AndroidAttrs$Native;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getFlavors ()Ljava/util/List;
-	public fun getNamespace ()Ljava/lang/String;
-	public final fun getUsesCompose ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
+public final class com/dzaitsev/trellis/dsl/DimensionScope {
+	public final fun flavor (Ljava/lang/String;ZLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun flavor$default (Lcom/dzaitsev/trellis/dsl/DimensionScope;Ljava/lang/String;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
-public abstract interface class com/dzaitsev/trellis/android/Flavor {
-	public abstract fun getApplicationIdSuffix ()Ljava/lang/String;
-	public abstract fun getDimension ()Ljava/lang/String;
-	public abstract fun getFlavorName ()Ljava/lang/String;
-	public abstract fun isDefault ()Z
+public final class com/dzaitsev/trellis/dsl/FlavorScope {
+	public final fun getApplicationIdSuffix ()Ljava/lang/String;
+	public final fun setApplicationIdSuffix (Ljava/lang/String;)V
 }
 
-public abstract interface class com/dzaitsev/trellis/android/HasAndroidAttrs {
-	public abstract fun getAndroidAttrs ()Lcom/dzaitsev/trellis/android/AndroidAttrs;
+public final class com/dzaitsev/trellis/dsl/FlavorsScope {
+	public final fun dimension (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 }
 
-public final class com/dzaitsev/trellis/dsl/KmpTargetsScope {
-	public final fun android (Ljava/lang/String;ZZ)V
-	public static synthetic fun android$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;Ljava/lang/String;ZZILjava/lang/Object;)V
+public final class com/dzaitsev/trellis/dsl/JavaModuleScope : com/dzaitsev/trellis/dsl/ModuleOptionsScope {
+	public final fun getGroup ()Ljava/lang/String;
+	public fun getHasExplicitApi ()Z
+	public final fun getMainClass ()Ljava/lang/String;
+	public fun getUsesCompose ()Z
+	public final fun getVersion ()Ljava/lang/String;
+	public final fun setGroup (Ljava/lang/String;)V
+	public fun setHasExplicitApi (Z)V
+	public final fun setMainClass (Ljava/lang/String;)V
+	public fun setUsesCompose (Z)V
+	public final fun setVersion (Ljava/lang/String;)V
+}
+
+public final class com/dzaitsev/trellis/dsl/KmpModuleScope : com/dzaitsev/trellis/dsl/KmpTargetsScope, com/dzaitsev/trellis/dsl/ModuleOptionsScope {
+	public final fun getAutoConfigureTargets ()Z
+	public fun getHasExplicitApi ()Z
+	public fun getUsesCompose ()Z
+	public final fun setAutoConfigureTargets (Z)V
+	public fun setHasExplicitApi (Z)V
+	public fun setUsesCompose (Z)V
+}
+
+public class com/dzaitsev/trellis/dsl/KmpTargetsScope {
+	public final fun android (Ljava/lang/String;)V
 	public final fun androidNative ([Lcom/dzaitsev/trellis/KmpTarget$AndroidNative$AndroidNativeHost;)V
 	public final fun desktop (Z)V
 	public static synthetic fun desktop$default (Lcom/dzaitsev/trellis/dsl/KmpTargetsScope;ZILjava/lang/Object;)V
@@ -527,17 +554,16 @@ public final class com/dzaitsev/trellis/dsl/KmpTargetsScope$IosScope {
 
 public abstract class com/dzaitsev/trellis/dsl/ModuleContainerDsl {
 	public fun <init> ()V
-	public final fun androidApp (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;Z)V
-	public static synthetic fun androidApp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ZILjava/lang/Object;)V
-	public final fun androidLibrary (Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;Z)V
-	public static synthetic fun androidLibrary$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;ZLjava/util/List;ZILjava/lang/Object;)V
+	public final fun androidApp (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun androidApp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun androidLibrary (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun androidLibrary$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public abstract fun custom (Lcom/dzaitsev/trellis/Module;)V
-	public final fun java (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ)V
-	public static synthetic fun java$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZILjava/lang/Object;)V
-	public final fun kmp (Ljava/lang/String;ZZZLkotlin/jvm/functions/Function1;)V
-	public static synthetic fun kmp$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;ZZZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public final fun root (Ljava/lang/String;Z)V
-	public static synthetic fun root$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;ZILjava/lang/Object;)V
+	public final fun defaults (Lkotlin/jvm/functions/Function1;)V
+	public final fun java (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun java$default (Lcom/dzaitsev/trellis/dsl/ModuleContainerDsl;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun kmp (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public final fun root (Ljava/lang/String;)V
 }
 
 public final class com/dzaitsev/trellis/dsl/ModuleDeclaration {
@@ -561,6 +587,13 @@ public final class com/dzaitsev/trellis/dsl/ModuleGroupBuilder : com/dzaitsev/tr
 public final class com/dzaitsev/trellis/dsl/ModuleGroupScope : com/dzaitsev/trellis/dsl/ModuleContainerDsl {
 	public fun custom (Lcom/dzaitsev/trellis/Module;)V
 	public final fun group (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+}
+
+public abstract interface class com/dzaitsev/trellis/dsl/ModuleOptionsScope {
+	public abstract fun getHasExplicitApi ()Z
+	public abstract fun getUsesCompose ()Z
+	public abstract fun setHasExplicitApi (Z)V
+	public abstract fun setUsesCompose (Z)V
 }
 
 public final class com/dzaitsev/trellis/dsl/ModuleRegistry {

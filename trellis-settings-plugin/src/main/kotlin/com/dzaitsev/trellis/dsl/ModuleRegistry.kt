@@ -2,7 +2,7 @@ package com.dzaitsev.trellis.dsl
 
 import com.dzaitsev.trellis.KmpTarget
 import com.dzaitsev.trellis.Module
-import com.dzaitsev.trellis.getAndroidAttrs
+import com.dzaitsev.trellis.androidNamespace
 import com.dzaitsev.trellis.isGroup
 
 /**
@@ -47,7 +47,7 @@ public class ModuleRegistry internal constructor(
 
         val duplicateNamespaces =
             modules
-                .mapNotNull { declaration -> declaration.module.getAndroidAttrs()?.let { it.namespace to declaration.path } }
+                .mapNotNull { declaration -> declaration.module.androidNamespace()?.let { it to declaration.path } }
                 .groupBy({ it.first }, { it.second })
                 .filterValues { it.size > 1 }
 

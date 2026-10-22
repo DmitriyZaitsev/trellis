@@ -39,8 +39,8 @@ class TrellisProjectPluginFunctionalTest {
             trellis {
                 createMissingDirectories()
                 group("libs") { group("jvm") { java("core") } }
-                java("app", mainClass = "app.MainKt")
-                kmp("multi", targets = { jvm(); js(browser) })
+                java("app") { mainClass = "app.MainKt" }
+                kmp("multi") { jvm(); js(browser) }
             }
             """.trimIndent(),
         )
@@ -83,10 +83,10 @@ class TrellisProjectPluginFunctionalTest {
             settings
                 .readText()
                 .replace("repositories { mavenCentral() }", "repositories { google(); mavenCentral() }")
-                .replace("java(\"core\")", "java(\"core\", usesCompose = true)")
+                .replace("java(\"core\")", "java(\"core\") { usesCompose = true }")
                 .replace(
-                    "kmp(\"multi\", targets = { jvm(); js(browser) })",
-                    "kmp(\"multi\", targets = { jvm() }, usesCompose = true)",
+                    "kmp(\"multi\") { jvm(); js(browser) }",
+                    "kmp(\"multi\") { usesCompose = true; jvm() }",
                 ),
         )
         val root = file("build.gradle.kts")
@@ -142,9 +142,9 @@ class TrellisProjectPluginFunctionalTest {
                 """
 
                 trellis {
-                    androidApp("nativeApp", namespace = "fixture.app", usesCompose = true)
-                    androidLibrary("nativeLibrary", namespace = "fixture.library", usesCompose = true)
-                    kmp("androidMulti", targets = { android("fixture.multi", enableResources = true); jvm() }, usesCompose = true)
+                    androidApp("nativeApp", "fixture.app") { usesCompose = true }
+                    androidLibrary("nativeLibrary", "fixture.library") { usesCompose = true }
+                    kmp("androidMulti") { usesCompose = true; android("fixture.multi"); jvm() }
                 }
                 """.trimIndent(),
         )
@@ -279,7 +279,9 @@ class TrellisProjectPluginFunctionalTest {
     }
 
     @Test
-    fun `library modules enforce explicit api`() {
+    fun `explicit api modules reject implicit visibility`() {
+        val settings = file("settings.gradle.kts")
+        settings.writeText(settings.readText().replace("java(\"core\")", "java(\"core\") { hasExplicitApi = true }"))
         file("libs/jvm/core/src/main/kotlin/core/Core.kt").writeText("package core\n\nfun core(): String = \"core\"\n")
 
         val result = runner(":libs:jvm:core:compileKotlin").buildAndFail()

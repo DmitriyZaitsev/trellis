@@ -25,8 +25,8 @@ import org.gradle.api.Project
  * | [Module.KmpLibrary] | `org.jetbrains.kotlin.multiplatform`, plus `com.android.kotlin.multiplatform.library` when it declares a [KmpTarget.Android] target |
  * | [Module.Root] | none |
  *
- * [Module.Java] and [Module.KmpLibrary] declared with `usesCompose = true` also get
- * `org.jetbrains.kotlin.plugin.compose` and `org.jetbrains.compose` for resources and desktop packaging.
+ * Modules declared with `usesCompose = true` ([Module.UsesCompose]) also get `org.jetbrains.kotlin.plugin.compose`;
+ * [Module.Java] and [Module.KmpLibrary] additionally get `org.jetbrains.compose` for resources and desktop packaging.
  *
  * A module's own `build.gradle.kts` may still declare these plugins explicitly (e.g. mid-migration):
  * applying an already-applied plugin is a documented Gradle no-op, so this is redundant but not
@@ -54,10 +54,6 @@ public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtens
 
             is Java -> {
                 pluginManager.apply(PluginIds.KOTLIN_JVM)
-                if (module.usesCompose) {
-                    pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
-                    pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
-                }
             }
 
             is KmpLibrary -> {
@@ -65,15 +61,18 @@ public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtens
                 if (module.targets.any { it is KmpTarget.Android }) {
                     pluginManager.apply(PluginIds.ANDROID_KMP_LIBRARY)
                 }
-                if (module.usesCompose) {
-                    pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
-                    pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
-                }
             }
 
             is Root -> Unit
 
             else -> Unit // consumer-added Module kinds: no built-in default
+        }
+
+        if ((module as? Module.UsesCompose)?.usesCompose == true) {
+            pluginManager.apply(PluginIds.KOTLIN_COMPOSE)
+            if (module !is AndroidApp && module !is AndroidLibrary) {
+                pluginManager.apply(PluginIds.COMPOSE_MULTIPLATFORM)
+            }
         }
     }
 

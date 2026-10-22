@@ -7,6 +7,7 @@ import com.dzaitsev.trellis.KmpTarget.Ios.IosHost
 import com.dzaitsev.trellis.KmpTarget.Js
 import com.dzaitsev.trellis.KmpTarget.JsEnv
 import com.dzaitsev.trellis.Module
+import com.dzaitsev.trellis.android.Flavor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -287,12 +288,142 @@ class ModuleRegistryTest {
         val registry =
             moduleRegistry {
                 androidApp("app", namespace = "com.example.app")
-                java("server", mainClass = "MainKt")
+                java("server") { mainClass = "MainKt" }
                 java("lib")
             }
 
         assertEquals(false, registry["app"].hasExplicitApi)
         assertEquals(false, registry["server"].hasExplicitApi)
         assertEquals(false, registry["lib"].hasExplicitApi)
+    }
+
+    @Test
+    fun `module blocks carry options`() {
+        val registry =
+            moduleRegistry {
+                kmp("shared") {
+                    usesCompose = true
+                    hasExplicitApi = true
+                    autoConfigureTargets = false
+                    jvm()
+                }
+                java("server") {
+                    group = "com.example"
+                    version = "1.0"
+                    mainClass = "MainKt"
+                }
+                androidLibrary("ui", "com.example.ui") { usesCompose = true }
+            }
+
+        assertEquals(
+            Module.KmpLibrary("shared", setOf(KmpTarget.Jvm), hasExplicitApi = true, autoConfigureTargets = false, usesCompose = true),
+            registry["shared"],
+        )
+        assertEquals(Module.Java("server", "com.example", "1.0", "MainKt"), registry["server"])
+        assertEquals(Module.AndroidLibrary("ui", "com.example.ui", usesCompose = true), registry["ui"])
+    }
+
+    @Test
+    fun `defaults apply to later modules and nested groups and can be overridden`() {
+        val registry =
+            moduleRegistry {
+                defaults { hasExplicitApi = true }
+                java("lib")
+                java("app") { hasExplicitApi = false }
+                group("feature") {
+                    defaults { usesCompose = true }
+                    kmp("ui") { jvm() }
+                    group("nested") { androidLibrary("widgets", "com.example.widgets") }
+                }
+                kmp("core") { jvm() }
+            }
+
+        assertEquals(true, registry["lib"].hasExplicitApi)
+        assertEquals(false, registry["app"].hasExplicitApi)
+        assertEquals(Module.KmpLibrary("ui", setOf(KmpTarget.Jvm), hasExplicitApi = true, usesCompose = true), registry["ui"])
+        assertEquals(
+            Module.AndroidLibrary("widgets", "com.example.widgets", usesCompose = true, hasExplicitApi = true),
+            registry["widgets"],
+        )
+        assertEquals(Module.KmpLibrary("core", setOf(KmpTarget.Jvm), hasExplicitApi = true), registry["core"])
+    }
+
+    @Test
+    fun `defaults after a module or group are rejected`() {
+        assertFailsWith<IllegalStateException> {
+            moduleRegistry {
+                java("lib")
+                defaults { hasExplicitApi = true }
+            }
+        }
+        assertFailsWith<IllegalStateException> {
+            moduleRegistry {
+                group("feature") { java("lib") }
+                defaults { hasExplicitApi = true }
+            }
+        }
+    }
+
+    @Test
+    fun `option presets apply to every module kind`() {
+        fun ModuleOptionsScope.uiDefaults() {
+            usesCompose = true
+            hasExplicitApi = true
+        }
+
+        val registry =
+            moduleRegistry {
+                androidApp("app", "com.example.app") { uiDefaults() }
+                androidLibrary("ui", "com.example.ui") { uiDefaults() }
+                java("desktop") { uiDefaults() }
+                kmp("shared") {
+                    uiDefaults()
+                    jvm()
+                }
+            }
+
+        registry.modules.forEach { (_, module) ->
+            assertEquals(true, (module as Module.UsesCompose).usesCompose, module.name)
+            assertEquals(true, module.hasExplicitApi, module.name)
+        }
+    }
+
+    @Test
+    fun `flavors keep dimension order and reject duplicates`() {
+        val app =
+            moduleRegistry {
+                androidApp("app", "com.example.app") {
+                    flavors {
+                        dimension("env") {
+                            flavor("dev", isDefault = true) { applicationIdSuffix = ".dev" }
+                            flavor("prod")
+                        }
+                        dimension("market") { flavor("eu") }
+                    }
+                }
+            }["app"] as Module.AndroidApp
+
+        assertEquals(
+            listOf(
+                Flavor("dev", "env", isDefault = true, applicationIdSuffix = ".dev"),
+                Flavor("prod", "env"),
+                Flavor("eu", "market"),
+            ),
+            app.flavors,
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            moduleRegistry {
+                androidApp("app", "com.example.app") {
+                    flavors {
+                        dimension("env") { flavor("dev") }
+                        dimension("market") { flavor("dev") }
+                    }
+                }
+            }
+        }
+        assertFailsWith<IllegalArgumentException> {
+            moduleRegistry { androidApp("app", "com.example.app") { flavors { dimension("env") { } } } }
+        }
     }
 }

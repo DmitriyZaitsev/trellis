@@ -1,7 +1,7 @@
 package com.dzaitsev.trellis
 
-import com.dzaitsev.trellis.android.AndroidAttrs
-import com.dzaitsev.trellis.android.HasAndroidAttrs
+import com.dzaitsev.trellis.android.Flavor
+import com.dzaitsev.trellis.android.HasAndroidNamespace
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -16,24 +16,35 @@ import kotlin.contracts.contract
 public interface Module : ModuleModel {
     public val hasExplicitApi: Boolean
 
+    /** A module kind that can opt into Compose; see `usesCompose` in the module DSL for what it applies. */
+    public interface UsesCompose {
+        public val usesCompose: Boolean
+    }
+
     /** An umbrella/aggregator project that has no sources of its own (e.g. the Gradle root project). */
     public data class Root(override val name: String, override val hasExplicitApi: Boolean = false) : Module
 
     /** An Android application module — expected to apply `com.android.application`. Explicit API mode is off by default. */
     public data class AndroidApp(
         override val name: String,
-        override val androidAttrs: AndroidAttrs.Native,
+        override val namespace: String,
+        override val usesCompose: Boolean = false,
+        public val flavors: List<Flavor> = emptyList(),
         override val hasExplicitApi: Boolean = false,
     ) : Module,
-        HasAndroidAttrs
+        UsesCompose,
+        HasAndroidNamespace
 
     /** A plain (non-KMP) Android library module — expected to apply `com.android.library`. */
     public data class AndroidLibrary(
         override val name: String,
-        override val androidAttrs: AndroidAttrs.Native,
+        override val namespace: String,
+        override val usesCompose: Boolean = false,
+        public val flavors: List<Flavor> = emptyList(),
         override val hasExplicitApi: Boolean = false,
     ) : Module,
-        HasAndroidAttrs
+        UsesCompose,
+        HasAndroidNamespace
 
     /**
      * A plain Java module (application or library). Optionally provide a main class to make it an
@@ -46,8 +57,9 @@ public interface Module : ModuleModel {
         public val version: String? = null,
         public val mainClass: String? = null,
         override val hasExplicitApi: Boolean = false,
-        public val usesCompose: Boolean = false,
-    ) : Module
+        override val usesCompose: Boolean = false,
+    ) : Module,
+        UsesCompose
 
     /**
      * A Kotlin Multiplatform module with one or more [KmpTarget]s.
@@ -64,30 +76,16 @@ public interface Module : ModuleModel {
         public val targets: Set<KmpTarget>,
         override val hasExplicitApi: Boolean = false,
         public val autoConfigureTargets: Boolean = true,
-        public val usesCompose: Boolean = false,
-    ) : Module
+        override val usesCompose: Boolean = false,
+    ) : Module,
+        UsesCompose
 }
 
-/**
- * The [AndroidAttrs] for this module, whether it is a plain Android module or a KMP module with
- * an Android target — or `null` when the module has no Android attributes at all. Works for any
- * [Module] kind that implements [HasAndroidAttrs] directly, or exposes one through a
- * [KmpTarget] that implements it.
- */
-public fun Module.getAndroidAttrs(): AndroidAttrs? = when (this) {
-    is HasAndroidAttrs -> {
-        androidAttrs
-    }
-
-    is Module.KmpLibrary -> {
-        targets.firstNotNullOfOrNull {
-            (it as? HasAndroidAttrs)?.androidAttrs
-        }
-    }
-
-    else -> {
-        null
-    }
+/** The Android namespace this module declares, directly or through its KMP Android target, or `null`. */
+public fun Module.androidNamespace(): String? = when (this) {
+    is HasAndroidNamespace -> namespace
+    is Module.KmpLibrary -> targets.firstNotNullOfOrNull { (it as? HasAndroidNamespace)?.namespace }
+    else -> null
 }
 
 @OptIn(ExperimentalContracts::class)

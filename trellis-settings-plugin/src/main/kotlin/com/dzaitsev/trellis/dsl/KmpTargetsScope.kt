@@ -16,14 +16,13 @@ import com.dzaitsev.trellis.KmpTarget.Tvos.TvosHost
 import com.dzaitsev.trellis.KmpTarget.WasmJs
 import com.dzaitsev.trellis.KmpTarget.Watchos
 import com.dzaitsev.trellis.KmpTarget.Watchos.WatchosHost
-import com.dzaitsev.trellis.android.AndroidAttrs.Kmp
 
 /**
  * Target declarations for [ModuleContainerDsl.kmp]; every call registers one target kind:
  *
  * ```
  * kmp("shared") {
- *     android("example.shared", enableResources = true)
+ *     android("example.shared")
  *     ios { framework("Shared") { export(":core") } }
  *     jvm()
  *     js(browser, isApplication = true)
@@ -35,7 +34,7 @@ import com.dzaitsev.trellis.android.AndroidAttrs.Kmp
  * of this scope. Declaring the same kind twice is rejected.
  */
 @TrellisDslMarker
-public class KmpTargetsScope internal constructor() {
+public open class KmpTargetsScope internal constructor() {
     private val targets = LinkedHashMap<String, KmpTarget>()
 
     internal fun build(): Set<KmpTarget> = targets.values.toSet()
@@ -49,8 +48,8 @@ public class KmpTargetsScope internal constructor() {
     // Common
     public fun jvm(): Unit = register(KmpTarget.Jvm)
 
-    public fun android(namespace: String, enableResources: Boolean = false, hostTests: Boolean = true): Unit =
-        register(KmpTarget.Android(Kmp(namespace, enableResources, hostTests)))
+    /** The JVM-based Android target (AGP KMP library, source set `androidMain`). For the NDK, see [androidNative]. */
+    public fun android(namespace: String): Unit = register(KmpTarget.Android(namespace))
 
     // Apple
     public fun macos(isApplication: Boolean = false): Unit = register(Macos(isApplication))
@@ -68,6 +67,10 @@ public class KmpTargetsScope internal constructor() {
 
     public fun mingw(isApplication: Boolean = false): Unit = register(Mingw(isApplication))
 
+    /**
+     * Kotlin/Native for the Android NDK (`androidNativeArm64`, `androidNativeX64`; source set
+     * `androidNativeMain`). Not the Android app/library target; for that, see [android].
+     */
     public fun androidNative(vararg hosts: AndroidNativeHost): Unit =
         register(AndroidNative(hosts.toSet().ifEmpty { AndroidNativeHost.DEFAULT }))
 

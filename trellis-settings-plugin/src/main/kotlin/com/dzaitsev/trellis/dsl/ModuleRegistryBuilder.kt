@@ -16,10 +16,11 @@ public class ModuleRegistryBuilder : ModuleContainerDsl() {
     }
 
     public fun group(name: String, block: ModuleGroupBuilder.() -> Unit) {
+        markModuleDeclared()
         modules +=
             ModuleGroupBuilder(
                 prefix = ProjectPath(listOf(name)),
-            ).apply(block).build()
+            ).also { it.defaults = defaults }.apply(block).build()
     }
 
     public fun createMissingDirectories() {

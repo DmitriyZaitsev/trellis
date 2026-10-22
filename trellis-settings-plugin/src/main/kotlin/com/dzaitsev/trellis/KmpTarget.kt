@@ -1,7 +1,6 @@
 package com.dzaitsev.trellis
 
-import com.dzaitsev.trellis.android.AndroidAttrs
-import com.dzaitsev.trellis.android.HasAndroidAttrs
+import com.dzaitsev.trellis.android.HasAndroidNamespace
 
 /**
  * A Kotlin Multiplatform compilation target attached to a [Module.KmpLibrary].
@@ -44,15 +43,12 @@ public sealed class KmpTarget(public val name: String) {
     public data object Jvm : Common("jvm")
 
     /**
-     * The Android target of a KMP module. Constructor-narrowed to [AndroidAttrs.Kmp] — not the
-     * broader [AndroidAttrs] interface — so [AndroidAttrs.Native] (with its app/library-only
-     * [AndroidAttrs.Native.flavors]) cannot be mistakenly attached to a KMP target and silently
-     * dropped by [com.dzaitsev.trellis.configurator.KmpAndroidTargetConfigurator]'s
-     * dispatch, the way an unconstrained `AndroidAttrs` parameter would allow.
+     * The Android target of a KMP module. Android resources follow the module's `usesCompose` and host
+     * tests are always registered; a module script can still change either.
      */
-    public data class Android(override val androidAttrs: AndroidAttrs.Kmp) :
+    public data class Android(override val namespace: String) :
         Common("android"),
-        HasAndroidAttrs
+        HasAndroidNamespace
 
     public sealed class Native(name: String) : Common(name)
 
