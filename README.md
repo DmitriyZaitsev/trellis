@@ -58,7 +58,8 @@ flowchart LR
 
 ### Requirements
 
-Trellis is developed against Gradle 9.3, Kotlin 2.4.20, Android Gradle Plugin 9.3.3 and JDK 17.
+Trellis is developed against Kotlin 2.4.20 and JDK 17. JVM and Multiplatform builds are tested with Gradle 9.3; Android
+builds need Android Gradle Plugin 9.3.3, which requires Gradle 9.5 or newer, and are tested with Gradle 9.8.
 
 ### Artifacts
 
@@ -527,7 +528,7 @@ class AcmeConventionsPlugin :
         module: Module,
         extension: AcmeExtension,
     ): List<Configurator<Module, AcmeExtension>> =
-        defaultProjectModuleConfigurators<AcmeExtension>(module) + DetektConfigurator()
+        defaultProjectModuleConfigurators<AcmeExtension>() + DetektConfigurator()
 }
 ```
 
@@ -582,7 +583,7 @@ class AcmeLocalPlugin : Plugin<Project> {
         }
         val extension = project.extensions.create<AcmeExtension>("trellis")
         extension.useSettingsConventions(conventions)
-        (defaultProjectModuleConfigurators<AcmeExtension>(module) + DetektConfigurator())
+        (defaultProjectModuleConfigurators<AcmeExtension>() + DetektConfigurator())
             .forEach { it.configure(project, module, extension) }
     }
 }

@@ -17,13 +17,12 @@ import com.dzaitsev.trellis.plugin.TrellisProjectExtension
  * [Configurator]s (static analysis, publishing, shared test dependencies, etc.):
  * ```
  * override fun immediateConfigurators(module: Module, extension: MyExtension) =
- *     defaultProjectModuleConfigurators<MyExtension>(module) + listOf(
+ *     defaultProjectModuleConfigurators<MyExtension>() + listOf(
  *         MyOwnConfigurator(),
  *     )
  * ```
  */
-@Suppress("UNUSED_PARAMETER") // kept for source compatibility; the list no longer depends on the module
-public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(module: Module): List<Configurator<Module, E>> = listOf(
+public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(): List<Configurator<Module, E>> = listOf(
     ApplyPluginConfigurator(),
     AndroidAppConfigurator(),
     AndroidLibraryConfigurator(),

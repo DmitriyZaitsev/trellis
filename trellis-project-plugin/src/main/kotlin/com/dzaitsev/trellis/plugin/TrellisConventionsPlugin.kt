@@ -19,5 +19,5 @@ public class TrellisConventionsPlugin :
     override fun immediateConfigurators(
         module: Module,
         extension: TrellisProjectExtension,
-    ): List<Configurator<Module, TrellisProjectExtension>> = defaultProjectModuleConfigurators(module)
+    ): List<Configurator<Module, TrellisProjectExtension>> = defaultProjectModuleConfigurators()
 }

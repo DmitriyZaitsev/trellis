@@ -359,6 +359,83 @@ class TrellisProjectPluginFunctionalTest {
         assertFalse("jsNodeTest" in tasks, tasks)
     }
 
+    @Test
+    fun `build-logic plugin extends trellis as the readme describes`() {
+        val repoUrl = repo.replace("\\", "/")
+        val settings = file("settings.gradle.kts")
+        settings.writeText(settings.readText().replace("pluginManagement {", "pluginManagement {\n    includeBuild(\"build-logic\")"))
+        file("build-logic/settings.gradle.kts").writeText("rootProject.name = \"build-logic\"\n")
+        file("build-logic/build.gradle.kts").writeText(
+            """
+            plugins { `kotlin-dsl` }
+            repositories {
+                maven(url = "$repoUrl")
+                mavenCentral()
+                gradlePluginPortal()
+            }
+            dependencies { implementation("com.dzaitsev.trellis:trellis-project-plugin:$version") }
+            gradlePlugin {
+                plugins {
+                    create("acmeConventions") {
+                        id = "com.acme.conventions"
+                        implementationClass = "com.acme.build.AcmeConventionsPlugin"
+                    }
+                }
+            }
+            """.trimIndent(),
+        )
+        file("build-logic/src/main/kotlin/com/acme/build/Acme.kt").writeText(
+            """
+            package com.acme.build
+
+            import com.dzaitsev.trellis.Module
+            import com.dzaitsev.trellis.configurator.defaultProjectModuleConfigurators
+            import com.dzaitsev.trellis.plugin.Configurator
+            import com.dzaitsev.trellis.plugin.TrellisProjectExtension
+            import com.dzaitsev.trellis.plugin.TrellisProjectPlugin
+            import com.dzaitsev.trellis.plugin.findModule
+            import org.gradle.api.Project
+            import org.gradle.api.provider.Property
+
+            interface AcmeExtension : TrellisProjectExtension {
+                val marker: Property<String>
+            }
+
+            class MarkerConfigurator : Configurator<Module, AcmeExtension> {
+                override fun configure(project: Project, module: Module, extension: AcmeExtension) {
+                    if (module is Module.Root) return
+                    val marker = extension.marker
+                    val path = project.path
+                    project.tasks.register("acmeMarker") { doLast { println("acme ${'$'}{marker.get()} ${'$'}path") } }
+                }
+            }
+
+            class AcmeConventionsPlugin :
+                TrellisProjectPlugin<Module, AcmeExtension>(
+                    extensionName = "trellis",
+                    extensionType = AcmeExtension::class,
+                ) {
+                override fun moduleOf(project: Project): Module? = project.findModule()
+
+                override fun immediateConfigurators(module: Module, extension: AcmeExtension): List<Configurator<Module, AcmeExtension>> =
+                    defaultProjectModuleConfigurators<AcmeExtension>() + MarkerConfigurator()
+            }
+            """.trimIndent(),
+        )
+        val root = file("build.gradle.kts")
+        root.writeText(
+            root
+                .readText()
+                .replace("id(\"com.dzaitsev.trellis.conventions\") version \"$version\"", "id(\"com.acme.conventions\")")
+                .replace("javaVersion = 17", "javaVersion = 17\n    marker = \"hello\""),
+        )
+
+        val output = build(":app:acmeMarker", ":app:compileKotlin").output
+
+        assertTrue("acme hello :app" in output, output)
+        assertEquals(JAVA_17_MAJOR, classMajorVersion("app/build/classes/kotlin/main/app/MainKt.class"))
+    }
+
     private fun file(path: String): File = dir.resolve(path).apply { parentFile.mkdirs() }
 
     private fun runner(vararg arguments: String): GradleRunner = GradleRunner

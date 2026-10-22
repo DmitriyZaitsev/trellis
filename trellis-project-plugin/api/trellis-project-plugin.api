@@ -5,7 +5,7 @@ public final class com/dzaitsev/trellis/configurator/ApplyPluginConfigurator : c
 }
 
 public final class com/dzaitsev/trellis/configurator/DefaultConfiguratorsKt {
-	public static final fun defaultProjectModuleConfigurators (Lcom/dzaitsev/trellis/Module;)Ljava/util/List;
+	public static final fun defaultProjectModuleConfigurators ()Ljava/util/List;
 }
 
 public final class com/dzaitsev/trellis/configurator/ExplicitApiConfigurator : com/dzaitsev/trellis/plugin/Configurator {

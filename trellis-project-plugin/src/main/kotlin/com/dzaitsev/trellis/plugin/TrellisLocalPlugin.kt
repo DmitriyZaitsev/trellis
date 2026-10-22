@@ -15,7 +15,7 @@ public class TrellisLocalPlugin : Plugin<Project> {
         val module = project.findModule() ?: return
         val extension = project.extensions.create<TrellisProjectExtension>("trellis")
         extension.useSettingsConventions(config)
-        defaultProjectModuleConfigurators<TrellisProjectExtension>(module).forEach {
+        defaultProjectModuleConfigurators<TrellisProjectExtension>().forEach {
             it.configure(project, module, extension)
         }
     }
