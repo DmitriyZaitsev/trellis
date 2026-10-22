@@ -274,6 +274,38 @@ class TrellisProjectPluginFunctionalTest {
     }
 
     @Test
+    fun `jvm modules build without a java version`() {
+        val root = file("build.gradle.kts")
+        root.writeText(root.readText().replace("javaVersion = 17", ""))
+
+        build(":app:compileKotlin")
+    }
+
+    @Test
+    fun `android modules without sdk levels fail with what to set`() {
+        val settings = file("settings.gradle.kts")
+        settings.writeText(
+            settings.readText().replace("gradlePluginPortal()", "google()\n gradlePluginPortal()") +
+                "\ntrellis { androidLibrary(\"nativeLibrary\", \"fixture.library\") }\n",
+        )
+        val root = file("build.gradle.kts")
+        root.writeText(
+            root
+                .readText()
+                .replace("plugins {", "plugins {\n    id(\"com.android.library\") version \"9.3.3\" apply false")
+                .replace("androidMinSdk = 24", "")
+                .replace("androidTargetSdk = 36", ""),
+        )
+
+        val output = runner("help").withGradleVersion("9.8.0").buildAndFail().output
+
+        assertTrue(
+            ":nativeLibrary declares an Android module or target, but androidMinSdk and androidTargetSdk are not set" in output,
+            output,
+        )
+    }
+
+    @Test
     fun `configures declared modules and reuses the configuration cache`() {
         val tasks = arrayOf(":app:compileKotlin", ":multi:compileKotlinJvm", ":multi:compileKotlinJs", "--configuration-cache")
 

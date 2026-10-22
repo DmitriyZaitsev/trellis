@@ -3,9 +3,15 @@ package com.dzaitsev.trellis.plugin
 public class ProjectConventions {
     /** Kotlin language and API version, e.g. `"2.4"`; `null` keeps the compiler's default. */
     public var kotlinVersion: String? = null
-    public var javaVersion: Int = 17
-    public var androidMinSdk: Int = 24
-    public var androidTargetSdk: Int = 36
+
+    /** JVM bytecode target, e.g. `17`; `null` keeps the Kotlin, Java and Android tooling defaults. */
+    public var javaVersion: Int? = null
+
+    /** Required when any Android module or KMP Android target is declared. */
+    public var androidMinSdk: Int? = null
+
+    /** Required when any Android module or KMP Android target is declared; sets `compileSdk` and `targetSdk`. */
+    public var androidTargetSdk: Int? = null
     public var useJavaToolchain: Boolean = false
 
     internal fun snapshot(): ProjectConventions = ProjectConventions().also {

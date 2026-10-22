@@ -5,6 +5,7 @@ import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.plugin.Configurator
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
+import com.dzaitsev.trellis.plugin.requireAndroidSdkLevels
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
@@ -17,10 +18,18 @@ import org.gradle.kotlin.dsl.configure
 public class AndroidLibraryConfigurator : Configurator<Module, TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (module !is Module.AndroidLibrary) return
+        val sdk = extension.requireAndroidSdkLevels(project.path)
 
         project.pluginManager.withPlugin(PluginIds.ANDROID_LIBRARY) {
             project.extensions.configure<LibraryExtension> {
-                configureCommonAndroid(module.namespace, module.usesCompose, module.flavors, extension)
+                configureCommonAndroid(
+                    module.namespace,
+                    module.usesCompose,
+                    module.flavors,
+                    sdk.minSdk,
+                    sdk.targetSdk,
+                    extension.javaVersion.orNull,
+                )
 
                 val consumerRules = project.file("consumer-rules.pro")
                 if (consumerRules.exists()) {

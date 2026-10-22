@@ -28,6 +28,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
  */
 public class JvmTargetConfigurator : Configurator<Module, TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
+        if (!extension.javaVersion.isPresent) return
+
         val jvmTarget = extension.javaVersion.map { JvmTarget.fromTarget(JavaVersion.toVersion(it).toString()) }
         val useToolchain = extension.useJavaToolchain.getOrElse(false)
 

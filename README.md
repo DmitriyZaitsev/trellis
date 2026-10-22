@@ -330,13 +330,17 @@ trellis {
 In root mode you can instead, or additionally, set them in the root build script's `trellis { }` block; values assigned
 there win over settings. That is useful when they come from a version catalog, which settings scripts cannot read.
 
-| Property           | Meaning                                                            |
-|--------------------|--------------------------------------------------------------------|
-| `kotlinVersion`    | Kotlin language and API version for every Kotlin module, for example `"2.4"`; unset keeps the compiler's default |
-| `javaVersion`      | JVM bytecode target for Kotlin, Java and Android, for example `17` |
-| `androidMinSdk`    | `minSdk` for every Android module and KMP Android target           |
-| `androidTargetSdk` | `compileSdk` for every Android module and KMP Android target       |
-| `useJavaToolchain` | Compile with a JDK toolchain of `javaVersion` (default `false`)    |
+Trellis has no built-in values for these: an unset convention keeps the Kotlin, Java and Android tooling defaults, so
+upgrading Trellis never changes your build. The Android SDK levels are the exception: they are required as soon as an
+Android module or KMP Android target is declared, and the build fails with what to set if they are missing.
+
+| Property           | Meaning                                                                                       |
+|--------------------|-----------------------------------------------------------------------------------------------|
+| `kotlinVersion`    | Kotlin language and API version for every Kotlin module, for example `"2.4"`                  |
+| `javaVersion`      | JVM bytecode target for Kotlin, Java and Android, for example `17`                            |
+| `androidMinSdk`    | `minSdk` for every Android module and KMP Android target; required with Android               |
+| `androidTargetSdk` | `compileSdk` and `targetSdk` for every Android module and KMP Android target; required with Android |
+| `useJavaToolchain` | Compile with a JDK toolchain of `javaVersion` (default `false`)                               |
 
 What Trellis configures from a declaration:
 

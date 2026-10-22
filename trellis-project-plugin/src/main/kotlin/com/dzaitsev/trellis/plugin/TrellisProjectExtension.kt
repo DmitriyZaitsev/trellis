@@ -23,16 +23,19 @@ public interface TrellisProjectExtension {
     @get:Optional
     public val kotlinVersion: Property<String>
 
-    /** The JVM target/toolchain version, e.g. `17`. */
+    /** The JVM target/toolchain version, e.g. `17`; unset keeps the tooling defaults. */
     @get:Input
+    @get:Optional
     public val javaVersion: Property<Int>
 
-    /** The Android `minSdk` applied to every Android app/library/KMP-Android-target module. */
+    /** The Android `minSdk`; required when an Android module or KMP Android target is declared. */
     @get:Input
+    @get:Optional
     public val androidMinSdk: Property<Int>
 
-    /** The Android `compileSdk`/`targetSdk` applied to every Android app/library/KMP-Android-target module. */
+    /** The Android `compileSdk`/`targetSdk`; required when an Android module or KMP Android target is declared. */
     @get:Input
+    @get:Optional
     public val androidTargetSdk: Property<Int>
 
     /** Compile with a [javaVersion] JDK toolchain instead of the JDK running Gradle. Defaults to `false`. */
@@ -47,7 +50,25 @@ public fun TrellisProjectExtension.getKotlinVersion(): KotlinVersion? = kotlinVe
 /** Parses `"2.4"` or a full release such as `"2.4.20"`; only major and minor matter for the language version. */
 internal fun String.toKotlinVersion(): KotlinVersion = KotlinVersion.fromVersion(split('.').take(2).joinToString("."))
 
-public fun TrellisProjectExtension.getJvmTarget(): JvmTarget = JvmTarget.fromTarget(JavaVersion.toVersion(javaVersion.get()).toString())
+/** The configured JVM target, or `null` when the tooling defaults apply. */
+public fun TrellisProjectExtension.getJvmTarget(): JvmTarget? =
+    javaVersion.orNull?.let { JvmTarget.fromTarget(JavaVersion.toVersion(it).toString()) }
+
+internal class AndroidSdkLevels(val minSdk: Int, val targetSdk: Int)
+
+/** The Android SDK levels for [projectPath], failing with what to set when either is missing. */
+internal fun TrellisProjectExtension.requireAndroidSdkLevels(projectPath: String): AndroidSdkLevels {
+    val minSdk = androidMinSdk.orNull
+    val targetSdk = androidTargetSdk.orNull
+    if (minSdk != null && targetSdk != null) return AndroidSdkLevels(minSdk, targetSdk)
+
+    val missing = listOfNotNull("androidMinSdk".takeIf { minSdk == null }, "androidTargetSdk".takeIf { targetSdk == null })
+    error(
+        "$projectPath declares an Android module or target, but ${missing.joinToString(" and ")} " +
+            "${if (missing.size == 1) "is" else "are"} not set. Set them in settings " +
+            "`trellis { projectConventions { } }` or in the root build script's `trellis { }` block.",
+    )
+}
 
 /**
  * Uses [conventions] declared in settings (`trellis { projectConventions { } }`) as this extension's

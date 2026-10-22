@@ -2,7 +2,6 @@ package com.dzaitsev.trellis.configurator.android
 
 import com.android.build.api.dsl.CommonExtension
 import com.dzaitsev.trellis.android.Flavor
-import com.dzaitsev.trellis.plugin.TrellisProjectExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -29,20 +28,23 @@ public fun CommonExtension.configureCommonAndroid(
     namespace: String,
     usesCompose: Boolean,
     flavors: List<Flavor>,
-    extension: TrellisProjectExtension,
+    minSdk: Int,
+    compileSdk: Int,
+    javaVersion: Int?,
 ) {
     this.namespace = namespace
-    compileSdk = extension.androidTargetSdk.get()
+    this.compileSdk = compileSdk
 
     // CommonExtension only exposes property getters for these (the lambda-block DSL methods are
     // redeclared per-subtype by AGP), so configure the returned objects directly instead of using
     // the `defaultConfig { }`/`compileOptions { }`/`testOptions { }`/`lint { }` block syntax.
-    defaultConfig.minSdk = extension.androidMinSdk.get()
+    defaultConfig.minSdk = minSdk
 
-    compileOptions.apply {
-        val javaVersion = JavaVersion.toVersion(extension.javaVersion.get())
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
+    if (javaVersion != null) {
+        compileOptions.apply {
+            sourceCompatibility = JavaVersion.toVersion(javaVersion)
+            targetCompatibility = JavaVersion.toVersion(javaVersion)
+        }
     }
 
     testOptions.apply {

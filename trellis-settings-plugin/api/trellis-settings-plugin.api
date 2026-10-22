@@ -684,14 +684,14 @@ public final class com/dzaitsev/trellis/plugin/ModuleRegistryHolder {
 
 public final class com/dzaitsev/trellis/plugin/ProjectConventions {
 	public fun <init> ()V
-	public final fun getAndroidMinSdk ()I
-	public final fun getAndroidTargetSdk ()I
-	public final fun getJavaVersion ()I
+	public final fun getAndroidMinSdk ()Ljava/lang/Integer;
+	public final fun getAndroidTargetSdk ()Ljava/lang/Integer;
+	public final fun getJavaVersion ()Ljava/lang/Integer;
 	public final fun getKotlinVersion ()Ljava/lang/String;
 	public final fun getUseJavaToolchain ()Z
-	public final fun setAndroidMinSdk (I)V
-	public final fun setAndroidTargetSdk (I)V
-	public final fun setJavaVersion (I)V
+	public final fun setAndroidMinSdk (Ljava/lang/Integer;)V
+	public final fun setAndroidTargetSdk (Ljava/lang/Integer;)V
+	public final fun setJavaVersion (Ljava/lang/Integer;)V
 	public final fun setKotlinVersion (Ljava/lang/String;)V
 	public final fun setUseJavaToolchain (Z)V
 }

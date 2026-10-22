@@ -51,7 +51,7 @@ public final class com/dzaitsev/trellis/configurator/android/AndroidAppConfigura
 }
 
 public final class com/dzaitsev/trellis/configurator/android/AndroidCommonConfigKt {
-	public static final fun configureCommonAndroid (Lcom/android/build/api/dsl/CommonExtension;Ljava/lang/String;ZLjava/util/List;Lcom/dzaitsev/trellis/plugin/TrellisProjectExtension;)V
+	public static final fun configureCommonAndroid (Lcom/android/build/api/dsl/CommonExtension;Ljava/lang/String;ZLjava/util/List;IILjava/lang/Integer;)V
 }
 
 public final class com/dzaitsev/trellis/configurator/android/AndroidLibraryConfigurator : com/dzaitsev/trellis/plugin/Configurator {

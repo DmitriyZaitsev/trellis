@@ -6,6 +6,7 @@ import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.plugin.Configurator
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
+import com.dzaitsev.trellis.plugin.requireAndroidSdkLevels
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.kotlin.dsl.configure
@@ -24,14 +25,15 @@ public class KmpAndroidTargetConfigurator : Configurator<Module, TrellisProjectE
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (module !is Module.KmpLibrary) return
         val target = module.targets.filterIsInstance<KmpTarget.Android>().firstOrNull() ?: return
+        val sdk = extension.requireAndroidSdkLevels(project.path)
 
         project.pluginManager.withPlugin(PluginIds.ANDROID_KMP_LIBRARY) {
             project.pluginManager.withPlugin(PluginIds.KOTLIN_MULTIPLATFORM) {
                 val kmpExt = project.extensions.getByType<KotlinMultiplatformExtension>()
                 (kmpExt as ExtensionAware).extensions.configure<KotlinMultiplatformAndroidLibraryTarget> {
                     namespace = target.namespace
-                    compileSdk = extension.androidTargetSdk.get()
-                    minSdk = extension.androidMinSdk.get()
+                    compileSdk = sdk.targetSdk
+                    minSdk = sdk.minSdk
                     if (module.usesCompose) {
                         androidResources.enable = true
                     }

@@ -5,6 +5,7 @@ import com.dzaitsev.trellis.Module
 import com.dzaitsev.trellis.PluginIds
 import com.dzaitsev.trellis.plugin.Configurator
 import com.dzaitsev.trellis.plugin.TrellisProjectExtension
+import com.dzaitsev.trellis.plugin.requireAndroidSdkLevels
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
@@ -17,12 +18,20 @@ import org.gradle.kotlin.dsl.configure
 public class AndroidAppConfigurator : Configurator<Module, TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (module !is Module.AndroidApp) return
+        val sdk = extension.requireAndroidSdkLevels(project.path)
 
         project.pluginManager.withPlugin(PluginIds.ANDROID_APPLICATION) {
             project.extensions.configure<ApplicationExtension> {
-                configureCommonAndroid(module.namespace, module.usesCompose, module.flavors, extension)
+                configureCommonAndroid(
+                    module.namespace,
+                    module.usesCompose,
+                    module.flavors,
+                    sdk.minSdk,
+                    sdk.targetSdk,
+                    extension.javaVersion.orNull,
+                )
 
-                defaultConfig.targetSdk = extension.androidTargetSdk.get()
+                defaultConfig.targetSdk = sdk.targetSdk
 
                 buildTypes.apply {
                     getByName("release") {
