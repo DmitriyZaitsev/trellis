@@ -13,7 +13,10 @@ import kotlin.contracts.contract
  * This interface is open: [Root], [AndroidApp], [AndroidLibrary], [Java] and [KmpLibrary] are the kinds
  * this library ships with, but a consuming project can add further kinds (e.g. a Gradle plugin module) as additional implementations.
  */
-public interface Module : ModuleModel {
+public interface Module {
+    /** The project name; its Gradle path is built from enclosing groups. */
+    public val name: String
+
     public val hasExplicitApi: Boolean
 
     /** A module kind that can opt into Compose; see `usesCompose` in the module DSL for what it applies. */
@@ -70,6 +73,9 @@ public interface Module : ModuleModel {
      * relying on the declarative defaults.
      *
      * Set [usesCompose] to apply the Compose compiler and Multiplatform plugins.
+     *
+     * Set [xcframework] to bundle the frameworks of all Apple targets into one XCFramework; they
+     * must share a base name, which becomes the XCFramework's name.
      */
     public data class KmpLibrary(
         override val name: String,
@@ -77,6 +83,7 @@ public interface Module : ModuleModel {
         override val hasExplicitApi: Boolean = false,
         public val autoConfigureTargets: Boolean = true,
         override val usesCompose: Boolean = false,
+        public val xcframework: Boolean = false,
     ) : Module,
         UsesCompose
 }

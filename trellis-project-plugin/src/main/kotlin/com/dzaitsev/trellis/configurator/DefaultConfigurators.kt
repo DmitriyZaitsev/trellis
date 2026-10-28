@@ -12,17 +12,11 @@ import com.dzaitsev.trellis.plugin.TrellisProjectExtension
  * Java and Kotlin Multiplatform configurators set up their module kinds, and [ExplicitApiConfigurator]
  * enables `explicitApi()` per [Module.hasExplicitApi].
  *
- * Call this from your own [com.dzaitsev.trellis.plugin.TrellisProjectPlugin]
- * subclass's `immediateConfigurators` override and append your own project-specific
- * [Configurator]s (static analysis, publishing, shared test dependencies, etc.):
- * ```
- * override fun immediateConfigurators(module: Module, extension: MyExtension) =
- *     defaultProjectModuleConfigurators<MyExtension>() + listOf(
- *         MyOwnConfigurator(),
- *     )
- * ```
+ * Call this from your own [com.dzaitsev.trellis.plugin.TrellisProjectPlugin] or
+ * [com.dzaitsev.trellis.plugin.TrellisLocalProjectPlugin] subclass when you replace its
+ * `configurators()` outright; the default implementation already returns this list.
  */
-public fun <E : TrellisProjectExtension> defaultProjectModuleConfigurators(): List<Configurator<Module, E>> = listOf(
+public fun defaultProjectModuleConfigurators(): List<Configurator<TrellisProjectExtension>> = listOf(
     ApplyPluginConfigurator(),
     AndroidAppConfigurator(),
     AndroidLibraryConfigurator(),

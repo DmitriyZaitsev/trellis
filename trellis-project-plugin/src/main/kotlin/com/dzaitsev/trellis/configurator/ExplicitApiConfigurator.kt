@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
  * Waits for any Kotlin Gradle plugin (JVM, Multiplatform, or AGP 9's built-in Kotlin) to be
  * applied, so modules without Kotlin (e.g. [Module.Root]) are left alone.
  */
-public class ExplicitApiConfigurator : Configurator<Module, TrellisProjectExtension> {
+public class ExplicitApiConfigurator : Configurator<TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (!module.hasExplicitApi) return
 

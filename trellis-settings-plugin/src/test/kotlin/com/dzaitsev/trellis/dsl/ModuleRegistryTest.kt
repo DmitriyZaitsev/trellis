@@ -1,8 +1,8 @@
 package com.dzaitsev.trellis.dsl
 
 import com.dzaitsev.trellis.KmpTarget
+import com.dzaitsev.trellis.KmpTarget.Framework
 import com.dzaitsev.trellis.KmpTarget.Ios
-import com.dzaitsev.trellis.KmpTarget.Ios.Framework
 import com.dzaitsev.trellis.KmpTarget.Ios.IosHost
 import com.dzaitsev.trellis.KmpTarget.Js
 import com.dzaitsev.trellis.KmpTarget.JsEnv
@@ -236,6 +236,83 @@ class ModuleRegistryTest {
         assertEquals(Js(isApplication = true, environments = setOf(JsEnv.BROWSER)), web[0])
         assertEquals(JsEnv.DEFAULT, (web[1] as KmpTarget.WasmJs).environments)
         assertEquals(JsEnv.DEFAULT, (targetsOf { js() }.single() as Js).environments)
+    }
+
+    @Test
+    fun `desktop targets default to their hosts and honor selections`() {
+        val macos = targetsOf { macos() }.single() as KmpTarget.Macos
+        assertEquals(setOf(KmpTarget.Macos.MacosHost.MACOS_ARM64), macos.hosts)
+        val linux = targetsOf { linux(isApplication = true) }.single() as KmpTarget.Linux
+        assertEquals(KmpTarget.Linux.LinuxHost.entries.toSet(), linux.hosts)
+        assertEquals(true, linux.isApplication)
+
+        assertEquals(
+            setOf(KmpTarget.Macos.MacosHost.MACOS_ARM64, KmpTarget.Macos.MacosHost.MACOS_X64),
+            (targetsOf { macos(macosArm64, macosX64) }.single() as KmpTarget.Macos).hosts,
+        )
+        assertEquals(
+            setOf(KmpTarget.Linux.LinuxHost.LINUX_ARM64),
+            (targetsOf { linux(linuxArm64) }.single() as KmpTarget.Linux).hosts,
+        )
+        assertFailsWith<IllegalArgumentException> { KmpTarget.Macos(hosts = emptySet()) }
+        assertFailsWith<IllegalArgumentException> { KmpTarget.Linux(hosts = emptySet()) }
+    }
+
+    @Test
+    fun `xcframework needs one shared framework name`() {
+        val registry =
+            moduleRegistry {
+                kmp("shared") {
+                    xcframework = true
+                    ios { framework("Shared") }
+                    macos { framework("Shared") }
+                }
+            }
+        assertEquals(true, (registry["shared"] as Module.KmpLibrary).xcframework)
+
+        val none =
+            assertFailsWith<IllegalArgumentException> {
+                moduleRegistry {
+                    kmp("shared") {
+                        xcframework = true
+                        ios()
+                    }
+                }
+            }
+        assertTrue("no Apple target declares a framework" in none.message.orEmpty())
+
+        val mixed =
+            assertFailsWith<IllegalArgumentException> {
+                moduleRegistry {
+                    kmp("shared") {
+                        xcframework = true
+                        ios { framework("Shared") }
+                        macos { framework("Mac") }
+                    }
+                }
+            }
+        assertTrue("Shared, Mac" in mixed.message.orEmpty())
+    }
+
+    @Test
+    fun `every apple target can export a framework`() {
+        val targets =
+            targetsOf {
+                macos(macosX64, isApplication = true) { framework("Mac") }
+                tvos { framework("Tv") }
+                watchos { framework("Watch") }
+            }.associateBy { it.name }
+
+        assertEquals(Framework("Mac"), (targets.getValue("macos") as KmpTarget.Apple).framework)
+        assertEquals(Framework("Tv"), (targets.getValue("tvos") as KmpTarget.Apple).framework)
+        assertEquals(Framework("Watch"), (targets.getValue("watchos") as KmpTarget.Apple).framework)
+        assertEquals(null, (targetsOf { macos() }.single() as KmpTarget.Apple).framework)
+
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                moduleRegistry { kmp("umbrella") { macos { framework("Shared") { export(":missing") } } } }
+            }
+        assertTrue(":missing" in error.message.orEmpty())
     }
 
     @Test

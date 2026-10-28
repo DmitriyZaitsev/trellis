@@ -278,9 +278,10 @@ the default set:
 | `jvm()`                                                 | JVM                                                                                          |
 | `android(namespace)`                                    | Android target of `com.android.kotlin.multiplatform.library`, with host tests                |
 | `ios(vararg hosts) { ... }`                             | `iosArm64` and `iosSimulatorArm64`; pass `iosX64` to add Intel simulators                    |
-| `tvos(vararg hosts)`, `watchos(vararg hosts)`           | Device and Apple Silicon simulator targets                                                   |
-| `macos(isApplication)`                                  | `macosArm64`                                                                                 |
-| `linux(isApplication)`, `mingw(isApplication)`          | `linuxX64`, `mingwX64`                                                                       |
+| `tvos(vararg hosts) { ... }`, `watchos(vararg hosts) { ... }` | Device and Apple Silicon simulator targets                                             |
+| `macos(vararg hosts, isApplication) { ... }`            | `macosArm64`; pass `macosX64` to add Intel Macs                                              |
+| `linux(vararg hosts, isApplication)`                    | `linuxX64` and `linuxArm64`                                                                  |
+| `mingw(isApplication)`                                  | `mingwX64`, the only Windows target                                                          |
 | `androidNative(vararg hosts)`                           | Kotlin/Native for the Android NDK: `androidNativeArm64` and `androidNativeX64`; not the app target |
 | `desktop(isApplication)`                                | `macos()`, `linux()` and `mingw()` together                                                  |
 | `js(vararg environments, isApplication)`, `wasmJs(...)` | `browser` and/or `nodeJs`, both by default                                                   |
@@ -297,7 +298,8 @@ kmp("shared") {
 }
 ```
 
-An iOS framework is declared inside the `ios` block. Exported project paths must be declared modules; Trellis also adds
+An Objective-C/Swift framework is declared in the block of any Apple target (`ios`, `macos`, `tvos`, `watchos`) and is
+built for each of its hosts. Exported project paths must be declared modules; Trellis also adds
 them as `api` dependencies of the iOS main source set, which Kotlin/Native requires:
 
 ```kotlin
@@ -306,6 +308,18 @@ ios {
         export(":core", ":domain")
         isStatic = true
     }
+}
+```
+
+To ship several Apple platforms as one package, for example through Swift Package Manager, set `xcframework = true` in
+the `kmp` block. Trellis bundles the frameworks of all its Apple targets into one XCFramework, built by
+`assemble<Name>XCFramework`. The frameworks must share a base name, which names the XCFramework:
+
+```kotlin
+kmp("shared") {
+    xcframework = true
+    ios { framework("Shared") }
+    macos { framework("Shared") }
 }
 ```
 
@@ -391,13 +405,14 @@ knows about each one.
 A configurator is a function interface:
 
 ```kotlin
-public fun interface Configurator<in M : ModuleModel, in E : TrellisProjectExtension> {
-    public fun configure(project: Project, module: M, extension: E)
+public fun interface Configurator<in E : TrellisProjectExtension> {
+    public fun configure(project: Project, module: Module, extension: E)
 }
 ```
 
-It receives the Gradle `Project`, the declared `Module` (`Module.KmpLibrary`, `Module.AndroidApp`, and so on) and your
-extension with the shared conventions.
+It receives the Gradle `Project`, the declared `Module` (`Module.KmpLibrary`, `Module.AndroidApp`, and so on) and the
+`trellis { }` extension with the shared conventions. Extending Trellis takes a configurator and a three-line plugin
+class; the steps below add the build wiring around them.
 
 ### 1. Create a build-logic project
 
@@ -449,7 +464,9 @@ gradlePlugin {
 
 ### 2. Add your own settings to the extension
 
-Extend `TrellisProjectExtension` with any `Property` you need. Gradle creates the implementation for you:
+This step is optional: skip it if your configurators need no settings of their own, and use `TrellisProjectExtension`
+wherever `AcmeExtension` appears below. Otherwise extend it with any `Property` you need; Gradle creates the
+implementation for you:
 
 ```kotlin
 // build-logic/src/main/kotlin/com/acme/build/AcmeExtension.kt
@@ -477,7 +494,7 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
-class DetektConfigurator : Configurator<Module, AcmeExtension> {
+class DetektConfigurator : Configurator<AcmeExtension> {
     override fun configure(project: Project, module: Module, extension: AcmeExtension) {
         if (module is Module.Root) return
 
@@ -504,36 +521,22 @@ Guard work that depends on other plugins with `project.pluginManager.withPlugin(
 
 ### 4. Assemble the plugin
 
-Subclass `TrellisProjectPlugin`, keep the built-in configurators, and add yours:
+Subclass `TrellisProjectPlugin`. Its `configurators()` returns the built-in configurators, so add yours to `super`:
 
 ```kotlin
 // build-logic/src/main/kotlin/com/acme/build/AcmeConventionsPlugin.kt
 package com.acme.build
 
-import com.dzaitsev.trellis.Module
-import com.dzaitsev.trellis.configurator.defaultProjectModuleConfigurators
-import com.dzaitsev.trellis.plugin.Configurator
 import com.dzaitsev.trellis.plugin.TrellisProjectPlugin
-import com.dzaitsev.trellis.plugin.findModule
-import org.gradle.api.Project
 
-class AcmeConventionsPlugin :
-    TrellisProjectPlugin<Module, AcmeExtension>(
-        extensionName = "trellis",
-        extensionType = AcmeExtension::class,
-    ) {
-    override fun moduleOf(project: Project): Module? = project.findModule()
-
-    override fun immediateConfigurators(
-        module: Module,
-        extension: AcmeExtension,
-    ): List<Configurator<Module, AcmeExtension>> =
-        defaultProjectModuleConfigurators<AcmeExtension>() + DetektConfigurator()
+class AcmeConventionsPlugin : TrellisProjectPlugin<AcmeExtension>(AcmeExtension::class) {
+    override fun configurators() = super.configurators() + DetektConfigurator()
 }
 ```
 
-Drop the built-ins from the list if you want full control, or reorder them. `moduleOf` returning `null` leaves a project
-untouched.
+Return a list without `super.configurators()` only if you want to replace the built-in behavior;
+`defaultProjectModuleConfigurators()` gives you that list to reorder or filter. Projects without a module declaration are
+left untouched.
 
 ### 5. Use it
 
@@ -558,38 +561,32 @@ Every module now gets Detekt, and changing the rules is a one-file edit.
 
 ### Choosing when a configurator runs
 
-`TrellisProjectPlugin` offers three hooks:
+`TrellisProjectPlugin` offers three hooks, each returning a list of configurators:
 
-| Override                 | Runs                                                                                  | Typical use                              |
-|--------------------------|---------------------------------------------------------------------------------------|------------------------------------------|
-| `immediateConfigurators` | After the root script has evaluated, before any subproject script, for every project | Applying plugins, setting conventions    |
-| `lateConfigurators`      | In each project's `afterEvaluate`, after its own script                               | Reading what a module script registered  |
-| `rootConfigurators`      | Once, on the root project                                                             | Aggregate tasks such as "run all checks" |
+| Override              | Runs                                                                                  | Typical use                              |
+|-----------------------|---------------------------------------------------------------------------------------|------------------------------------------|
+| `configurators()`     | After the root script has evaluated, before any subproject script, for every module  | Applying plugins, setting conventions    |
+| `lateConfigurators()` | In each module's `afterEvaluate`, after its own script                                | Reading what a module script registered  |
+| `rootConfigurators()` | Once, on the root project, which must be declared with `root(name)`                   | Aggregate tasks such as "run all checks" |
 
 Other good candidates for a configurator: Spotless or ktlint, Kover coverage, publishing and signing, dependency locking,
 shared test dependencies, or opinionated compiler flags.
 
 ### Extending local mode
 
-`com.dzaitsev.trellis.local` itself is not subclassable, but it is short and its behavior is public. To add configurators in
-Isolated Projects mode, write your own `Plugin<Project>` and apply it per module instead:
+For Isolated Projects, subclass `TrellisLocalProjectPlugin` the same way, register it in `build-logic`, and apply it in
+each module instead of `com.dzaitsev.trellis.local`:
 
 ```kotlin
-class AcmeLocalPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        val module = project.findModule() ?: return
-        val conventions = requireNotNull(project.extensions.getByType<ModuleRegistryHolder>().projectConventions) {
-            "Declare trellis { projectConventions { ... } } in settings first"
-        }
-        val extension = project.extensions.create<AcmeExtension>("trellis")
-        extension.useSettingsConventions(conventions)
-        (defaultProjectModuleConfigurators<AcmeExtension>() + DetektConfigurator())
-            .forEach { it.configure(project, module, extension) }
-    }
+class AcmeLocalPlugin : TrellisLocalProjectPlugin<AcmeExtension>(AcmeExtension::class) {
+    override fun configurators() = super.configurators() + DetektConfigurator()
 }
 ```
 
-Keep configurators that touch only their own `project` if you want to stay compatible with Isolated Projects.
+It reads conventions from settings `projectConventions { }` and configures only the module it is applied to. Its
+configurators run while the plugin is applied, before the rest of the module script, so read your own extension
+properties lazily through providers, as `config.setFrom(extension.detektConfig)` does above. Keep configurators to their
+own `project` to stay compatible with Isolated Projects.
 
 ### Troubleshooting
 

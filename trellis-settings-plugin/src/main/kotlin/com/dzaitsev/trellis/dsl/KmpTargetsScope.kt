@@ -3,13 +3,15 @@ package com.dzaitsev.trellis.dsl
 import com.dzaitsev.trellis.KmpTarget
 import com.dzaitsev.trellis.KmpTarget.AndroidNative
 import com.dzaitsev.trellis.KmpTarget.AndroidNative.AndroidNativeHost
+import com.dzaitsev.trellis.KmpTarget.Framework
 import com.dzaitsev.trellis.KmpTarget.Ios
-import com.dzaitsev.trellis.KmpTarget.Ios.Framework
 import com.dzaitsev.trellis.KmpTarget.Ios.IosHost
 import com.dzaitsev.trellis.KmpTarget.Js
 import com.dzaitsev.trellis.KmpTarget.JsEnv
 import com.dzaitsev.trellis.KmpTarget.Linux
+import com.dzaitsev.trellis.KmpTarget.Linux.LinuxHost
 import com.dzaitsev.trellis.KmpTarget.Macos
+import com.dzaitsev.trellis.KmpTarget.Macos.MacosHost
 import com.dzaitsev.trellis.KmpTarget.Mingw
 import com.dzaitsev.trellis.KmpTarget.Tvos
 import com.dzaitsev.trellis.KmpTarget.Tvos.TvosHost
@@ -52,18 +54,21 @@ public open class KmpTargetsScope internal constructor() {
     public fun android(namespace: String): Unit = register(KmpTarget.Android(namespace))
 
     // Apple
-    public fun macos(isApplication: Boolean = false): Unit = register(Macos(isApplication))
+    public fun macos(vararg hosts: MacosHost, isApplication: Boolean = false, block: AppleScope.() -> Unit = {}): Unit =
+        register(Macos(isApplication, hosts.toSet().ifEmpty { MacosHost.DEFAULT }, AppleScope().apply(block).build()))
 
-    public fun ios(vararg hosts: IosHost, block: IosScope.() -> Unit = {}) {
-        register(Ios(IosScope().apply(block).build(), hosts.toSet().ifEmpty { IosHost.DEFAULT }))
-    }
+    public fun ios(vararg hosts: IosHost, block: AppleScope.() -> Unit = {}): Unit =
+        register(Ios(AppleScope().apply(block).build(), hosts.toSet().ifEmpty { IosHost.DEFAULT }))
 
-    public fun tvos(vararg hosts: TvosHost): Unit = register(Tvos(hosts.toSet().ifEmpty { TvosHost.DEFAULT }))
+    public fun tvos(vararg hosts: TvosHost, block: AppleScope.() -> Unit = {}): Unit =
+        register(Tvos(hosts.toSet().ifEmpty { TvosHost.DEFAULT }, AppleScope().apply(block).build()))
 
-    public fun watchos(vararg hosts: WatchosHost): Unit = register(Watchos(hosts.toSet().ifEmpty { WatchosHost.DEFAULT }))
+    public fun watchos(vararg hosts: WatchosHost, block: AppleScope.() -> Unit = {}): Unit =
+        register(Watchos(hosts.toSet().ifEmpty { WatchosHost.DEFAULT }, AppleScope().apply(block).build()))
 
     // Native, non-Apple
-    public fun linux(isApplication: Boolean = false): Unit = register(Linux(isApplication))
+    public fun linux(vararg hosts: LinuxHost, isApplication: Boolean = false): Unit =
+        register(Linux(isApplication, hosts.toSet().ifEmpty { LinuxHost.DEFAULT }))
 
     public fun mingw(isApplication: Boolean = false): Unit = register(Mingw(isApplication))
 
@@ -74,10 +79,10 @@ public open class KmpTargetsScope internal constructor() {
     public fun androidNative(vararg hosts: AndroidNativeHost): Unit =
         register(AndroidNative(hosts.toSet().ifEmpty { AndroidNativeHost.DEFAULT }))
 
-    /** Declares [macos], [linux] and [mingw]. */
+    /** Declares [macos], [linux] and [mingw] with their default hosts. */
     public fun desktop(isApplication: Boolean = false) {
-        macos(isApplication)
-        linux(isApplication)
+        macos(isApplication = isApplication)
+        linux(isApplication = isApplication)
         mingw(isApplication)
     }
 
@@ -102,24 +107,30 @@ public open class KmpTargetsScope internal constructor() {
     public val watchosArm64: WatchosHost = WatchosHost.WATCHOS_ARM64
     public val watchosSimulatorArm64: WatchosHost = WatchosHost.WATCHOS_SIMULATOR_ARM64
 
+    public val macosArm64: MacosHost = MacosHost.MACOS_ARM64
+    public val macosX64: MacosHost = MacosHost.MACOS_X64
+
+    public val linuxX64: LinuxHost = LinuxHost.LINUX_X64
+    public val linuxArm64: LinuxHost = LinuxHost.LINUX_ARM64
+
     public val androidNativeArm64: AndroidNativeHost = AndroidNativeHost.ANDROID_NATIVE_ARM64
     public val androidNativeX64: AndroidNativeHost = AndroidNativeHost.ANDROID_NATIVE_X64
 
-    /** Options of an [ios] target. */
+    /** Options of an Apple target: [ios], [macos], [tvos] or [watchos]. */
     @TrellisDslMarker
-    public class IosScope internal constructor() {
+    public class AppleScope internal constructor() {
         private var declared: Framework? = null
 
-        /** Exports an Objective-C/Swift framework binary from the iOS targets. */
+        /** Exports an Objective-C/Swift framework binary from each of the target's hosts. */
         public fun framework(baseName: String, block: FrameworkScope.() -> Unit = {}) {
-            check(declared == null) { "iOS framework is declared more than once" }
+            check(declared == null) { "Framework is declared more than once" }
             declared = FrameworkScope(baseName).apply(block).build()
         }
 
         internal fun build(): Framework? = declared
     }
 
-    /** Options of an iOS [Framework]; see its documentation for the export wiring. */
+    /** Options of a [Framework]; see its documentation for the export wiring. */
     @TrellisDslMarker
     public class FrameworkScope internal constructor(private val baseName: String) {
         private val exports = mutableListOf<String>()

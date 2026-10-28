@@ -8,6 +8,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -26,7 +27,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
  * are set on extensions (not tasks), so a module's own `build.gradle.kts` can still override them.
  * Android `compileOptions` are set separately by the Android configurators.
  */
-public class JvmTargetConfigurator : Configurator<Module, TrellisProjectExtension> {
+public class JvmTargetConfigurator : Configurator<TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (!extension.javaVersion.isPresent) return
 
@@ -47,19 +48,15 @@ public class JvmTargetConfigurator : Configurator<Module, TrellisProjectExtensio
         }
 
         project.plugins.withType<KotlinBasePlugin>().configureEach {
-            val kotlin = project.extensions.findByType(KotlinProjectExtension::class.java) ?: return@configureEach
+            val kotlin = project.extensions.findByType<KotlinProjectExtension>() ?: return@configureEach
             if (useToolchain) kotlin.jvmToolchain(extension.javaVersion.get())
 
             when (kotlin) {
-                is KotlinMultiplatformExtension -> {
-                    kotlin.targets.configureEach {
-                        jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
-                    }
+                is KotlinMultiplatformExtension -> kotlin.targets.configureEach {
+                    jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
                 }
 
-                else -> {
-                    kotlin.jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
-                }
+                else -> kotlin.jvmCompilerOptions()?.jvmTarget?.set(jvmTarget)
             }
         }
     }

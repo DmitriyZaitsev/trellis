@@ -45,8 +45,6 @@ public fun Project.findModule(): Module? {
     return if (path == ProjectPath.ROOT.gradlePath) {
         registry.findRoot(name)
     } else {
-        registry.findByPath(
-            ProjectPath(path),
-        )
+        registry.findByPath(ProjectPath(path))
     }
 }

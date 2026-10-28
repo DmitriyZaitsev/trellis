@@ -352,6 +352,50 @@ class TrellisProjectPluginFunctionalTest {
     }
 
     @Test
+    fun `desktop targets register only the selected hosts`() {
+        val settings = file("settings.gradle.kts")
+        settings.writeText(settings.readText().replace("{ jvm(); js(browser) }", "{ jvm(); macos(macosX64); linux(linuxArm64) }"))
+
+        val tasks = build(":multi:tasks", "--all").output
+
+        assertTrue("compileKotlinMacosX64" in tasks, tasks)
+        assertTrue("compileKotlinLinuxArm64" in tasks, tasks)
+        assertFalse("compileKotlinMacosArm64" in tasks, tasks)
+        assertFalse("compileKotlinLinuxX64" in tasks, tasks)
+    }
+
+    @Test
+    fun `apple targets beyond ios register framework binaries`() {
+        val settings = file("settings.gradle.kts")
+        settings.writeText(
+            settings.readText().replace(
+                "{ jvm(); js(browser) }",
+                "{ jvm(); macos { framework(\"Shared\") }; tvos(tvosArm64) { framework(\"Shared\") } }",
+            ),
+        )
+
+        val tasks = build(":multi:tasks", "--all").output
+
+        assertTrue("linkDebugFrameworkMacosArm64" in tasks, tasks)
+        assertTrue("linkReleaseFrameworkTvosArm64" in tasks, tasks)
+    }
+
+    @Test
+    fun `xcframework bundles the apple frameworks`() {
+        val settings = file("settings.gradle.kts")
+        settings.writeText(
+            settings.readText().replace(
+                "{ jvm(); js(browser) }",
+                "{ jvm(); xcframework = true; ios(iosArm64) { framework(\"Shared\") }; macos { framework(\"Shared\") } }",
+            ),
+        )
+
+        val tasks = build(":multi:tasks", "--all").output
+
+        assertTrue("assembleSharedXCFramework" in tasks, tasks)
+    }
+
+    @Test
     fun `browser-only js target registers no node tasks`() {
         val tasks = build(":multi:tasks", "--all").output
 
@@ -361,6 +405,49 @@ class TrellisProjectPluginFunctionalTest {
 
     @Test
     fun `build-logic plugin extends trellis as the readme describes`() {
+        writeAcmeBuildLogic()
+        val root = file("build.gradle.kts")
+        root.writeText(
+            root
+                .readText()
+                .replace("id(\"com.dzaitsev.trellis.conventions\") version \"$version\"", "id(\"com.acme.conventions\")")
+                .replace("javaVersion = 17", "javaVersion = 17\n    marker = \"hello\""),
+        )
+
+        val output = build(":app:acmeMarker", ":app:compileKotlin").output
+
+        assertTrue("acme hello :app" in output, output)
+        assertEquals(JAVA_17_MAJOR, classMajorVersion("app/build/classes/kotlin/main/app/MainKt.class"))
+    }
+
+    @Test
+    fun `build-logic local plugin extends trellis per module`() {
+        writeAcmeBuildLogic()
+        file("settings.gradle.kts").appendText(
+            "\ntrellis { projectConventions { kotlinVersion = \"$KOTLIN_VERSION\"; javaVersion = 17 } }\n",
+        )
+        file("build.gradle.kts").writeText(
+            """
+            plugins {
+                id("org.jetbrains.kotlin.jvm") version "$KOTLIN_VERSION" apply false
+                id("org.jetbrains.kotlin.multiplatform") version "$KOTLIN_VERSION" apply false
+                id("com.acme.local") apply false
+            }
+            """.trimIndent(),
+        )
+        listOf("libs/jvm/core", "app").forEach { path ->
+            val script = file("$path/build.gradle.kts")
+            val body = if (script.exists()) script.readText() else ""
+            script.writeText("plugins { id(\"com.acme.local\") }\ntrellis { marker = \"local\" }\n$body")
+        }
+
+        val output = build(":app:acmeMarker", ":app:compileKotlin").output
+
+        assertTrue("acme local :app" in output, output)
+        assertEquals(JAVA_17_MAJOR, classMajorVersion("app/build/classes/kotlin/main/app/MainKt.class"))
+    }
+
+    private fun writeAcmeBuildLogic() {
         val repoUrl = repo.replace("\\", "/")
         val settings = file("settings.gradle.kts")
         settings.writeText(settings.readText().replace("pluginManagement {", "pluginManagement {\n    includeBuild(\"build-logic\")"))
@@ -380,6 +467,10 @@ class TrellisProjectPluginFunctionalTest {
                         id = "com.acme.conventions"
                         implementationClass = "com.acme.build.AcmeConventionsPlugin"
                     }
+                    create("acmeLocal") {
+                        id = "com.acme.local"
+                        implementationClass = "com.acme.build.AcmeLocalPlugin"
+                    }
                 }
             }
             """.trimIndent(),
@@ -389,11 +480,10 @@ class TrellisProjectPluginFunctionalTest {
             package com.acme.build
 
             import com.dzaitsev.trellis.Module
-            import com.dzaitsev.trellis.configurator.defaultProjectModuleConfigurators
             import com.dzaitsev.trellis.plugin.Configurator
+            import com.dzaitsev.trellis.plugin.TrellisLocalProjectPlugin
             import com.dzaitsev.trellis.plugin.TrellisProjectExtension
             import com.dzaitsev.trellis.plugin.TrellisProjectPlugin
-            import com.dzaitsev.trellis.plugin.findModule
             import org.gradle.api.Project
             import org.gradle.api.provider.Property
 
@@ -401,7 +491,7 @@ class TrellisProjectPluginFunctionalTest {
                 val marker: Property<String>
             }
 
-            class MarkerConfigurator : Configurator<Module, AcmeExtension> {
+            class MarkerConfigurator : Configurator<AcmeExtension> {
                 override fun configure(project: Project, module: Module, extension: AcmeExtension) {
                     if (module is Module.Root) return
                     val marker = extension.marker
@@ -410,30 +500,15 @@ class TrellisProjectPluginFunctionalTest {
                 }
             }
 
-            class AcmeConventionsPlugin :
-                TrellisProjectPlugin<Module, AcmeExtension>(
-                    extensionName = "trellis",
-                    extensionType = AcmeExtension::class,
-                ) {
-                override fun moduleOf(project: Project): Module? = project.findModule()
+            class AcmeConventionsPlugin : TrellisProjectPlugin<AcmeExtension>(AcmeExtension::class) {
+                override fun configurators() = super.configurators() + MarkerConfigurator()
+            }
 
-                override fun immediateConfigurators(module: Module, extension: AcmeExtension): List<Configurator<Module, AcmeExtension>> =
-                    defaultProjectModuleConfigurators<AcmeExtension>() + MarkerConfigurator()
+            class AcmeLocalPlugin : TrellisLocalProjectPlugin<AcmeExtension>(AcmeExtension::class) {
+                override fun configurators() = super.configurators() + MarkerConfigurator()
             }
             """.trimIndent(),
         )
-        val root = file("build.gradle.kts")
-        root.writeText(
-            root
-                .readText()
-                .replace("id(\"com.dzaitsev.trellis.conventions\") version \"$version\"", "id(\"com.acme.conventions\")")
-                .replace("javaVersion = 17", "javaVersion = 17\n    marker = \"hello\""),
-        )
-
-        val output = build(":app:acmeMarker", ":app:compileKotlin").output
-
-        assertTrue("acme hello :app" in output, output)
-        assertEquals(JAVA_17_MAJOR, classMajorVersion("app/build/classes/kotlin/main/app/MainKt.class"))
     }
 
     private fun file(path: String): File = dir.resolve(path).apply { parentFile.mkdirs() }

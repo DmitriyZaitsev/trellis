@@ -31,7 +31,7 @@ public class TrellisSettingsPlugin : Plugin<Settings> {
             // Projects may not read Gradle.extensions under Isolated Projects; give each its own copy.
             val holder = ModuleRegistryHolder(registry, extension.conventions?.snapshot())
             settings.gradle.lifecycle.beforeProject {
-                extensions.add(ModuleRegistryHolder::class.java, MODULE_REGISTRY_HOLDER_NAME, holder)
+                extensions.add<ModuleRegistryHolder>(MODULE_REGISTRY_HOLDER_NAME, holder)
             }
         }
     }

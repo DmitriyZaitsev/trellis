@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * Host tests are always registered (they cost nothing without sources). Android resources, off by
  * default in AGP, are enabled for Compose modules, which need them for Compose resources.
  */
-public class KmpAndroidTargetConfigurator : Configurator<Module, TrellisProjectExtension> {
+public class KmpAndroidTargetConfigurator : Configurator<TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (module !is Module.KmpLibrary) return
         val target = module.targets.filterIsInstance<KmpTarget.Android>().firstOrNull() ?: return

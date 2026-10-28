@@ -38,7 +38,7 @@ import org.gradle.api.Project
  * `pluginManager.withPlugin(...)` guard fires immediately rather than waiting on the module's own
  * script to (redundantly) re-declare the plugin.
  */
-public class ApplyPluginConfigurator : Configurator<Module, TrellisProjectExtension> {
+public class ApplyPluginConfigurator : Configurator<TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         val pluginManager = project.pluginManager
         when (module) {

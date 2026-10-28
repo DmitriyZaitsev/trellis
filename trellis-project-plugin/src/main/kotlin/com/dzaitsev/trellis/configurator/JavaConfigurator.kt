@@ -17,7 +17,7 @@ import org.gradle.kotlin.dsl.withType
  * Sets up group, version and test logging; the JVM target comes from [JvmTargetConfigurator].
  * If [Module.Java.mainClass] is provided, applies the `application` plugin and sets it.
  */
-public class JavaConfigurator : Configurator<Module, TrellisProjectExtension> {
+public class JavaConfigurator : Configurator<TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         val javaModule = module as? Module.Java ?: return
 

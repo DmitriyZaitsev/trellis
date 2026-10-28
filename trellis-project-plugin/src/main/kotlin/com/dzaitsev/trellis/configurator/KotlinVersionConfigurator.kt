@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
  * with AGP built-in Kotlin) from [TrellisProjectExtension.kotlinVersion]. When it is unset, the
  * compiler's own default applies. Set as conventions, so a module script can still override them.
  */
-public class KotlinVersionConfigurator : Configurator<Module, TrellisProjectExtension> {
+public class KotlinVersionConfigurator : Configurator<TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         val version = extension.kotlinVersion.map { it.toKotlinVersion() }
 

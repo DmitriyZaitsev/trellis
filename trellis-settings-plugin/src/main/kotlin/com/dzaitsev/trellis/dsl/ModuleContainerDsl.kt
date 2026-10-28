@@ -46,6 +46,7 @@ public abstract class ModuleContainerDsl {
                 targets = scope.build(),
                 hasExplicitApi = scope.hasExplicitApi,
                 autoConfigureTargets = scope.autoConfigureTargets,
+                xcframework = scope.xcframework,
                 usesCompose = scope.usesCompose,
             ),
         )

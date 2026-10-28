@@ -24,6 +24,9 @@ public class KmpModuleScope internal constructor() :
 
     /** Set to `false` when the module's own script registers its targets. */
     public var autoConfigureTargets: Boolean = true
+
+    /** Bundles the frameworks of all Apple targets into one XCFramework; they must share a base name. */
+    public var xcframework: Boolean = false
 }
 
 /** Options of a `java` module. */

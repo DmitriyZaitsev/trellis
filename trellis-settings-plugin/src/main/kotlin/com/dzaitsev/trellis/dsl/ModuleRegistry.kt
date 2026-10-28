@@ -6,7 +6,7 @@ import com.dzaitsev.trellis.androidNamespace
 import com.dzaitsev.trellis.isGroup
 
 /**
- * The set of [com.dzaitsev.trellis.Module]s declared for a build, keyed by [com.dzaitsev.trellis.ModuleModel.name].
+ * The set of [com.dzaitsev.trellis.Module]s declared for a build, keyed by [com.dzaitsev.trellis.Module.name].
  *
  * Build one with the [moduleRegistry] DSL. Consumers typically expose their own
  * `fun Project.module(): Module = registry[name]` extension over a single top-level
@@ -86,12 +86,26 @@ public class ModuleRegistry internal constructor(
 
         val unknownExports =
             module.targets
-                .filterIsInstance<KmpTarget.Ios>()
+                .filterIsInstance<KmpTarget.Apple>()
                 .flatMap { it.framework?.export.orEmpty() }
                 .filter { findByPath(ProjectPath(it)) == null }
 
         require(unknownExports.isEmpty()) {
-            "iOS framework of $path exports undeclared modules: " + unknownExports.joinToString()
+            "Framework of $path exports undeclared modules: " + unknownExports.joinToString()
+        }
+
+        if (module.xcframework) {
+            val frameworkNames =
+                module.targets
+                    .filterIsInstance<KmpTarget.Apple>()
+                    .mapNotNull { it.framework?.baseName }
+                    .toSet()
+            require(frameworkNames.isNotEmpty()) {
+                "KMP module $path enables xcframework, but no Apple target declares a framework"
+            }
+            require(frameworkNames.size == 1) {
+                "XCFramework of $path needs one framework name; Apple targets declare: " + frameworkNames.joinToString()
+            }
         }
     }
 

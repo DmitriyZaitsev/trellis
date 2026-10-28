@@ -70,6 +70,8 @@ internal fun TrellisProjectExtension.requireAndroidSdkLevels(projectPath: String
     )
 }
 
+internal const val TRELLIS_EXTENSION_NAME = "trellis"
+
 /**
  * Uses [conventions] declared in settings (`trellis { projectConventions { } }`) as this extension's
  * defaults; values assigned in a build script still win.

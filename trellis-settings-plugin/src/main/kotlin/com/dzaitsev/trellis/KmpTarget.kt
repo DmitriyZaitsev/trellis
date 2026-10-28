@@ -54,16 +54,68 @@ public sealed class KmpTarget(public val name: String) {
 
     public sealed class Web(name: String) : Common(name)
 
-    public sealed class Apple(name: String) : Native(name)
+    /** An Apple target, which can additionally export an Objective-C/Swift [Framework]. */
+    public sealed class Apple(name: String) : Native(name) {
+        /** Framework built for each of this target's hosts, or `null` to build none. */
+        public abstract val framework: Framework?
+    }
 
-    /** Kotlin/Native Linux (`linuxX64`). Set [isApplication] to register an executable binary. */
-    public data class Linux(public val isApplication: Boolean = false) : Native("linux") {
-        public companion object : AppLibraryFactory<Linux> {
-            override fun of(isApplication: Boolean): Linux = Linux(isApplication)
+    /**
+     * Objective-C/Swift framework export of an [Apple] target — the "umbrella module" pattern for
+     * shipping a KMP module graph to an Apple app.
+     *
+     * [export] takes Gradle project paths (e.g. `":domain"`) rather than `Project` references, so a
+     * [Module] declaration stays plain data. Each exported path is also added as an `api` dependency
+     * of each host's main source set, which Kotlin/Native requires for exported dependencies.
+     *
+     * Applies `-Xpartial-linkage-loglevel=WARNING` unconditionally, and
+     * `-Xbinary=gc=concurrent_mark_and_sweep` / `-Xallocator=std` / `-opt` for release binaries only.
+     */
+    public data class Framework(
+        public val baseName: String,
+        public val export: List<String> = emptyList(),
+        public val isStatic: Boolean = true,
+        public val freeCompilerArgs: List<String> = DEFAULT_FREE_COMPILER_ARGS,
+        public val releaseFreeCompilerArgs: List<String> = DEFAULT_RELEASE_FREE_COMPILER_ARGS,
+    ) {
+        public companion object {
+            public val DEFAULT_FREE_COMPILER_ARGS: List<String> =
+                listOf("-Xpartial-linkage-loglevel=WARNING")
+            public val DEFAULT_RELEASE_FREE_COMPILER_ARGS: List<String> =
+                listOf(
+                    "-Xbinary=gc=concurrent_mark_and_sweep",
+                    "-Xallocator=std",
+                    "-opt",
+                )
         }
     }
 
-    /** Kotlin/Native Windows (`mingwX64`). Set [isApplication] to register an executable binary. */
+    /**
+     * Kotlin/Native Linux: `linuxX64` and `linuxArm64` by default. Set [isApplication] to register an
+     * executable binary on each host.
+     */
+    public data class Linux(public val isApplication: Boolean = false, public val hosts: Set<LinuxHost> = LinuxHost.DEFAULT) :
+        Native("linux") {
+        init {
+            require(hosts.isNotEmpty()) { "Linux target needs at least one host" }
+        }
+
+        public companion object : AppLibraryFactory<Linux> {
+            override fun of(isApplication: Boolean): Linux = Linux(isApplication)
+        }
+
+        public enum class LinuxHost {
+            LINUX_X64,
+            LINUX_ARM64,
+            ;
+
+            public companion object {
+                public val DEFAULT: Set<LinuxHost> = entries.toSet()
+            }
+        }
+    }
+
+    /** Kotlin/Native Windows (`mingwX64`, its only host). Set [isApplication] to register an executable binary. */
     public data class Mingw(public val isApplication: Boolean = false) : Native("mingw") {
         public companion object : AppLibraryFactory<Mingw> {
             override fun of(isApplication: Boolean): Mingw = Mingw(isApplication)
@@ -134,59 +186,42 @@ public sealed class KmpTarget(public val name: String) {
         }
     }
 
-    /** Kotlin/Native macOS (`macosArm64`). Set [isApplication] to register an executable binary. */
-    public data class Macos(public val isApplication: Boolean = false) : Apple("macos") {
+    /**
+     * Kotlin/Native macOS: `macosArm64` by default, `macosX64` (Intel) on request. Set [isApplication]
+     * to register an executable binary on each host.
+     */
+    public data class Macos(
+        public val isApplication: Boolean = false,
+        public val hosts: Set<MacosHost> = MacosHost.DEFAULT,
+        override val framework: Framework? = null,
+    ) : Apple("macos") {
+        init {
+            require(hosts.isNotEmpty()) { "Macos target needs at least one host" }
+        }
+
         public companion object : AppLibraryFactory<Macos> {
             override fun of(isApplication: Boolean): Macos = Macos(isApplication)
+        }
+
+        public enum class MacosHost {
+            MACOS_ARM64,
+            MACOS_X64,
+            ;
+
+            public companion object {
+                /** Apple Silicon only; `MACOS_X64` is opt-in as Kotlin is phasing out x86_64 Apple targets. */
+                public val DEFAULT: Set<MacosHost> = setOf(MACOS_ARM64)
+            }
         }
     }
 
     /**
      * The iOS targets listed in [hosts]: `iosArm64` and `iosSimulatorArm64` by default, `iosX64`
      * (Intel simulators) on request.
-     *
-     * Set [framework] to additionally export an Objective-C/Swift framework binary from these
-     * targets — the "umbrella module" pattern for shipping a KMP module graph to an iOS app.
-     * Leave it `null` (the default) for a target meant to be consumed as Kotlin source by another
-     * KMP module rather than built as a standalone framework.
      */
-    public data class Ios(public val framework: Framework? = null, public val hosts: Set<IosHost> = IosHost.DEFAULT) : Apple("ios") {
+    public data class Ios(override val framework: Framework? = null, public val hosts: Set<IosHost> = IosHost.DEFAULT) : Apple("ios") {
         init {
             require(hosts.isNotEmpty()) { "Ios target needs at least one host" }
-        }
-
-        /**
-         * Framework export config for [Ios].
-         *
-         * [export] takes Gradle project paths (e.g. `":domain"`) rather than `Project`
-         * references, so a [Module] declaration stays plain data with no Gradle API
-         * dependency. Each exported path is also added as an `api` dependency of each iOS target's
-         * main source set — Kotlin/Native requires a dependency exported from a framework to be an API
-         * dependency of that compilation, so the configurator wires both from this one list
-         * instead of requiring it to be declared twice.
-         *
-         * Applies `-Xpartial-linkage-loglevel=WARNING` unconditionally, and
-         * `-Xbinary=gc=concurrent_mark_and_sweep` / `-Xallocator=std` / `-opt` for release
-         * binaries only — a common recommended baseline for shipping this kind of framework, not
-         * something specific to any one project.
-         */
-        public data class Framework(
-            public val baseName: String,
-            public val export: List<String> = emptyList(),
-            public val isStatic: Boolean = true,
-            public val freeCompilerArgs: List<String> = DEFAULT_FREE_COMPILER_ARGS,
-            public val releaseFreeCompilerArgs: List<String> = DEFAULT_RELEASE_FREE_COMPILER_ARGS,
-        ) {
-            public companion object {
-                public val DEFAULT_FREE_COMPILER_ARGS: List<String> =
-                    listOf("-Xpartial-linkage-loglevel=WARNING")
-                public val DEFAULT_RELEASE_FREE_COMPILER_ARGS: List<String> =
-                    listOf(
-                        "-Xbinary=gc=concurrent_mark_and_sweep",
-                        "-Xallocator=std",
-                        "-opt",
-                    )
-            }
         }
 
         /** Kotlin/Native iOS targets an [Ios] target can register. */
@@ -204,7 +239,8 @@ public sealed class KmpTarget(public val name: String) {
     }
 
     /** Kotlin/Native tvOS: device and Apple Silicon simulator. */
-    public data class Tvos(public val hosts: Set<TvosHost> = TvosHost.DEFAULT) : Apple("tvos") {
+    public data class Tvos(public val hosts: Set<TvosHost> = TvosHost.DEFAULT, override val framework: Framework? = null) :
+        Apple("tvos") {
         init {
             require(hosts.isNotEmpty()) { "Tvos target needs at least one host" }
         }
@@ -221,7 +257,8 @@ public sealed class KmpTarget(public val name: String) {
     }
 
     /** Kotlin/Native watchOS: device and Apple Silicon simulator. */
-    public data class Watchos(public val hosts: Set<WatchosHost> = WatchosHost.DEFAULT) : Apple("watchos") {
+    public data class Watchos(public val hosts: Set<WatchosHost> = WatchosHost.DEFAULT, override val framework: Framework? = null) :
+        Apple("watchos") {
         init {
             require(hosts.isNotEmpty()) { "Watchos target needs at least one host" }
         }
@@ -245,7 +282,9 @@ public data object Native : KmpTarget.Native("native")
 
 public data object Web : KmpTarget.Web("web")
 
-public data object Apple : KmpTarget.Apple("apple")
+public data object Apple : KmpTarget.Apple("apple") {
+    override val framework: Framework? = null
+}
 
 /** True for the group singletons that only name a hierarchy level rather than a concrete target. */
 internal val KmpTarget.isGroup: Boolean

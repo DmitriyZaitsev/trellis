@@ -15,7 +15,7 @@ import org.gradle.kotlin.dsl.configure
  * Runs before the module's own script, so values set here (e.g. release `isMinifyEnabled = true`,
  * `buildConfig = false`) are defaults that the module's `android { }` block can override.
  */
-public class AndroidAppConfigurator : Configurator<Module, TrellisProjectExtension> {
+public class AndroidAppConfigurator : Configurator<TrellisProjectExtension> {
     override fun configure(project: Project, module: Module, extension: TrellisProjectExtension) {
         if (module !is Module.AndroidApp) return
         val sdk = extension.requireAndroidSdkLevels(project.path)

@@ -1,76 +1,57 @@
 package com.dzaitsev.trellis.plugin
 
-import com.dzaitsev.trellis.ModuleModel
+import com.dzaitsev.trellis.configurator.defaultProjectModuleConfigurators
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.findByType
 import kotlin.reflect.KClass
 
 /**
- * Reusable base for a Gradle plugin that walks every project in the build (via `allprojects`),
- * resolves each project's module of type [M], and runs [immediateConfigurators] once the root
- * project's own `build.gradle.kts` has finished evaluating and [lateConfigurators] inside a
- * per-project `afterEvaluate`, once that project's own `build.gradle.kts` has finished evaluating
- * (needed for anything that touches AGP/Kotlin extensions or dependency configurations those
- * plugins register).
+ * Base for a plugin applied to the root project that configures every declared module in the
+ * build (via `allprojects`), with its settings in the `trellis { }` extension of type [E].
  *
- * [immediateConfigurators] deliberately waits for the *root* project's own script to finish (via
- * `project.afterEvaluate`) rather than running synchronously inside `apply()`: this plugin is
- * applied from the root's own `plugins { }` block, which Gradle processes before the rest of that
- * script runs — so anything in [extensionType] the root script sets afterwards (e.g. `javaVersion`,
- * `androidMinSdk`) would otherwise not be readable yet. Gradle evaluates the root project fully,
- * including firing its own `afterEvaluate` listeners, before it begins evaluating any subproject's
- * own script — so this wait still keeps [immediateConfigurators] running strictly before every
- * subproject's own `build.gradle.kts`, preserving "immediate" semantics for module code, while
- * fixing extension-value ordering for root project code.
+ * [configurators] run once the root project's own script has evaluated (so values it assigns to the
+ * extension are readable) and before any subproject's script. [lateConfigurators] run in each
+ * project's `afterEvaluate`, after its own script. [rootConfigurators] run once, on the root project.
+ * Projects without a module declaration are left untouched.
  *
- * [rootConfigurators] run exactly once, against the project the plugin was applied to — useful
- * for registering aggregate tasks (e.g. "clean all", "run all lint") that only make sense once per
- * build rather than once per module.
- *
- * Subclasses own the shape of their own extension type [E], their module type [M], and the
- * [Configurator]s they ship; this base class only owns module resolution and ordering.
+ * ```
+ * class AcmeConventionsPlugin : TrellisProjectPlugin<AcmeExtension>(AcmeExtension::class) {
+ *     override fun configurators() = super.configurators() + DetektConfigurator()
+ * }
+ * ```
  */
-public abstract class TrellisProjectPlugin<M : ModuleModel, E : TrellisProjectExtension>(
-    private val extensionName: String,
-    private val extensionType: KClass<E>,
-) : Plugin<Project> {
-    /**
-     * Resolves the module of type [M] declared for [project], e.g. via [findModule]. Return `null`
-     * for projects that should be left untouched (implicit intermediate projects such as
-     * `:feature` for `:feature:auth`, or projects included without a registry declaration).
-     */
-    protected abstract fun moduleOf(project: Project): M?
+public abstract class TrellisProjectPlugin<E : TrellisProjectExtension>(private val extensionType: KClass<E>) : Plugin<Project> {
+    /** Applied in order to every declared module; defaults to the built-in configurators. */
+    protected open fun configurators(): List<Configurator<E>> = defaultProjectModuleConfigurators()
 
-    /** Ordered configurators applied to every project in the build, once the root project's own script has evaluated. */
-    protected abstract fun immediateConfigurators(module: M, extension: E): List<Configurator<M, E>>
+    /** Applied in order to every declared module, inside its own `afterEvaluate`. */
+    protected open fun lateConfigurators(): List<Configurator<E>> = emptyList()
 
-    /** Ordered configurators applied to every project in the build, inside that project's own `afterEvaluate`. */
-    protected open fun lateConfigurators(module: M, extension: E): List<Configurator<M, E>> = emptyList()
-
-    /** Ordered configurators applied exactly once, against the project the plugin was applied to. */
-    protected open fun rootConfigurators(extension: E): List<Configurator<M, E>> = emptyList()
+    /** Applied once, to the root project, which must then be declared with `root(name)`. */
+    protected open fun rootConfigurators(): List<Configurator<E>> = emptyList()
 
     final override fun apply(project: Project) {
-        val extension = project.extensions.create(extensionName, extensionType.java)
+        val extension = project.extensions.create(TRELLIS_EXTENSION_NAME, extensionType.java)
         project.extensions
-            .findByType(ModuleRegistryHolder::class.java)
+            .findByType<ModuleRegistryHolder>()
             ?.projectConventions
             ?.let(extension::useSettingsConventions)
 
         project.afterEvaluate {
             project.allprojects {
-                val module = moduleOf(this) ?: return@allprojects
-                immediateConfigurators(module, extension).forEach { it.configure(this, module, extension) }
+                val module = findModule() ?: return@allprojects
+                configurators().forEach { it.configure(this, module, extension) }
 
-                val runLate = { lateConfigurators(module, extension).forEach { it.configure(this, module, extension) } }
+                val runLate = { lateConfigurators().forEach { it.configure(this, module, extension) } }
                 // We are already inside this project's afterEvaluate; registering another one would fail.
                 if (this == project) runLate() else afterEvaluate { runLate() }
             }
 
-            val rootConfigurators = rootConfigurators(extension)
+            val rootConfigurators = rootConfigurators()
             if (rootConfigurators.isNotEmpty()) {
                 val rootModule =
-                    checkNotNull(moduleOf(project)) {
+                    checkNotNull(project.findModule()) {
                         "No module declared for ${project.path}, which root configurators require"
                     }
                 rootConfigurators.forEach { it.configure(project, rootModule, extension) }
