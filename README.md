@@ -99,7 +99,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.dzaitsev.trellis") version "0.1.0"
+    id("com.dzaitsev.trellis") version "1.0.0"
 }
 
 trellis {
@@ -128,7 +128,7 @@ plugins {
     id("com.android.kotlin.multiplatform.library") version "9.3.3" apply false
     id("org.jetbrains.kotlin.plugin.compose") version "2.4.20" apply false
     id("org.jetbrains.compose") version "1.12.1" apply false
-    id("com.dzaitsev.trellis.conventions") version "0.1.0"
+    id("com.dzaitsev.trellis.conventions") version "1.0.0"
 }
 
 trellis {
@@ -377,7 +377,7 @@ plugin. It reads conventions only from settings, so declare them with `projectCo
 [Conventions](#conventions).
 
 Replace `com.dzaitsev.trellis.conventions` in the root build script with
-`id("com.dzaitsev.trellis.local") version "0.1.0" apply false`, keeping the Kotlin and Android plugins with
+`id("com.dzaitsev.trellis.local") version "1.0.0" apply false`, keeping the Kotlin and Android plugins with
 `apply false`. Then apply it in each declared module:
 
 ```kotlin
@@ -448,7 +448,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.dzaitsev.trellis:trellis-project-plugin:0.1.0")
+    implementation("com.dzaitsev.trellis:trellis-project-plugin:1.0.0")
     implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.8") // used by the example below
 }
 
