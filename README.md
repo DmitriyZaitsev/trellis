@@ -1,6 +1,4 @@
----
-title: Trellis
-description: Declare every Android, Kotlin Multiplatform and JVM module once in settings.gradle.kts and let a single shared configuration build them all
+# Declare every Android, Kotlin Multiplatform and JVM module once in settings.gradle.kts and let a single shared configuration build them all
 ---
 
 Trellis is a pair of Gradle plugins that turns `settings.gradle.kts` into the single source of truth for your project
