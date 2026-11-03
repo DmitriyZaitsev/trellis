@@ -73,25 +73,15 @@ Trellis ships as two Gradle plugins under the group `com.dzaitsev.trellis`:
 
 The settings plugin has no Kotlin or Android dependencies. The project plugin carries the configurators.
 
-> [!NOTE]
-> Trellis is not yet published to the Gradle Plugin Portal or Maven Central. Install it from your local Maven repository.
-
-### Publish locally
-
-```sh
-git clone https://github.com/DmitriyZaitsev/trellis.git
-cd trellis
-./gradlew publishToMavenLocal
-```
+Both plugins are published to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dzaitsev.trellis).
 
 ### Apply it
 
-Add the local repository and the settings plugin in `settings.gradle.kts`:
+Add the settings plugin in `settings.gradle.kts`:
 
 ```kotlin
 pluginManagement {
     repositories {
-        mavenLocal()
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -423,7 +413,6 @@ Put your convention plugin in an included build so the whole project shares it f
 pluginManagement {
     includeBuild("build-logic")
     repositories {
-        mavenLocal()
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -441,10 +430,9 @@ rootProject.name = "build-logic"
 plugins { `kotlin-dsl` }
 
 repositories {
-    mavenLocal()
     google()
     mavenCentral()
-    gradlePluginPortal()
+    gradlePluginPortal() // hosts the trellis-project-plugin artifact
 }
 
 dependencies {
@@ -597,7 +585,6 @@ own `project` to stay compatible with Isolated Projects.
 
 ## Limitations
 
-* Not published to a public repository yet; install through `publishToMavenLocal`.
 * Root mode is not compatible with Isolated Projects. Use the local plugin where you need isolation.
 * Product flavors are supported for Android apps and libraries only, not for the KMP Android target.
 

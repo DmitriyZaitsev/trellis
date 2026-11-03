@@ -43,7 +43,7 @@ publishing {
             url.set(providers.gradleProperty("trellis.website"))
             scm {
                 url.set(providers.gradleProperty("trellis.vcsUrl"))
-                connection.set(providers.gradleProperty("trellis.vcsUrl").map { "scm:git:$it.git" })
+                connection.set(providers.gradleProperty("trellis.vcsUrl").map { "scm:git:${it.removeSuffix(".git")}.git" })
             }
             developers {
                 developer {
