@@ -1,3 +1,5 @@
+import org.gradle.plugin.compatibility.compatibility
+
 plugins {
     `kotlin-dsl`
     `maven-publish`
@@ -18,6 +20,15 @@ gradlePlugin {
             displayName = "Trellis"
             description = "Declare Android, Kotlin Multiplatform and JVM modules once in settings; Trellis includes and configures them"
             tags.set(listOf("kotlin", "multiplatform", "android", "modules"))
+
+            // Verified by TrellisProjectPluginFunctionalTest (configuration cache reuse + isolated projects).
+            // Once declared, later versions must keep declaring these features.
+            compatibility {
+                features {
+                    configurationCache = true
+                    isolatedProjects = true
+                }
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+import org.gradle.plugin.compatibility.compatibility
+
 plugins {
     `kotlin-dsl`
     `maven-publish`
@@ -15,6 +17,14 @@ gradlePlugin {
             displayName = "Trellis Conventions"
             description = "Applies and configures Android, Kotlin Multiplatform and JVM plugins for modules declared with Trellis"
             tags.set(listOf("kotlin", "multiplatform", "android", "modules"))
+            // Applied to the root project and configures every module through `allprojects`, which
+            // Isolated Projects forbids; use `com.dzaitsev.trellis.local` for Isolated Projects builds.
+            compatibility {
+                features {
+                    configurationCache = true
+                    isolatedProjects = false
+                }
+            }
         }
 
         create("trellisLocal") {
@@ -23,6 +33,13 @@ gradlePlugin {
             displayName = "Trellis Local Conventions"
             description = "Configures only the current project using settings-provided Trellis conventions"
             tags.set(listOf("kotlin", "multiplatform", "android", "modules"))
+            // Verified by TrellisProjectPluginFunctionalTest (configuration cache reuse + isolated projects).
+            compatibility {
+                features {
+                    configurationCache = true
+                    isolatedProjects = true
+                }
+            }
         }
     }
 }
