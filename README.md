@@ -1,6 +1,4 @@
----
-title: Trellis
-description: Declare every Android, Kotlin Multiplatform and JVM module once in settings.gradle.kts and let a single shared configuration build them all
+# Declare every Android, Kotlin Multiplatform and JVM module once in settings.gradle.kts and let a single shared configuration build them all
 ---
 
 Trellis is a pair of Gradle plugins that turns `settings.gradle.kts` into the single source of truth for your project
@@ -73,25 +71,15 @@ Trellis ships as two Gradle plugins under the group `com.dzaitsev.trellis`:
 
 The settings plugin has no Kotlin or Android dependencies. The project plugin carries the configurators.
 
-> [!NOTE]
-> Trellis is not yet published to the Gradle Plugin Portal or Maven Central. Install it from your local Maven repository.
-
-### Publish locally
-
-```sh
-git clone https://github.com/DmitriyZaitsev/trellis.git
-cd trellis
-./gradlew publishToMavenLocal
-```
+Both plugins are published to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.dzaitsev.trellis).
 
 ### Apply it
 
-Add the local repository and the settings plugin in `settings.gradle.kts`:
+Add the settings plugin in `settings.gradle.kts`:
 
 ```kotlin
 pluginManagement {
     repositories {
-        mavenLocal()
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -99,7 +87,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.dzaitsev.trellis") version "0.1.0"
+    id("com.dzaitsev.trellis") version "1.0.0"
 }
 
 trellis {
@@ -128,7 +116,7 @@ plugins {
     id("com.android.kotlin.multiplatform.library") version "9.3.3" apply false
     id("org.jetbrains.kotlin.plugin.compose") version "2.4.20" apply false
     id("org.jetbrains.compose") version "1.12.1" apply false
-    id("com.dzaitsev.trellis.conventions") version "0.1.0"
+    id("com.dzaitsev.trellis.conventions") version "1.0.0"
 }
 
 trellis {
@@ -377,7 +365,7 @@ plugin. It reads conventions only from settings, so declare them with `projectCo
 [Conventions](#conventions).
 
 Replace `com.dzaitsev.trellis.conventions` in the root build script with
-`id("com.dzaitsev.trellis.local") version "0.1.0" apply false`, keeping the Kotlin and Android plugins with
+`id("com.dzaitsev.trellis.local") version "1.0.0" apply false`, keeping the Kotlin and Android plugins with
 `apply false`. Then apply it in each declared module:
 
 ```kotlin
@@ -423,7 +411,6 @@ Put your convention plugin in an included build so the whole project shares it f
 pluginManagement {
     includeBuild("build-logic")
     repositories {
-        mavenLocal()
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -441,14 +428,13 @@ rootProject.name = "build-logic"
 plugins { `kotlin-dsl` }
 
 repositories {
-    mavenLocal()
     google()
     mavenCentral()
-    gradlePluginPortal()
+    gradlePluginPortal() // hosts the trellis-project-plugin artifact
 }
 
 dependencies {
-    implementation("com.dzaitsev.trellis:trellis-project-plugin:0.1.0")
+    implementation("com.dzaitsev.trellis:trellis-project-plugin:1.0.0")
     implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.8") // used by the example below
 }
 
@@ -597,7 +583,6 @@ own `project` to stay compatible with Isolated Projects.
 
 ## Limitations
 
-* Not published to a public repository yet; install through `publishToMavenLocal`.
 * Root mode is not compatible with Isolated Projects. Use the local plugin where you need isolation.
 * Product flavors are supported for Android apps and libraries only, not for the KMP Android target.
 
