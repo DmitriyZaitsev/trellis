@@ -2,6 +2,19 @@
 
 This Kotlin Multiplatform project showcases the Trellis Gradle plugin's **local conventions mode**, intended for Gradle Isolated Projects, with Android, iOS, web (JS and Wasm), desktop (JVM), and Ktor server applications.
 
+
+## Shared sources
+
+The module `src` directories and the entire `app/iosApp` directory are relative symlinks to
+`sample-project-conventions`, the canonical copy. Edit shared sources there to update all three samples.
+Gradle files, build scripts, Gradle build outputs and Gradle local settings remain local to each sample.
+The iOS project, configuration and Xcode user settings are shared. Xcode may resolve the linked project to its
+canonical location; its Gradle build phase uses `SRCROOT` to locate the sample build.
+
+Clone the whole repository with symlink support. On Windows, enable Developer Mode and use Git's
+`core.symlinks=true` option. For a standalone copy, dereference the links with
+`cp -RL sample-isolated-projects /path/to/new-project` from the repository root.
+
 ## How this sample uses Trellis
 
 Start with these files:
