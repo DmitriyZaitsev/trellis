@@ -1,1 +1,1 @@
-private interface Shared
+internal interface Shared

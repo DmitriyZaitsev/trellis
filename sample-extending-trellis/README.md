@@ -4,6 +4,19 @@ This sample extends [sample-project-conventions](../sample-project-conventions) 
 keeps the same Android, iOS, web, desktop and server applications, and replaces the built-in root conventions plugin
 with a small custom plugin. Trellis still handles module inclusion, plugin application, targets and SDK settings.
 
+
+## Shared sources
+
+The module `src` directories and the entire `app/iosApp` directory are relative symlinks to
+`sample-project-conventions`, the canonical copy. Edit shared sources there to update all three samples.
+Gradle files, build scripts, Gradle build outputs and Gradle local settings remain local to each sample.
+The iOS project, configuration and Xcode user settings are shared. Xcode may resolve the linked project to its
+canonical location; its Gradle build phase uses `SRCROOT` to locate the sample build.
+
+Clone the whole repository with symlink support. On Windows, enable Developer Mode and use Git's
+`core.symlinks=true` option. For a standalone copy, dereference the links with
+`cp -RL sample-extending-trellis /path/to/new-project` from the repository root.
+
 ## Start here
 
 | File | What it demonstrates |
