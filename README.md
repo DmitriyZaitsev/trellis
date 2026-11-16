@@ -663,6 +663,10 @@ builds containing those are not covered by the isolation guarantee.
 
 ## Extending Trellis
 
+For a complete example with custom Detekt configuration, see
+[sample-extending-trellis](./sample-extending-trellis/README.md). It builds on the mobile and multiplatform apps in
+[sample-project-conventions](./sample-project-conventions/README.md).
+
 The built-in behavior is a list of small `Configurator` objects. You can run your own in the same pipeline, so a static
 analyzer, a publishing setup or a dependency policy is defined once and reaches every module, with access to what Trellis
 knows about each one.
