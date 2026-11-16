@@ -1,0 +1,17 @@
+# Merged with Detekt's defaults. Keep sample-specific exceptions explicit.
+config:
+  validation: true
+
+naming:
+  # KMP implementations intentionally share Platform.<target>.kt file names.
+  MatchingDeclarationName:
+    excludes: ['**/Platform.*.kt']
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+
+style:
+  MagicNumber:
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview']
